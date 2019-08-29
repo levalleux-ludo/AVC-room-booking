@@ -6,10 +6,11 @@ connect();
 module.exports = {
     User: require('../users/user.model').model,
     Room: require('../rooms/room.model').model,
-    rooms: require('../rooms/room.model').collection,
-    users: require('../users/user.model').collection,
-    db: mongoose.connection,
-    connect: connect
+    Booking: require('../bookings/booking.model').model,
+    // rooms: require('../rooms/room.model').collection,
+    // users: require('../users/user.model').collection,
+    // db: mongoose.connection,
+    // connect: connect
 };
 
 async function connect() {

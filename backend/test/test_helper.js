@@ -16,7 +16,8 @@ const db = require('../_helpers/db');
 
 module.exports = {
     drop_rooms,
-    drop_users
+    drop_users,
+    drop_bookings
 };
 
 before(async (done) => {
@@ -75,3 +76,9 @@ async function drop_rooms(done) {
     //     });
 }
 
+async function drop_bookings(done) {
+    console.log("Dropping Bookings ...");
+    await db.Booking.remove({});
+    console.log("Bookings dropped");
+    done();
+}

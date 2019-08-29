@@ -40,13 +40,20 @@ describe('Test RoomService', () => {
                 /Room \"(.*)\" is already taken/);
         done();
     });
-    var conference;
     it('getAll()', (done) => {
         roomService.getAll()
             .then((rooms) => {
                 console.log('rooms=', rooms);
-                assert(rooms.length === 1);
-                conference = rooms[0];
+                assert(rooms.length > 0);
+                done();
+            });
+    });
+    var conference;
+    it('getByName()', (done) => {
+        roomService.getByName('Conference Room')
+            .then((room) => {
+                assert(room);
+                conference = room;
                 done();
             });
     });

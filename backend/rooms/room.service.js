@@ -9,7 +9,8 @@ module.exports = {
     update,
     delete: _delete,
     getAll,
-    getById
+    getById,
+    getByName
 };
 
 async function getAll() {
@@ -20,6 +21,9 @@ async function getById(id) {
     return await Room.findById(id);
 }
 
+async function getByName(name) {
+    return await Room.findOne({ name: name });
+}
 async function create(roomParam) {
     // validate
     if (await Room.findOne({ name: roomParam.name })) {
@@ -31,6 +35,7 @@ async function create(roomParam) {
 
     // save room
     await room.save();
+    return room;
 }
 
 async function update(id, roomParam) {
