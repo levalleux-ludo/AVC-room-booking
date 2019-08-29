@@ -1,0 +1,27 @@
+{
+  "name": "avc-room-booking-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "set \"MONGODB_URI=mongodb://localhost/AVC-room-booking-system-test\" && nodemon --exec \"mocha --timeout 5s -R min \"",
+    "start": "node ./server.js",
+    "start-dev": "nodemon ./server.js",
+    "test-debug": "MONGODB_URI='mongodb://localhost/AVC-room-booking-system-test' mocha --inspect-brk"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-jwt": "^5.3.1",
+    "mongoose": "^5.6.11",
+    "rootpath": "^0.1.2"
+  },
+  "devDependencies": {
+    "app-module-path": "^2.2.0",
+    "mocha": "^6.2.0",
+    "nodemon": "^1.19.1"
+  }
+}
