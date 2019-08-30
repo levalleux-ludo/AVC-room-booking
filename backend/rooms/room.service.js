@@ -10,7 +10,8 @@ module.exports = {
     delete: _delete,
     getAll,
     getById,
-    getByName
+    getByName,
+    getName
 };
 
 async function getAll() {
@@ -24,6 +25,14 @@ async function getById(id) {
 async function getByName(name) {
     return await Room.findOne({ name: name });
 }
+
+async function getName(roomId) {
+    // await Room.findById(roomId).then((room) => { console.log("getName " + roomId + " -> " + room.name ); return room.name; } );
+    room = await Room.findById(roomId);
+    console.log("getName " + roomId + " -> " + room.name );
+    return room.name;
+}
+
 async function create(roomParam) {
     // validate
     if (await Room.findOne({ name: roomParam.name })) {
