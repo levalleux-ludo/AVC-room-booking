@@ -14,7 +14,7 @@ module.exports = {
 };
 
 async function connect() {
-    mongoose.connect(process.env.MONGODB_URI || config.connectionString, { useCreateIndex: false, useNewUrlParser: true});
+    mongoose.connect(process.env.MONGODB_URI || config.connectionString, { useCreateIndex: true, useNewUrlParser: true});
     mongoose.Promise = global.Promise;
     
     mongoose.connection

@@ -177,12 +177,8 @@ describe('Test bookingService', () => {
                     console.log(booking);
                     console.log("newEndTime=", newEndTime);
                     assert(booking.ref === booking1().ref);
-                    date1 = Date(booking.startTime);
-                    date2 = Date(booking1().startTime);
-
-                    /// TODO : how to compare Date objects ???
-                    assert(date1 != date2);
-                    assert(Date(booking.endTime) == Date(newEndTime));
+                    assert(booking.startTime.getTime() != (new Date(booking1().startTime)).getTime());
+                    assert(booking.endTime.getTime() == newEndTime.getTime());
                     done();
                 });
             });

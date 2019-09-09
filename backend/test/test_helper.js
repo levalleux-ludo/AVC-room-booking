@@ -27,7 +27,7 @@ before(async (done) => {
 
 async function drop_users(done) {
     console.log("Dropping Users ...");
-    await db.User.remove({});
+    await db.User.deleteMany({});
     console.log("Users dropped");
     done();
     // if (db.users) {
@@ -52,7 +52,7 @@ async function drop_users(done) {
 }
 async function drop_rooms(done) {
     console.log("Dropping Rooms ...");
-    await db.Room.remove({});
+    await db.Room.deleteMany({});
     console.log("Rooms dropped");
     done();
     // if (db.rooms) {
@@ -78,7 +78,7 @@ async function drop_rooms(done) {
 
 async function drop_bookings(done) {
     console.log("Dropping Bookings ...");
-    await db.Booking.remove({});
+    await db.Booking.deleteMany({});
     console.log("Bookings dropped");
     done();
 }

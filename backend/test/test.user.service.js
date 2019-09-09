@@ -62,8 +62,8 @@ describe('Creating user', () => {
         userService.getAll()
             .then((users) => {
                 console.log('users=', users);
-                assert(users.length === 1);
-                lulu = users[0];
+                assert(users.length >= 1); // do not test strict equality to 1 because some other tests can create other users in parallel
+                lulu = users.find ((user) => {return user.username === 'lulu'});
                 done();
             });
     });
