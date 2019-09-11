@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiAuthentication: 'http://localhost:4000'
+  apiAuthentication: 'http://localhost:4000',
+  apiRoomBooking: 'http://localhost:4000'
 };
 
 /*

@@ -1,1 +1,7 @@
-<p>rooms works!</p>
+<ul class="rooms">
+    <li *ngFor="let room of rooms">
+        <a routerLink="/detail/{{room.name}}">
+            <span class="badge">{{room.name}}</span> (capacity: {{room.capacity}})
+        </a>
+    </li>
+</ul>
