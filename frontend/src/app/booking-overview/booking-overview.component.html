@@ -1,0 +1,8 @@
+<ul class="bookings">
+    <li *ngFor="let booking of bookings">
+        <a routerLink="/bookings/booking/{{booking.ref}}">
+            <span class="badge">{{booking.ref}}</span>
+            <div>{{booking.date | date : 'mediumDate'}} [ {{booking.startTime | date : 'shortTime'}} - {{booking.endTime | date : 'shortTime'}} ] (duration: {{booking.duration}} hours)</div>
+        </a>
+    </li>
+</ul>

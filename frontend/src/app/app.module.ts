@@ -11,6 +11,8 @@ import { LoginComponent } from './login/login.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './_helpers';
+import { BookingOverviewComponent } from './booking-overview/booking-overview.component';
+import { BookingDetailComponent } from './booking-detail/booking-detail.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { JwtInterceptor } from './_helpers';
     RoomDetailComponent,
     NavBarComponent,
     HomeComponent,
-    LoginComponent
+    LoginComponent,
+    BookingOverviewComponent,
+    BookingDetailComponent
   ],
   imports: [
     BrowserModule,

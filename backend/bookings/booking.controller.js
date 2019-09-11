@@ -7,7 +7,14 @@ router.post('/create', create);
 router.put('/:id', update);
 // TODO : router.put('/cancel/:id', cancel);
 router.get('/:id', getById);
-router.get('/', getAll);
+router.get('/',  function (req, res, next) {
+    if (req.query.ref) return getByRef(req, res, next);
+    if (req.query.id) {
+        req.params.id = req.query.id;
+        return getById(req, res, next);
+    }
+    return getAll(req, res, next);
+});
 // TODO : router.get('/:company', getAllForCompany);
 router.get('/:room', getAllForRoom);
 router.delete('/:id', _delete);
@@ -34,6 +41,12 @@ function getAllForRoom(req, res, next) {
 
 function getById(req, res, next) {
     bookingService.getById(req.params.id)
+        .then(booking => booking ? res.json(booking) : res.sendStatus(404))
+        .catch(err => next(err));
+}
+
+function getByRef(req, res, next) {
+    bookingService.getByRef(req.query.ref)
         .then(booking => booking ? res.json(booking) : res.sendStatus(404))
         .catch(err => next(err));
 }

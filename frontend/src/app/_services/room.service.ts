@@ -5,17 +5,20 @@ import { catchError, tap, map } from 'rxjs/operators';
 
 import { Room } from '../model';
 import { environment } from 'src/environments/environment';
+import { FetchService } from '../_helpers';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RoomService {
+export class RoomService extends FetchService {
 
   private apiRooms = `${environment.apiRoomBooking}/room`;
 
   constructor(
-    private http: HttpClient
-  ) { }
+    protected http: HttpClient
+  ) {
+    super('RoomService');
+   }
 
   getRooms(): Observable<Room[]> {
     return this.http.get<Room[]>(this.apiRooms)
@@ -35,25 +38,14 @@ export class RoomService {
       );
   }
 
-  private log_error(message: string) {
-    console.error(`HeroService: ${message}`);
-  }
-
-  private log(message: string) {
-    console.log(`HeroService: ${message}`);
-  }
-
-  private handleError<T> (operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      // TODO: send the error to remote logging infrastructure
-      console.error(error);
-
-      // TODO: better job of transforming error for user consumption
-      this.log_error(`${operation} failed: ${error.message}`);
-
-      // Let the app keep running by returning an empty result
-      return of(result as T);
-    }
+  getRoomFromId(roomId):Observable<Room> {
+    const url = `${this.apiRooms}/${roomId}`;
+    this.log(`getRoom url=${url}`);
+    return this.http.get<Room>(url)
+      .pipe(
+        tap(_ => this.log(`fetch room from Id "${roomId}"`)),
+        catchError(this.handleError<Room>(`getRoomFromId(${roomId})`))
+      );
   }
 
 }
