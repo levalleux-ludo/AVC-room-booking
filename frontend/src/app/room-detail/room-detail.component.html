@@ -2,5 +2,23 @@
     <h2>{{room.name | uppercase}} Details</h2>
     <div><span>capacity: </span>{{room.capacity}}</div>
     <div><span>rent rate: </span>£{{room.rentRateHour}}/hour or £{{room.rentRateDay}}/day</div>
+    <div><span>Next bookings:</span></div>
+    <ul class="bookings">
+        <li *ngFor="let booking of nextBookings">
+            <a routerLink="/bookings/booking/{{booking.ref}}">
+                <span class="badge">{{booking.ref}}</span>
+                <div>{{booking.date | date : 'mediumDate'}} [ {{booking.startTime | date : 'shortTime'}} - {{booking.endTime | date : 'shortTime'}} ] (duration: {{booking.duration}} hours)</div>
+            </a>
+        </li>
+    </ul>
+    <div><span>Past bookings:</span></div>
+    <ul class="bookings">
+        <li *ngFor="let booking of pastBookings">
+            <a routerLink="/bookings/booking/{{booking.ref}}">
+                <span class="badge">{{booking.ref}}</span>
+                <div>{{booking.date | date : 'mediumDate'}} [ {{booking.startTime | date : 'shortTime'}} - {{booking.endTime | date : 'shortTime'}} ] (duration: {{booking.duration}} hours)</div>
+            </a>
+        </li>
+    </ul>
 </div>
 <button (click)='goBack()'>go back</button>

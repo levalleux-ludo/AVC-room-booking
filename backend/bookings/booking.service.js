@@ -12,19 +12,33 @@ module.exports = {
     delete: _delete,
     getAll,
     getById,
-    getByRef,
-    getAllForRoom
+    getByRef
+    // getAllForRoom
 };
 
-async function getAll() {
-    return await Booking.find();
+async function getAll(roomId, day, dateFrom, dateTo) {
+    req = {};
+    if (roomId)
+        req.roomId = roomId;
+    if (day) {
+        // get only bookings for the same day
+        req.date = day;
+    }
+    if (dateFrom && dateTo) {
+        req.date = { $gte: dateFrom, $lte: dateTo };
+    } else if (dateFrom) {
+        req.date = { $gte: dateFrom };
+    } else if (dateTo) {
+        req.date = { $lte: dateTo };
+    }
+    console.log(`BookingService::getAll() requ=${req}`);
+    return await Booking.find(req);
 }
 
 async function getById(id) {
-    console.log("getById id=" + id);
+    console.log(`BookingService::getById() id=${id}`);
 
     booking = await Booking.findById(id);
-    console.log(booking);
     return booking;
 }
 
@@ -32,9 +46,22 @@ async function getByRef(ref) {
     return await Booking.findOne({ref: ref});
 }
 
-async function getAllForRoom(roomId) {
-    return await Booking.find({ roomId: roomId });
-}
+// async function getAllForRoom(roomId, day, dateFrom, dateTo) {
+//     req = { roomId: roomId };
+//     if (day) {
+//         // get only bookings for the same day
+//         req.date = day;
+//     }
+//     if (dateFrom && dateTo) {
+//         req.date = { $gte: dateFrom, $lte: dateTo };
+//     } else if (dateFrom) {
+//         req.date = { $gte: dateFrom };
+//     } else if (dateTo) {
+//         req.date = { $lte: dateTo };
+//     }
+//     console.log(req);
+//     return await Booking.find(req);
+// }
 
 async function getAllForRoomSameDay(roomId, day) {
     return await Booking.find({ roomId: roomId, date: day });

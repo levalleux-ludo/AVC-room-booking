@@ -9,6 +9,7 @@ router.put('/:id', update);
 router.get('/:id', getById);
 router.get('/',  function (req, res, next) {
     if (req.query.ref) return getByRef(req, res, next);
+    // if (req.query.roomId) return getAllForRoom(req, res, next);
     if (req.query.id) {
         req.params.id = req.query.id;
         return getById(req, res, next);
@@ -16,7 +17,6 @@ router.get('/',  function (req, res, next) {
     return getAll(req, res, next);
 });
 // TODO : router.get('/:company', getAllForCompany);
-router.get('/:room', getAllForRoom);
 router.delete('/:id', _delete);
 
 module.exports = router;
@@ -28,16 +28,24 @@ function create(req, res, next) {
 }
 
 function getAll(req, res, next) {
-    bookingService.getAll()
+    bookingService.getAll(
+        roomId=req.query.roomId,
+        day=req.query.day,
+        dateFrom=req.query.dateFrom,
+        dateTo=req.query.dateTo)
         .then(bookings => res.json(bookings))
         .catch(err => next(err));
 }
 
-function getAllForRoom(req, res, next) {
-    bookingService.getAllForRoom(req.params.room)
-        .then(bookings => res.json(bookings))
-        .catch(err => next(err));
-}
+// function getAllForRoom(req, res, next) {
+//     bookingService.getAllForRoom(
+//         roomId=req.query.roomId,
+//         day=req.query.day,
+//         dateFrom=req.query.dateFrom,
+//         dateTo=req.query.dateTo)
+//         .then(bookings => res.json(bookings))
+//         .catch(err => next(err));
+// }
 
 function getById(req, res, next) {
     bookingService.getById(req.params.id)

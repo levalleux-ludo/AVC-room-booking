@@ -1,9 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { RestURLBuilder } from 'rest-url-builder';
 
 export class FetchService {
 
     constructor(protected serviceName: string) {
+    }
+
+    protected buildUrl(url): RestURLBuilder {
+        let builder = new RestURLBuilder();
+        return builder.buildRestURL(url);
     }
 
     protected log_error(message: string) {

@@ -20,8 +20,15 @@ export class BookingService extends FetchService {
     super('BookingService');
    }
 
-  getBookings(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(this.apiBookings).pipe(
+  getBookings(opts?: {roomId?: string, day?: Date, dateFrom?: Date, dateTo?: Date}): Observable<Booking[]> {
+    let url = this.buildUrl(`${this.apiBookings}?roomId=:roomId&day=:day&dateFrom=:dateFrom&dateTo=:dateTo`);
+    if (opts && opts.roomId) url.setQueryParameter('roomId', encodeURI(opts.roomId));
+    if (opts && opts.day) url.setQueryParameter('day', encodeURI(opts.day.toDateString()));
+    if (opts && opts.dateFrom) url.setQueryParameter('dateFrom', encodeURI(opts.dateFrom.toDateString()));
+    if (opts && opts.dateTo) url.setQueryParameter('dateTo', encodeURI(opts.dateTo.toDateString()));
+    let finalUrl = url.get();
+    this.log(`getBookings req=${finalUrl}`)
+    return this.http.get<Booking[]>(finalUrl).pipe(
       tap(_ => this.log('fetched bookings')),
       catchError(this.handleError<Booking[]>('getBookings', []))
     );
@@ -36,4 +43,5 @@ export class BookingService extends FetchService {
         catchError(this.handleError<Booking>(`getBooking(${ref})`))
       );
   }
+
 }
