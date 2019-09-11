@@ -7,6 +7,12 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/server.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
             "env": [
                 "MONGODB_URI=mongodb://localhost/AVC-room-booking-system-test"
@@ -19,6 +25,18 @@
             ],    
             "cwd":"${workspaceFolder}",
             "name": "Debug Mocha test",
+            // "address": "localhost",
+            // "port": 9229,
+            "sourceMaps": false
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "args": [
+                "./server.js"
+            ],    
+            "cwd":"${workspaceFolder}",
+            "name": "Debug server dev",
             // "address": "localhost",
             // "port": 9229,
             "sourceMaps": false

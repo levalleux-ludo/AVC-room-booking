@@ -6,7 +6,19 @@ const roomService = require('./room.service');
 router.post('/create', create);
 router.put('/:id', update);
 router.delete('/:id', _delete);
-router.get('/', getAll);
+// router.param('name', function (req, res, next, name) {
+//     console.log(`capture param ${name}`);
+//     req.name = name;
+//     next();
+// });
+router.get('/', function (req, res, next) {
+    if (req.query.name) return getByName(req, res, next);
+    if (req.query.id) {
+        req.params.id = req.query.id;
+        return getById(req, res, next);
+    }
+    return getAll(req, res, next);
+});
 router.get('/:id', getById);
 
 module.exports = router;
@@ -24,7 +36,15 @@ function getAll(req, res, next) {
 }
 
 function getById(req, res, next) {
+    console.log(`getById(${req.params.id})`);
     roomService.getById(req.params.id)
+        .then(room => room ? res.json(room) : res.sendStatus(404))
+        .catch(err => next(err));
+}
+
+function getByName(req, res, next) {
+    console.log(`getByName(${req.query.name})`);
+    roomService.getByName(req.query.name)
         .then(room => room ? res.json(room) : res.sendStatus(404))
         .catch(err => next(err));
 }

@@ -25,6 +25,16 @@ export class RoomService {
       );
   }
 
+  getRoom(roomName): Observable<Room> {
+    const url = `${this.apiRooms}?name=${encodeURI(roomName)}`;
+    this.log(`getRoom url=${url}`);
+    return this.http.get<Room>(url)
+      .pipe(
+        tap(_ => this.log(`fetch room "${roomName}"`)),
+        catchError(this.handleError<Room>(`getRoom(${roomName})`))
+      );
+  }
+
   private log_error(message: string) {
     console.error(`HeroService: ${message}`);
   }

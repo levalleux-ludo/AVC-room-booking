@@ -1,1 +1,6 @@
-<p>room-detail works!</p>
+<div *ngIf="room">
+    <h2>{{room.name | uppercase}} Details</h2>
+    <div><span>capacity: </span>{{room.capacity}}</div>
+    <div><span>rent rate: </span>£{{room.rentRateHour}}/hour or £{{room.rentRateDay}}/day</div>
+</div>
+<button (click)='goBack()'>go back</button>
