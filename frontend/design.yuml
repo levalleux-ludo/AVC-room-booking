@@ -1,0 +1,59 @@
+// {type:class}
+// Modules
+[App.Module]
+[App.Routing.Module]
+// Components
+[App.Component]
+[Welcome.Component]
+[RoomNavigator.Component]
+[RoomPage.Component]
+[RoomDetail.Component]
+[RoomCalendar.Component]
+[BookEvent.Component]
+[EventDetail.Component]
+[BookingOverview.Component]
+// Services
+[Room.Service|<<async>>; +getRooms(); +getRoom(id); +updateRoom(room); +createRoom(room); +deleteRoom(room);| -handleError()]
+[Booking.Service|<<async>>; +getAll(); +getAllForRoom(roomId); +getById(eventId); +updateEvent(event); +createEvent(event);| -handleError()]
+// Data Fetch
+[InMemoryData.Service]
+[ROOMS]
+[Room]
+[Room.Client|GET_/room(); GET_/room/(:id); PUT_/room/:id(room); POST_/room/create (room); DELETE_/room/(:id);]
+[EVENTS]
+[Event]
+[Booking.Client|GET_/booking(); GET_/booking/(:room); GET_/booking/(:id); PUT_/booking/:id(event); POST_/booking/create(room); DELETE_/room/(:id);]
+
+// Views Architecture
+[App.Component]uses-.->[App.Routing.Module]
+[App.Component]links-.->[Welcome.Component]
+[Welcome.Component]links-.->[RoomNavigator.Component]
+[App.Component]links-.->[RoomNavigator.Component]
+[RoomNavigator.Component]+->[RoomPage.Component]
+[RoomPage.Component]+->[RoomDetail.Component]
+[RoomPage.Component]+->[RoomCalendar.Component]
+[RoomPage.Component]+->[BookEvent.Component]
+[BookEvent.Component]+->[EventDetail.Component]
+[App.Component]links-.->[BookingOverview.Component]
+
+// Services Usage
+[RoomDetail.Component]uses-.->[Room.Service]
+[RoomCalendar.Component]uses-.->[Booking.Service]
+[BookingOverview.Component]uses-.->[Booking.Service]
+
+// Routing
+[App.Routing.Module]/welcome-.->[Welcome.Component]
+[App.Routing.Module]/rooms/:id-.->[RoomNavigator.Component]
+[App.Routing.Module]/rooms/room/:id-.->[RoomDetail.Component]
+[App.Routing.Module]/booking/event/:id-.->[EventDetail.Component]
+[App.Routing.Module]/booking/overview-.->[BookingOverview.Component]
+
+// Data Fetch
+[ROOMS]++lists-*[Room]
+[EVENTS]++lists-*[Event]
+[Room.Service]uses-.->[Room.Client]
+[Room.Client]->[InMemoryData.Service]
+[InMemoryData.Service]gets->[ROOMS]
+[Booking.Service]uses-.->[Booking.Client]
+[Booking.Client]->[InMemoryData.Service]
+[InMemoryData.Service]gets->[EVENTS]

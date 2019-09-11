@@ -1,0 +1,8 @@
+<nav class="navbar navbar-expand navbar-dark bg-dark">
+    <h1 *ngIf="currentUser">Hi {{currentUser.firstName}}!</h1>
+    <div class="navbar-nav">
+        <a class="nav-item nav-link" routerLink="/" *ngIf="currentUser">Home</a>
+        <a class="nav-item nav-link" routerLink="/rooms" *ngIf="currentUser">Rooms</a>
+        <a class="nav-item nav-link" routerLink="/logout" *ngIf="currentUser">Logout</a>
+    </div>
+</nav>
