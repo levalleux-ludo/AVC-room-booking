@@ -14,6 +14,7 @@ const routes: Routes = [
   { path: 'rooms', component: RoomsComponent, canActivate: [AuthGuard] },
   { path: 'bookings', component: BookingOverviewComponent, canActivate: [AuthGuard] },
   { path: 'bookings/booking/:ref', component: BookingDetailComponent, canActivate: [AuthGuard] },
+  { path: 'bookings/create', component: BookingDetailComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'logout', component: LoginComponent },
   { path: 'rooms/room/:name', component: RoomDetailComponent },

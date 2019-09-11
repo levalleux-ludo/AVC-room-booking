@@ -1,9 +1,13 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { RestURLBuilder } from 'rest-url-builder';
 
 export class FetchService {
 
+    protected httpOptions = {
+        headers: new HttpHeaders({'Content-Type': 'application/json' })
+      }
+    
     constructor(protected serviceName: string) {
     }
 

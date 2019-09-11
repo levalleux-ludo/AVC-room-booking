@@ -2,7 +2,7 @@
     <h2>{{booking.ref | uppercase}} Details</h2>
     <div class="booking title">{{booking.title}}</div>
     <div class="booking details">{{booking.details}}</div>
-    <div>Room :
+    <div>Room: 
             <a *ngIf="room; else unknown_room" routerLink="/rooms/room/{{room.name}}">
                 <span class="badge">{{room.name}}</span>
             </a>
@@ -10,9 +10,37 @@
                 <span class="error">!!! ERROR: no room found with id {{booking.roomId}} !!!</span>
             </ng-template>
     </div>
+    <div class="form-group">
+        <div>
+            <label for="date">Date: </label>
+            <mat-form-field>
+                <input matInput [matDatepicker]="picker" placeholder="Choose a date" [(ngModel)]="booking.date">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+        </div>
+        <div>
+            <label for="startTime">Starting Time: </label>
+            <app-time-picker *ngIf="editable" [(hour)]="startTimeHour" [(minute)]="startTimeMinute"></app-time-picker>
+            <span *ngIf="!editable">  {{booking.startTime | date : 'shortTime'}}</span>
+        </div>
+        <div>
+            <label for="duration">Duration: </label>
+            <mat-form-field>
+                <mat-select [(value)]="selectedDuration" name="duration">
+                    <mat-option *ngFor="let duration of durations" [value]="duration">
+                    {{duration.view}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
     <div>{{booking.date | date : 'mediumDate'}} [ {{booking.startTime | date : 'shortTime'}} - {{booking.endTime | date : 'shortTime'}} ] (duration: {{booking.duration}} hours)</div>
 </div>
+
 <div class="details_end">
-    <button (click)='goBack()'>go back</button>
+    <button *ngIf="editable" (click)='save()'>save</button>
+    <button *ngIf="!editable" (click)='goBack()'>go back</button>
+    <button *ngIf="editable" (click)='goBack()'>cancel</button>
 </div>
     

@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 export class BookingExtra {
     extra: string;
     rate: number;
@@ -15,4 +17,10 @@ export class Booking {
     endTime: Date;
     roomId: any;
     extras: BookingExtra[];
+}
+
+export function computeEndTime(booking: Booking) {
+    let res = moment.utc(booking.startTime);
+    res = res.add(booking.duration, 'hours');
+    booking.endTime = new Date(res.utc().year(), res.utc().month(), res.utc().date(), res.utc().hours(), res.utc().minutes());
 }

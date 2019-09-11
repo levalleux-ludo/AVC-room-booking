@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../_services/room.service';
 import { Location } from '@angular/common';
 import { Room } from '../model';
@@ -20,6 +20,7 @@ export class RoomDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute, // required to parse th current URL and find the room's name
+    private router: Router, // required to force navigation to another route
     private roomService: RoomService,
     private bookingService: BookingService,
     private location: Location // required to get back in navigation history
@@ -62,6 +63,10 @@ export class RoomDetailComponent implements OnInit {
 
   goBack() {
     this.location.back();
+  }
+
+  bookNow() {
+    this.router.navigate(['/bookings/create'], { queryParams: { roomId: `${this.room.id}` } });
   }
 
 }

@@ -115,10 +115,17 @@ async function checkConflict(bookingParam) {
         && same day
         && it starts before the new ends
         && it ends after the new starts */
-    if (existingBooking = await Booking.findOne({ roomId: bookingParam.roomId, date: bookingParam.date, startTime: { $lt: newEndTime }, endTime: { $gt: newStartTime } })) {
+    var existingBooking = await Booking.findOne({ roomId: bookingParam.roomId, date: bookingParam.date, startTime: { $lt: newEndTime }, endTime: { $gt: newStartTime } },
+        function(err, result) {
+            if (err) { /* handle err */
+                console.error(err);
+            }
+        });
+    if (existingBooking) {
         var roomName = await roomService.getName(bookingParam.roomId);
         throw 'Can\'t book the room \'' + roomName + '\' on \'' + displayBookingPeriod(bookingParam.date,newStartTime,newEndTime) + ':\n Conflict with existing booking "' + existingBooking.ref + '" (' + displayBookingPeriod(existingBooking.date, existingBooking.startTime, existingBooking.endTime) + ')';
     }
+    console.log("No conflict");
 }
 
 function displayBookingPeriod(day, startTime, endTime) {
