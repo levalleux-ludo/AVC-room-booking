@@ -23,6 +23,8 @@ import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { TestFullCalendarComponent } from './test-full-calendar/test-full-calendar.component';
+import { FullCalendarModule } from '@fullcalendar/angular'; // for FullCalendar!
 
 @NgModule({
   declarations: [
@@ -36,7 +38,8 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
     BookingDetailComponent,
     TimePickerComponent,
     InitDBComponent,
-    TestCalendarComponent
+    TestCalendarComponent,
+    TestFullCalendarComponent
   ],
   imports: [
     CommonModule,
@@ -57,7 +60,8 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory
-    })
+    }),
+    FullCalendarModule
   ],
   exports: [
     MatNativeDateModule,
