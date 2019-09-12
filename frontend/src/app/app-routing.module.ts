@@ -8,6 +8,7 @@ import { RoomDetailComponent } from './room-detail/room-detail.component';
 import { BookingOverviewComponent } from './booking-overview/booking-overview.component';
 import { BookingDetailComponent } from './booking-detail/booking-detail.component';
 import { InitDBComponent } from './init-db/init-db.component';
+import { TestCalendarComponent } from './test-calendar/test-calendar.component';
 
 
 const routes: Routes = [
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'logout', component: LoginComponent },
   { path: 'init', component: InitDBComponent },
+  { path: 'calendar', component: TestCalendarComponent },
 ];
 
 @NgModule({

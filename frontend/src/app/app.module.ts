@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,6 +18,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatNativeDateModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule  } from '@angular/material';
 import { TimePickerComponent } from './time-picker/time-picker.component';
 import { InitDBComponent } from './init-db/init-db.component';
+import { TestCalendarComponent } from './test-calendar/test-calendar.component';
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { FlatpickrModule } from 'angularx-flatpickr';
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 @NgModule({
   declarations: [
@@ -29,9 +35,11 @@ import { InitDBComponent } from './init-db/init-db.component';
     BookingOverviewComponent,
     BookingDetailComponent,
     TimePickerComponent,
-    InitDBComponent
+    InitDBComponent,
+    TestCalendarComponent
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     ReactiveFormsModule, // required to use directives like FormGroup
     HttpClientModule, // required for injection in authentication.service
@@ -43,7 +51,13 @@ import { InitDBComponent } from './init-db/init-db.component';
     MatOptionModule,
     MatDatepickerModule,  // required for mat-date-picker in forms
     MatSelectModule,
-    FormsModule
+    FormsModule,
+    NgbModalModule,
+    FlatpickrModule.forRoot(),
+    CalendarModule.forRoot({
+      provide: DateAdapter,
+      useFactory: adapterFactory
+    })
   ],
   exports: [
     MatNativeDateModule,
