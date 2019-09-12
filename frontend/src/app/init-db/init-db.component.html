@@ -1,0 +1,12 @@
+<div>
+    <button *ngIf="!user" (click)="createUser()">Create User</button>
+    <label *ngIf="user">User created : {{user}}</label>
+</div>
+<div *ngIf="user">
+    <button *ngIf="!rooms" (click)="createRooms()">Create Rooms</button>
+    <ul *ngIf="rooms">
+        <li *ngFor="let room of rooms">
+            Room created : {{room.name}}
+        </li>
+    </ul>
+</div>

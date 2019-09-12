@@ -16,6 +16,7 @@ import { BookingDetailComponent } from './booking-detail/booking-detail.componen
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatNativeDateModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule  } from '@angular/material';
 import { TimePickerComponent } from './time-picker/time-picker.component';
+import { InitDBComponent } from './init-db/init-db.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { TimePickerComponent } from './time-picker/time-picker.component';
     LoginComponent,
     BookingOverviewComponent,
     BookingDetailComponent,
-    TimePickerComponent
+    TimePickerComponent,
+    InitDBComponent
   ],
   imports: [
     BrowserModule,
