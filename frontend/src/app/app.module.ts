@@ -25,6 +25,10 @@ import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { TestFullCalendarComponent } from './test-full-calendar/test-full-calendar.component';
 import { FullCalendarModule } from '@fullcalendar/angular'; // for FullCalendar!
+// import { jqxBarGaugeModule }    from 'jqwidgets-ng/jqxbargauge';
+import { jqxSchedulerModule }    from 'jqwidgets-ng/jqxscheduler';
+import { TestJqxSchedulerComponent } from './test-jqx-scheduler/test-jqx-scheduler.component';
+import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar'
 
 @NgModule({
   declarations: [
@@ -39,7 +43,8 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // for FullCalendar!
     TimePickerComponent,
     InitDBComponent,
     TestCalendarComponent,
-    TestFullCalendarComponent
+    TestFullCalendarComponent,
+    TestJqxSchedulerComponent
   ],
   imports: [
     CommonModule,
@@ -61,7 +66,9 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // for FullCalendar!
       provide: DateAdapter,
       useFactory: adapterFactory
     }),
-    FullCalendarModule
+    FullCalendarModule,
+    jqxSchedulerModule,
+    jqxCalendarModule
   ],
   exports: [
     MatNativeDateModule,

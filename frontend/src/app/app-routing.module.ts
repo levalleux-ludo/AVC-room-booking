@@ -10,6 +10,7 @@ import { BookingDetailComponent } from './booking-detail/booking-detail.componen
 import { InitDBComponent } from './init-db/init-db.component';
 import { TestCalendarComponent } from './test-calendar/test-calendar.component';
 import { TestFullCalendarComponent } from './test-full-calendar/test-full-calendar.component';
+import { TestJqxSchedulerComponent } from './test-jqx-scheduler/test-jqx-scheduler.component';
 
 
 const routes: Routes = [
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'init', component: InitDBComponent },
   { path: 'calendar1', component: TestCalendarComponent },
   { path: 'calendar2', component: TestFullCalendarComponent },
+  { path: 'calendar3', component: TestJqxSchedulerComponent },
 ];
 
 @NgModule({
