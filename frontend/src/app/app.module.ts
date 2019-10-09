@@ -35,6 +35,7 @@ import { BarChartComponent } from './bar-chart/bar-chart.component';
 import { FooterComponent } from './footer/footer.component';
 import { NgxScrollTopModule } from 'ngx-scrolltop';
 import { RoomCardComponent } from './room-card/room-card.component';
+import { RoomCalendarComponent } from './room-calendar/room-calendar.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { RoomCardComponent } from './room-card/room-card.component';
     TestJqxSchedulerComponent,
     BarChartComponent,
     FooterComponent,
-    RoomCardComponent
+    RoomCardComponent,
+    RoomCalendarComponent
   ],
   imports: [
     CommonModule,

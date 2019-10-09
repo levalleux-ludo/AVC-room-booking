@@ -1,7 +1,93 @@
 <div *ngIf="room">
-    <h2>{{room.name | uppercase}} Details</h2>
-    <div><span>capacity: </span>{{room.capacity}}</div>
-    <div><span>rent rate: </span>£{{room.rentRateHour}}/hour or £{{room.rentRateDay}}/day</div>
+    <h2>{{room.name | uppercase}}</h2>
+    <div><h3>Capacity: </h3>{{room.capacity}}</div>
+    <div><span>Rates: </span>£{{room.rentRateHour}}/hour or £{{room.rentRateDay}}/day</div>
+    <div class="col col-md-8">
+        <div class="room-info-container">
+            <div class="room-info-headliner show-sm">
+                <h1>{{room.name | uppercase}}</h1>
+            </div>
+            <ngb-carousel>
+                <ng-template ngbSlide *ngFor="let img of images">
+                    <img src="{{img}}" alt="{{img}}">
+                </ng-template>
+            </ngb-carousel>
+            <div class="room-info-item-container">
+                <div class="room-info-item-container-headline">
+                    <i class="fa fa-home" aria-hidden="true"></i>
+                    <h3>Description</h3>
+                </div>
+                <div class="room-info-item-content" id="landlord-description-box">
+                        Jeg udlejer et værelse i min lejlighed pr. 1/11 og seks måneder frem.<br>Værelset er 8 kvm, så med lidt god indretningssans er der plads til både seng, skab og skrivebord.<br>Køkkenet rummer alverdens udstyr og en opvaskemaskine. Herudover er der en spiseplads. Badeværelset har et badekar, som er super lækkert i de kolde tider. Der er fri adgang til gratis vaskefaciliteter på et tørloft.<br>Hele herligheden står i 4000 kr i måneden inkl. Alt dvs. Vand, varme, internet, indboforsikring, el og godt roomieskab. Om du er kvinde eller mand, høj eller lav, tyk eller tynd er underordnet, så længe du har boet ude før, er i stand til at rydde op efter dig selv og sætte lejlighedens robotstøvsuger igang, når det trænges.<br><br>Lejligheden er placeret på Åboulevarden hvilket giver dig udsigt, fra værelsets store vinduesparti, til crosscafe, Aarhus å og byliv.<br><br>Smid mig en besked, hvis jeg har fanget din interesse!<br><br>Vh Emma ??
+                </div>
+            </div>
+            <div class="room-info-item-container">
+                <div class="room-info-item-container-headline">
+                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    <h3>Specifications</h3>
+                </div>
+                <div class="room-info-item-content">
+                    <div class="percent-row">
+                        <div class="col col-md-5">
+                            <div class="roommate-criteria-container no-border-item">
+                                <div class="roommate-criteria-item">
+                                    <div class="roommate-criteria-item-title">Rate:</div>
+                                    <div class="roommate-criteria-item-value">£9/hour (or £45/day)</div>
+                                </div>
+                                <div class="roommate-criteria-item">
+                                    <div class="roommate-criteria-item-title">Capacity:</div>
+                                    <div class="roommate-criteria-item-value">20</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="room-info-item-container" style="padding-bottom: 0;">
+                <div class="room-info-item-container-headline">
+                    <i class="fa fa-coffee" aria-hidden="true"></i>
+                    <h3>Extra Features</h3>
+                </div>
+                <div class="room-info-item-content">
+                    <div class="percent-row">
+                        <div class="col col-md-5">
+                            <div class="facility-item">
+                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                                <span>Smoking</span>
+                            </div>
+                            <div class="facility-item">
+                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                                <span>Pets allowed</span>
+                            </div>
+                            <div class="facility-item">
+                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                                <span>Washing machine</span>
+                            </div>
+                            <div class="facility-item">
+                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                                <span>Dishwasher</span>
+                            </div>
+                            <div class="facility-item">
+                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                                <span>Cable tv</span>
+                            </div>
+                            <div class="facility-item">
+                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                                <span>Internet</span>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+            <div class="room-info-item-container" style="padding-bottom: 0;">
+                <div class="room-info-item-container-headline">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                    <h3>Availabilities</h3>
+                </div>
+                <app-room-calendar [room]="room"></app-room-calendar>
+            </div>
+        </div>
+    </div>
     <div><span>Next bookings:</span></div>
     <ul class="bookings">
         <li *ngFor="let booking of nextBookings">
@@ -21,6 +107,5 @@
         </li>
     </ul>
 </div>
-<app-room-card [room]="room"></app-room-card>
 <button (click)='bookNow()'>book now</button>
 <button (click)='goBack()'>go back</button>

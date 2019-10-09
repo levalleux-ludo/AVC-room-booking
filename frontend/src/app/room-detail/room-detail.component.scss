@@ -1,0 +1,98 @@
+
+div {
+    display: block !important;
+}
+
+.fa {
+    display:inline-block;
+    font-family:FontAwesome;
+    font-size:18px;
+    font-stretch:100%;
+    font-style:normal;
+    font-variant-caps:normal;
+    font-variant-east-asian:normal;
+    font-variant-ligatures:normal;
+    font-variant-numeric:normal;
+    font-weight:400;
+    height:18px;
+    line-height:18px;
+    margin-right:15px;
+    text-rendering:auto;
+    -webkit-font-smoothing:antialiased;
+    width: 18px;
+}
+
+.room-info-container {
+    color:rgb(0, 0, 0);
+    display:block !important;
+    font-family:Lato, "Helvetica Neue", Helvetica, Helvetica, Arial, sans-serif;
+    font-size:16px;
+    padding-top:32px;
+    text-rendering:geometricprecision;
+    -webkit-font-smoothing:subpixel-antialiased;
+}
+
+.room-info-headliner {
+    border-bottom-color:rgb(211, 211, 211);
+    border-bottom-style:solid;
+    border-bottom-width:1px;
+    display:none;
+    font-size:22px;
+    height:auto;
+    padding-bottom:32px;
+}
+
+.room-info-item-container {
+    // border-bottom-color:rgb(211, 211, 211);
+    // border-bottom-style:solid;
+    // border-bottom-width:1px;
+    padding-bottom:32px;
+    padding-left:0px;
+    padding-right:0px;
+    padding-top:32px;
+}
+
+.room-info-item-container-headline {
+}
+
+h3 {
+    display: inline-block;
+}
+
+.room-info-item-content {
+    display: inline-block;
+}
+
+.roommate-criteria-container {
+    display:block;
+    height:42px;
+    -webkit-font-smoothing:subpixel-antialiased;
+}
+
+.roommate-criteria-item {
+    border-bottom-color:rgb(211, 211, 211);
+    border-bottom-style:solid;
+    border-bottom-width:2px;
+    overflow-x:hidden;
+    overflow-y:hidden;
+    padding-bottom:10px;
+    padding-left:0px;
+    padding-right:0px;
+    padding-top:10px;
+    width: 350px;
+}
+
+.roommate-criteria-item-title {
+    float:left;
+}
+
+.roommate-criteria-item-value {
+    color:rgb(128, 128, 128);
+    float:right;
+    margin-top:0px;
+}
+
+.facility-item {
+    display: block;
+    width: 200px;
+}

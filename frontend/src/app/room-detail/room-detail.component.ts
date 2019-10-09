@@ -15,6 +15,8 @@ export class RoomDetailComponent implements OnInit {
 
   room: Room;
 
+  images: string[];
+
   pastBookings: Booking[];
   nextBookings: Booking[];
 
@@ -37,6 +39,7 @@ export class RoomDetailComponent implements OnInit {
       room => {
         this.room = room;
         this.getBookings(this.room.id);
+        this.images = [this.roomService.getRoomImage(room.name)];
       });
   }
 
