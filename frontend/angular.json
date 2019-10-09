@@ -28,9 +28,13 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/paper-kit-2/assets/sass/paper-kit.scss",
+              "node_modules/chartist/dist/chartist.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/chartist/dist/chartist.min.js"
+            ]
           },
           "configurations": {
             "production": {

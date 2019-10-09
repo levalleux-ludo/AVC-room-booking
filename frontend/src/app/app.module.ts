@@ -28,7 +28,10 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // for FullCalendar!
 // import { jqxBarGaugeModule }    from 'jqwidgets-ng/jqxbargauge';
 import { jqxSchedulerModule }    from 'jqwidgets-ng/jqxscheduler';
 import { TestJqxSchedulerComponent } from './test-jqx-scheduler/test-jqx-scheduler.component';
-import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar'
+import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar';
+import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+import { ChartistModule } from 'ng-chartist';
+import { BarChartComponent } from './bar-chart/bar-chart.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +47,8 @@ import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar'
     InitDBComponent,
     TestCalendarComponent,
     TestFullCalendarComponent,
-    TestJqxSchedulerComponent
+    TestJqxSchedulerComponent,
+    BarChartComponent
   ],
   imports: [
     CommonModule,
@@ -68,7 +72,9 @@ import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar'
     }),
     FullCalendarModule,
     jqxSchedulerModule,
-    jqxCalendarModule
+    jqxCalendarModule,
+    NgbCarouselModule,
+    ChartistModule
   ],
   exports: [
     MatNativeDateModule,

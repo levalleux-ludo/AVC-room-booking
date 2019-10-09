@@ -7,6 +7,19 @@ import { Room } from '../model';
 import { environment } from 'src/environments/environment';
 import { FetchService } from '../_helpers';
 
+const imageDir = "assets/img";
+const roomImages = {
+  "Conference Room": "ConferenceRoom.jpg",
+  "Room One": "Room2.jpg",
+  "Room Two": "Room2.jpg",
+  "Conference": "ConferenceRoom.jpg",
+  "Basement": "Room3.jpg",
+  "White": "Room4.jpg",
+  "Thurston": "Room5.jpg",
+  "Middle": "Room6.jpg"
+};
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -46,6 +59,10 @@ export class RoomService extends FetchService {
         tap(_ => this.log(`fetch room from Id "${roomId}"`)),
         catchError(this.handleError<Room>(`getRoomFromId(${roomId})`))
       );
+  }
+
+  getRoomImage(roomName): string {
+    return imageDir + '/' + roomImages[roomName];
   }
 
 }

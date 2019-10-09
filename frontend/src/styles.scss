@@ -11,3 +11,8 @@
 @import '~@fullcalendar/daygrid/main.css';
 
 @import '~jqwidgets-scripts/jqwidgets/styles/jqx.base.css';
+
+// override
+.page-header {
+    min-height: 30vh !important; // overriden
+}

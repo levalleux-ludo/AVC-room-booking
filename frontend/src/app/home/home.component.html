@@ -1,3 +1,93 @@
-<p>home works!</p>
-<h1>Hi {{currentUser.firstName}}!</h1>
-<p>You're logged in to AVC Room Booking Service Backend</p>
+<div class="page-header" data-parallax="true" >
+    <div class="container">
+        <div class="motto text-center">
+            <h1>Room Booking Service</h1>
+            <h3>We provide great meeting places and training facilities at great rates for great prices!.</h3>
+            <br />
+            <button type="button" class="btn btn-outline-neutral btn-round">Book Now !</button>
+        </div>
+    </div>
+</div>
+<div class="main">
+    <div class="section text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mr-auto ml-auto">
+                <h2 class="title">Let's talk about our rooms</h2>
+                <h5 class="description">We offer 5 different rooms, all located in our building ...</h5>
+                <br>
+                <a href="#paper-kit" class="btn btn-danger btn-round">See Rooms</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 mr-auto ml-auto">
+                <div class="card page-carousel">
+                    <ngb-carousel>
+                        <ng-template ngbSlide *ngFor="let room of rooms">
+                            <img src="{{room.img}}" alt="{{room.name}}">
+                            <div class="carousel-caption">
+                                <p>{{room.name}}</p>
+                            </div>
+                        </ng-template>
+                    </ngb-carousel>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 mr-auto ml-auto">
+                <h2 class="title">Booking Indicators</h2>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card card-chart">
+                            <div class="card-header card-header-success">
+                                <app-bar-chart></app-bar-chart>
+                            </div>
+                            <div class="card-body">
+                                <h4 class="card-title">Monthly Bookings</h4>
+                                <p class="card-category">
+                                    <span class="text-success"><i class="fa fa-long-arrow-up"></i> 55% </span> increase in bookings.</p>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <i class="material-icons">access_time</i> updated 4 minutes ago
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-chart">
+                            <div class="card-header card-header-warning">
+                                <app-bar-chart></app-bar-chart>
+                            </div>
+                            <div class="card-body">
+                                <h4 class="card-title">Email Subscriptions</h4>
+                                <p class="card-category">Last Campaign Performance</p>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <i class="material-icons">access_time</i> campaign sent 2 days ago
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-chart">
+                            <div class="card-header card-header-danger">
+                                <app-bar-chart></app-bar-chart>
+                            </div>
+                            <div class="card-body">
+                                <h4 class="card-title">Completed Tasks</h4>
+                                <p class="card-category">Last Campaign Performance</p>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <i class="material-icons">access_time</i> campaign sent 2 days ago
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
