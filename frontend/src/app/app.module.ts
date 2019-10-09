@@ -32,6 +32,9 @@ import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { ChartistModule } from 'ng-chartist';
 import { BarChartComponent } from './bar-chart/bar-chart.component';
+import { FooterComponent } from './footer/footer.component';
+import { NgxScrollTopModule } from 'ngx-scrolltop';
+import { RoomCardComponent } from './room-card/room-card.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +51,9 @@ import { BarChartComponent } from './bar-chart/bar-chart.component';
     TestCalendarComponent,
     TestFullCalendarComponent,
     TestJqxSchedulerComponent,
-    BarChartComponent
+    BarChartComponent,
+    FooterComponent,
+    RoomCardComponent
   ],
   imports: [
     CommonModule,
@@ -74,7 +79,8 @@ import { BarChartComponent } from './bar-chart/bar-chart.component';
     jqxSchedulerModule,
     jqxCalendarModule,
     NgbCarouselModule,
-    ChartistModule
+    ChartistModule,
+    NgxScrollTopModule
   ],
   exports: [
     MatNativeDateModule,

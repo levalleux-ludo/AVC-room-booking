@@ -39,6 +39,7 @@
     "material-kit": "^2.0.4",
     "moment": "^2.24.0",
     "ng-chartist": "^4.1.0",
+    "ngx-scrolltop": "^0.5.3",
     "paper-kit-2": "^2.1.0",
     "rest-url-builder": "^1.0.6",
     "rxjs": "~6.4.0",

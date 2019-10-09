@@ -1,7 +1,10 @@
 <ul class="rooms">
     <li *ngFor="let room of rooms">
-        <a routerLink="/rooms/room/{{room.name}}">
-            <span class="badge">{{room.name}}</span> (capacity: {{room.capacity}})
-        </a>
+        <div class="row">
+            <!-- <a routerLink="/rooms/room/{{room.name}}">
+                <span class="badge">{{room.name}}</span> (capacity: {{room.capacity}})
+            </a> -->
+            <app-room-card [room]="room"></app-room-card>
+        </div>
     </li>
 </ul>
