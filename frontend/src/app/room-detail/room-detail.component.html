@@ -98,7 +98,7 @@
         <li *ngFor="let booking of nextBookings">
             <a routerLink="/bookings/booking/{{booking.ref}}">
                 <span class="badge">{{booking.ref}}</span>
-                <div>{{booking.date | date : 'mediumDate'}} [ {{booking.startTime | date : 'shortTime'}} - {{booking.endTime | date : 'shortTime'}} ] (duration: {{booking.duration}} hours)</div>
+                <div>{{booking.startDate | date : 'mediumDate'}} [ {{booking.startDate | date : 'shortTime'}} - {{booking.endDate | date : 'shortTime'}} ] (duration: {{duration(booking)}} hours)</div>
             </a>
         </li>
     </ul>
@@ -107,7 +107,7 @@
         <li *ngFor="let booking of pastBookings">
             <a routerLink="/bookings/booking/{{booking.ref}}">
                 <span class="badge">{{booking.ref}}</span>
-                <div>{{booking.date | date : 'mediumDate'}} [ {{booking.startTime | date : 'shortTime'}} - {{booking.endTime | date : 'shortTime'}} ] (duration: {{booking.duration}} hours)</div>
+                <div>{{booking.startDate | date : 'mediumDate'}} [ {{booking.startDate | date : 'shortTime'}} - {{booking.endDate | date : 'shortTime'}} ] (duration: {{duration(booking)}} hours)</div>
             </a>
         </li>
     </ul>

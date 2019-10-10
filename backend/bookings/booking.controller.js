@@ -7,7 +7,7 @@ router.post('/create', create);
 router.put('/:id', update);
 // TODO : router.put('/cancel/:id', cancel);
 router.get('/:id', getById);
-router.get('/',  function (req, res, next) {
+router.get('/', function(req, res, next) {
     if (req.query.ref) return getByRef(req, res, next);
     // if (req.query.roomId) return getAllForRoom(req, res, next);
     if (req.query.id) {
@@ -29,10 +29,15 @@ function create(req, res, next) {
 
 function getAll(req, res, next) {
     bookingService.getAll(
-        roomId=req.query.roomId,
-        day=req.query.day,
-        dateFrom=req.query.dateFrom,
-        dateTo=req.query.dateTo)
+            roomId = req.query.roomId,
+            day = req.query.day,
+            startBefore = req.query.startBefore,
+            startAfter = req.query.startAfter,
+            endBefore = req.query.endBefore,
+            endAfter = req.query.endAfter
+            // dateFrom=req.query.dateFrom,
+            // dateTo=req.query.dateTo
+        )
         .then(bookings => res.json(bookings))
         .catch(err => next(err));
 }

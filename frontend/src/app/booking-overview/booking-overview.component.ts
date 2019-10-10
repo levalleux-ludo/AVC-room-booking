@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingService } from '../_services/booking.service';
-import { Booking } from '../model/booking';
+import { Booking, duration } from '../model/booking';
 
 @Component({
   selector: 'app-booking-overview',
@@ -24,5 +24,10 @@ export class BookingOverviewComponent implements OnInit {
       bookings => this.bookings = bookings
     );
   }
+
+  duration (booking: Booking) {
+    duration(booking);
+  }
+
 
 }

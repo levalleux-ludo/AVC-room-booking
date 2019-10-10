@@ -16,22 +16,51 @@ module.exports = {
     // getAllForRoom
 };
 
-async function getAll(roomId, day, dateFrom, dateTo) {
+async function getAll(roomId, day, startBefore, startAfter, endBefore, endAfter) {
     req = {};
     if (roomId)
         req.roomId = roomId;
     if (day) {
         // get only bookings for the same day
-        req.date = day;
+        req.startDate = day;
+    } else {
+        // if (dateFrom && dateTo) {
+        //     req.date = { $gte: dateFrom, $lte: dateTo };
+        // } else if (dateFrom) {
+        //     req.date = { $gte: dateFrom };
+        // } else if (dateTo) {
+        //     req.date = { $lte: dateTo };
+        // }
+        // req.startDate = {};
+        // if (startBefore) {
+        //     req.startDate.$lte = startBefore;
+        // }
+        // if (startAfter) {
+        //     req.startDate.$gte = startAfter;
+        // }
+        // req.endDate = {};
+        // if (endBefore) {
+        //     req.endDate.$lte = endBefore;
+        // }
+        // if (endAfter) {
+        //     req.endDate.$gte = endAfter;
+        // }
+        if (startBefore && startAfter) {
+            req.startDate = { $gte: startAfter, $lte: startBefore };
+        } else if (startBefore) {
+            req.startDate = { $lte: startBefore };
+        } else if (startAfter) {
+            req.startDate = { $gte: startAfter };
+        }
+        if (endBefore && endAfter) {
+            req.endDate = { $gte: endAfter, $lte: endBefore };
+        } else if (endBefore) {
+            req.endDate = { $lte: endBefore };
+        } else if (endAfter) {
+            req.endDate = { $gte: endAfter };
+        }
     }
-    if (dateFrom && dateTo) {
-        req.date = { $gte: dateFrom, $lte: dateTo };
-    } else if (dateFrom) {
-        req.date = { $gte: dateFrom };
-    } else if (dateTo) {
-        req.date = { $lte: dateTo };
-    }
-    console.log(`BookingService::getAll() requ=${req}`);
+    console.log(`BookingService::getAll() req=${req}`);
     return await Booking.find(req);
 }
 
@@ -43,7 +72,7 @@ async function getById(id) {
 }
 
 async function getByRef(ref) {
-    return await Booking.findOne({ref: ref});
+    return await Booking.findOne({ ref: ref });
 }
 
 // async function getAllForRoom(roomId, day, dateFrom, dateTo) {
@@ -64,7 +93,7 @@ async function getByRef(ref) {
 // }
 
 async function getAllForRoomSameDay(roomId, day) {
-    return await Booking.find({ roomId: roomId, date: day });
+    return await Booking.find({ roomId: roomId, startDate: day });
 }
 
 async function create(bookingParam) {
@@ -85,16 +114,12 @@ async function update(id, bookingParam) {
 
     // validate
     if (!booking) throw 'Booking event not found';
-  
+
     // copy userParam properties to user
     Object.assign(booking, bookingParam);
 
-    // endTime is calculated at creation, needs to be updated explicitly
-    booking.endTime = date_helper.computeEndingTime(booking.startTime, booking.duration);
-
-    booking.markModified('startTime');
-    booking.markModified('endTime');
-    booking.markModified('date');
+    booking.markModified('startDate');
+    booking.markModified('endDate');
 
     return await booking.save();
     // (err, booking) => {
@@ -108,14 +133,13 @@ async function _delete(id) {
 }
 
 async function checkConflict(bookingParam) {
-    var newStartTime = bookingParam.startTime;
-    var newEndTime = date_helper.computeEndingTime(bookingParam.startTime, bookingParam.duration);
+    var newStartDate = bookingParam.startDate;
+    var newEndDate = bookingParam.endDate;
     /* an existing booking is in conflict if and only if :
         same room
-        && same day
         && it starts before the new ends
         && it ends after the new starts */
-    var existingBooking = await Booking.findOne({ roomId: bookingParam.roomId, date: bookingParam.date, startTime: { $lt: newEndTime }, endTime: { $gt: newStartTime } },
+    var existingBooking = await Booking.findOne({ roomId: bookingParam.roomId, startDate: { $lt: newEndDate }, endDate: { $gt: newStartDate } },
         function(err, result) {
             if (err) { /* handle err */
                 console.error(err);
@@ -123,11 +147,11 @@ async function checkConflict(bookingParam) {
         });
     if (existingBooking) {
         var roomName = await roomService.getName(bookingParam.roomId);
-        throw 'Can\'t book the room \'' + roomName + '\' on \'' + displayBookingPeriod(bookingParam.date,newStartTime,newEndTime) + ':\n Conflict with existing booking "' + existingBooking.ref + '" (' + displayBookingPeriod(existingBooking.date, existingBooking.startTime, existingBooking.endTime) + ')';
+        throw 'Can\'t book the room \'' + roomName + '\' on \'' + displayBookingPeriod(newStartDate, newEndDate) + ':\n Conflict with existing booking "' + existingBooking.ref + '" (' + displayBookingPeriod(existingBooking.startDate, existingBooking.endDate) + ')';
     }
     console.log("No conflict");
 }
 
-function displayBookingPeriod(day, startTime, endTime) {
-    return date_helper.formatDay(day) + '\' from \'' + date_helper.formatHM(startTime) + '\' to \'' + date_helper.formatHM(endTime) + '\'';
+function displayBookingPeriod(startDate, endDate) {
+    return date_helper.formatDay(startDate) + '\' from \'' + date_helper.formatHM(startDate) + '\' to \'' + date_helper.formatHM(endDate) + '\'';
 }

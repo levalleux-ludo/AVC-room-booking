@@ -11,16 +11,20 @@ export class Booking {
     title: string;
     details: string;
     organization: string;
-    date: Date;
-    startTime: Date;
-    duration: number;
-    endTime: Date;
+    startDate: Date;
+    endDate: Date;
     roomId: any;
     extras: BookingExtra[];
 }
 
-export function computeEndTime(booking: Booking) {
-    let res = moment.utc(booking.startTime);
-    res = res.add(booking.duration, 'hours');
-    booking.endTime = new Date(res.utc().year(), res.utc().month(), res.utc().date(), res.utc().hours(), res.utc().minutes());
+export function duration(booking: Booking) {
+    let start = moment(booking.startDate);
+    let end = moment(booking.endDate);
+    var duration = moment.duration(end.diff(start));
+    return duration.asHours();    
+}
+export function computeEndDate(booking: Booking, durationHours: number) {
+    let res = moment.utc(booking.startDate);
+    res = res.add(durationHours, 'hours');
+    booking.endDate = new Date(res.utc().year(), res.utc().month(), res.utc().date(), res.utc().hours(), res.utc().minutes());
 }

@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../_services/room.service';
 import { Location } from '@angular/common';
 import { Room } from '../model';
-import { Booking } from '../model/booking';
+import { Booking, duration } from '../model/booking';
 import { BookingService } from '../_services/booking.service';
 
 @Component({
@@ -51,13 +51,13 @@ export class RoomDetailComponent implements OnInit {
       now.getDate()-1);
     this.bookingService.getBookings({
       roomId: roomId,
-      dateTo: yesterday
+      endBefore: now
     }).subscribe(
       bookings => this.pastBookings = bookings
     );
     this.bookingService.getBookings({
       roomId: roomId,
-      dateFrom: now
+      endAfter: now
     }).subscribe(
       bookings => this.nextBookings = bookings
     );
@@ -70,6 +70,10 @@ export class RoomDetailComponent implements OnInit {
 
   bookNow() {
     this.router.navigate(['/bookings/create'], { queryParams: { roomId: `${this.room.id}` } });
+  }
+
+  duration (booking: Booking) {
+    duration(booking);
   }
 
 }

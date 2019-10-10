@@ -10,10 +10,18 @@ function computeEndingTime(startTime, durationHours) {
     return new Date(res.utc());
 }
 
+function duration(startDate, endDate) {
+    let start = moment(startDate);
+    let end = moment(endDate);
+    var duration = moment.duration(end.diff(start));
+    return duration.asHours();
+}
+
 function formatHM(date) {
     let res = moment.utc(date);
     return res.format("h:mma z");
 }
+
 function formatDay(date) {
     let res = moment.utc(date);
     return res.format("ddd D MMM YYYY");
@@ -21,6 +29,7 @@ function formatDay(date) {
 
 module.exports = {
     computeEndingTime,
+    duration,
     formatHM,
     formatDay
 };

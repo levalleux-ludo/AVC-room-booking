@@ -20,12 +20,14 @@ export class BookingService extends FetchService {
     super('BookingService');
    }
 
-  getBookings(opts?: {roomId?: string, day?: Date, dateFrom?: Date, dateTo?: Date}): Observable<Booking[]> {
-    let url = this.buildUrl(`${this.apiBookings}?roomId=:roomId&day=:day&dateFrom=:dateFrom&dateTo=:dateTo`);
+  getBookings(opts?: {roomId?: string, day?: Date, startBefore?: Date, startAfter?: Date, endBefore?: Date, endAfter?: Date}): Observable<Booking[]> {
+    let url = this.buildUrl(`${this.apiBookings}?roomId=:roomId&day=:day&startBefore=:startBefore&startAfter=:startAfter&endBefore=:endBefore&endAfter=:endAfter`);
     if (opts && opts.roomId) url.setQueryParameter('roomId', encodeURI(opts.roomId));
     if (opts && opts.day) url.setQueryParameter('day', encodeURI(opts.day.toDateString()));
-    if (opts && opts.dateFrom) url.setQueryParameter('dateFrom', encodeURI(opts.dateFrom.toDateString()));
-    if (opts && opts.dateTo) url.setQueryParameter('dateTo', encodeURI(opts.dateTo.toDateString()));
+    if (opts && opts.startBefore) url.setQueryParameter('startBefore', encodeURI(opts.startBefore.toUTCString()));
+    if (opts && opts.startAfter) url.setQueryParameter('startAfter', encodeURI(opts.startAfter.toDateString()));
+    if (opts && opts.endBefore) url.setQueryParameter('endBefore', encodeURI(opts.endBefore.toUTCString()));
+    if (opts && opts.endAfter) url.setQueryParameter('endAfter', encodeURI(opts.endAfter.toDateString()));
     let finalUrl = url.get();
     this.log(`getBookings req=${finalUrl}`)
     return this.http.get<Booking[]>(finalUrl).pipe(
@@ -61,10 +63,8 @@ export class BookingService extends FetchService {
       title: '',
       details: '',
       organization: '',
-      date: new Date(),
-      startTime: new Date(),
-      duration: 0,
-      endTime: new Date(),
+      startDate: new Date(),
+      endDate: new Date(),
       roomId: 0,
       extras: []
     };

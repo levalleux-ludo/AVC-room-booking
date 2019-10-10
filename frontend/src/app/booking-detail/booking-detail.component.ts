@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingService } from '../_services/booking.service';
-import { Booking, computeEndTime } from '../model/booking';
+import { Booking, computeEndDate, duration } from '../model/booking';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { Room } from '../model';
@@ -47,8 +47,8 @@ export class BookingDetailComponent implements OnInit {
   _selectedDuration = this.durations[0];
   set selectedDuration(value) {
     this._selectedDuration = value;
-    this.booking.duration = this._selectedDuration.hour + (this._selectedDuration.minute / 60);
-    computeEndTime(this.booking);
+    let duration = this._selectedDuration.hour + (this._selectedDuration.minute / 60);
+    computeEndDate(this.booking, duration);
   }
   get selectedDuration() {
     return this._selectedDuration;
@@ -80,7 +80,7 @@ export class BookingDetailComponent implements OnInit {
       booking => {
         this.booking = booking;
         this.getRoom(this.booking.roomId);
-        this.selectedDuration = this.findDuration(booking.duration);
+        this.selectedDuration = this.findDuration(duration(booking));
         // TODO set _selectedDuration
         // TODO set _startTimeHours
 
@@ -120,42 +120,46 @@ export class BookingDetailComponent implements OnInit {
 
   get startTimeHour(): number {
     if (this.booking) {
-      if (this.booking.startTime as Date)
-        return this.booking.startTime.getHours();
+      if (this.booking.startDate as Date)
+        return this.booking.startDate.getHours();
       else
-        return new Date(this.booking.startTime).getHours();
+        return new Date(this.booking.startDate).getHours();
     }
     return 0;
   }
   set startTimeHour(value: number) {
     if (this.booking) {
-      this.booking.startTime = new Date(
-        this.booking.startTime.getFullYear(),
-        this.booking.startTime.getMonth(),
-        this.booking.startTime.getDate(),
+      this.booking.startDate = new Date(
+        this.booking.startDate.getFullYear(),
+        this.booking.startDate.getMonth(),
+        this.booking.startDate.getDate(),
         value,
-        this.booking.startTime.getMinutes()
+        this.booking.startDate.getMinutes()
       );
     }
   }
   get startTimeMinute(): number {
     if (this.booking) {
-      if (this.booking.startTime as Date)
-        return this.booking.startTime.getMinutes();
+      if (this.booking.startDate as Date)
+        return this.booking.startDate.getMinutes();
       else
-        return new Date(this.booking.startTime).getMinutes();
+        return new Date(this.booking.startDate).getMinutes();
     }
     return 0;
   }
   set startTimeMinute(value: number) {
     if (this.booking) {
-      this.booking.startTime = new Date(
-        this.booking.startTime.getFullYear(),
-        this.booking.startTime.getMonth(),
-        this.booking.startTime.getDate(),
-        this.booking.startTime.getHours(),
+      this.booking.startDate = new Date(
+        this.booking.startDate.getFullYear(),
+        this.booking.startDate.getMonth(),
+        this.booking.startDate.getDate(),
+        this.booking.startDate.getHours(),
         value
       );
     }
+  }
+
+  duration (booking: Booking) {
+    duration(booking);
   }
 }

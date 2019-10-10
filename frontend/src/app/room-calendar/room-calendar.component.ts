@@ -39,7 +39,7 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
       ]; 
     }
     getBookings() {
-        this.bookingService.getBookings({ roomId: this.room.id, dateFrom: new Date() }).subscribe(
+        this.bookingService.getBookings({ roomId: this.room.id, endAfter: new Date() }).subscribe(
             bookings => {
                 this.myScheduler.beginAppointmentsUpdate();
                 bookings.forEach(booking => {
@@ -70,8 +70,8 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         description: '',
         resourceId: roomName,
         room: roomName,
-        start: booking.startTime, // convert to local time
-        end: booking.endTime, // convert to local time
+        start: booking.startDate, // convert to local time
+        end: booking.endDate, // convert to local time
         organization: booking.organization,
         resizable: !this.readOnly,
         draggable: !this.readOnly,

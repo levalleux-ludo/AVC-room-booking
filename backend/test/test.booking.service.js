@@ -26,38 +26,34 @@ function addToTime(startTime, offsetHours) {
 booking1 = () => {
     return {
         ref: "RH1234",
-        date: '1978-06-11',
-        startTime: '1978-06-11T08:00:00.000Z',
-        duration: 3.5,
+        startDate: '1978-06-11T08:00:00.000Z',
+        endDate: '1978-06-11T11:30:00.000Z',
         roomId: roomOne._id,
     };
 };
 booking2 = () => {
     return {
         ref: booking1().ref,
-        date: '1978-06-11',
-        startTime: '1978-06-11T08:00:00.000Z',
-        duration: 3.5,
+        startDate: '1978-06-11T08:00:00.000Z',
+        endDate: '1978-06-11T11:30:00.000Z',
         roomId: roomTwo._id,
     }
 };
 booking3 = () => {
     return {
         ref: "RH3456",
-        date: booking1().date,
         // start just after booking1,
-        startTime: endOfBooking1,
-        duration: 1.5,
+        startDate: booking1().endDate,
+        endDate: addToTime(booking1().endDate, 1.5),
         roomId: booking1().roomId,
     }
 };
 booking4 = () => {
     return {
         ref: "RH4567",
-        date: booking1().date,
         // start during booking1 and end after
-        startTime: date_helper.computeEndingTime(booking1().startTime, booking1().duration/2),
-        duration: booking1().duration,
+        startDate: addToTime(booking1().startDate, 1),
+        endDate: addToTime(booking1().endDate, 1),
         roomId: booking1().roomId,
     }
 };
@@ -66,8 +62,8 @@ booking5 = () => {
         ref: "RH5678",
         date: booking1().date,
         // start 1h before booking1 but overlap booking1
-        startTime: date_helper.computeEndingTime(booking1().startTime, -1),
-        duration: 1.5,
+        startDate: addToTime(booking1().startDate, -1),
+        endDate: addToTime(booking1().startDate, 1.5),
         roomId: booking1().roomId,
     }
 };
@@ -76,8 +72,8 @@ booking6 = () => {
         ref: "RH6789",
         date: booking3().date,
         // start during booking3 and end before
-        startTime: date_helper.computeEndingTime(booking3().startTime, booking3().duration/2),
-        duration: booking3().duration/4,
+        startDate: addToTime(booking3().startDate, date_helper.duration(booking3().startDate, booking3().endDate) / 2),
+        endDate: addToTime(booking3().startDate, date_helper.duration(booking3().startDate, booking3().endDate) * 3 / 4),
         roomId: booking3().roomId,
     }
 };
@@ -88,27 +84,25 @@ before((done) => {
 
 async function createRoomIfNotExist(roomName, next) {
     await roomService.getByName(roomName)
-    .then(async (room) => {
-        if (room) {
-            console.log('Room ' + roomName + ' already exists');
-            next(room);
-        } else {
-            console.log('Create Room ' + roomName + ' in DB');
-            await roomService.create(
-                {
+        .then(async(room) => {
+            if (room) {
+                console.log('Room ' + roomName + ' already exists');
+                next(room);
+            } else {
+                console.log('Create Room ' + roomName + ' in DB');
+                await roomService.create({
                     name: roomName,
                     capacity: 0,
                     rentRateHour: 0,
                     rentRateDay: 0,
-                }
-            ).then(room => {
-                next(room);
-            })
-        }
-    }).catch(async (err) => {
-        console.error(err);
-        throw (err);
-    });
+                }).then(room => {
+                    next(room);
+                })
+            }
+        }).catch(async(err) => {
+            console.error(err);
+            throw (err);
+        });
 }
 
 describe('Test bookingService', () => {
@@ -131,11 +125,10 @@ describe('Test bookingService', () => {
             roomTwo = room;
             console.log('Room Two : ', roomTwo);
             assert.rejects(
-                () => { return bookingService.create(booking2()); },
-                {
-                    name: 'MongoError',
-                    message: /duplicate key error/
-                })
+                    () => { return bookingService.create(booking2()); }, {
+                        name: 'MongoError',
+                        message: /duplicate key error/
+                    })
                 .then(() => done(), done);
         });
     });
@@ -148,41 +141,42 @@ describe('Test bookingService', () => {
     });
     it('creates a booking in conflict with another one', (done) => {
         assert.rejects(
-            () => { return bookingService.create(booking4()); },
-            /Conflict with existing booking/)
+                () => { return bookingService.create(booking4()); },
+                /Conflict with existing booking/)
             .then(() => done(), done);
     });
     it('creates a booking in conflict with another one', (done) => {
         assert.rejects(
-            () => { return bookingService.create(booking5()); },
-            /Conflict with existing booking/)
+                () => { return bookingService.create(booking5()); },
+                /Conflict with existing booking/)
             .then(() => done(), done);
     });
     it('creates a booking in conflict with another one', (done) => {
         assert.rejects(
-            () => { return bookingService.create(booking6()); },
-            /Conflict with existing booking/)
+                () => { return bookingService.create(booking6()); },
+                /Conflict with existing booking/)
             .then(() => done(), done);
     });
     it('update a booking : move booking1 to another date', (done) => {
-        var newEndTime = date_helper.computeEndingTime(addToTime(booking1().startTime, 24), booking1().duration);
+        var oldDay = (new Date(booking1().startDate)).getDate();
+        var oldDuration = date_helper.duration(booking1().startDate, booking1().endDate);
         bookingService.update(idBooking1, {
-            date: addToTime(booking1().date, 24),
-            startTime: addToTime(booking1().startTime, 24)
+            startDate: addToTime(booking1().startDate, 24),
+            endDate: addToTime(booking1().endDate, 24)
         }).then(() => {
             bookingService.getById(idBooking1)
-            // bookingService.getByRef(booking1().ref)
+                // bookingService.getByRef(booking1().ref)
                 .then((booking) => {
                     console.log('Booking1 after update =');
                     console.log(booking);
-                    console.log("newEndTime=", newEndTime);
                     assert(booking.ref === booking1().ref);
-                    assert(booking.startTime.getTime() != (new Date(booking1().startTime)).getTime());
-                    assert(booking.endTime.getTime() == newEndTime.getTime());
+                    assert(booking.startDate.getTime() != (new Date(booking1().startDate)).getTime());
+                    var newDuration = date_helper.duration(booking.startDate, booking.endDate);
+                    assert(oldDuration === newDuration);
+                    var newDay = (new Date(booking.startDate)).getDate();
+                    assert(newDay === oldDay + 1);
                     done();
                 });
-            });
+        });
     });
-
 });
-

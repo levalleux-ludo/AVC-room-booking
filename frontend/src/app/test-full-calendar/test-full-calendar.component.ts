@@ -33,8 +33,8 @@ export class TestFullCalendarComponent implements OnInit {
     return {
       id: booking.ref,
       title: booking.title,
-      start: booking.startTime, // convert to local time
-      end: booking.endTime, // convert to local time
+      start: booking.startDate, // convert to local time
+      end: booking.endDate, // convert to local time
     }
   }
 }
