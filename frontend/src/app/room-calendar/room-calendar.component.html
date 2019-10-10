@@ -1,4 +1,3 @@
-<jqxScheduler #schedulerReference
-    [date]="date" [width]="800" [height]="600" [source]="dataAdapter" [showLegend]="true" [view]="'weekView'"
-    [appointmentDataFields]="appointmentDataFields" [resources]="resources" [views]="views">
+<jqxScheduler #schedulerReference [date]="minDate" [width]="500" [source]="dataAdapter" [showLegend]="true" [view]="'weekView'" [appointmentDataFields]="appointmentDataFields" [resources]="resources" [views]="views" [min]="minDate" [rowsHeight]="4" [theme]="'metro'"
+    [disabled]="disabled" [contextMenu]="!readOnly" [editDialog]="!readOnly" [appointmentOpacity]=1.0>
 </jqxScheduler>`

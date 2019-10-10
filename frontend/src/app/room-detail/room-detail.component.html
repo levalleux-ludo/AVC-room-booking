@@ -1,6 +1,7 @@
 <div *ngIf="room">
     <h2>{{room.name | uppercase}}</h2>
-    <div><h3>Capacity: </h3>{{room.capacity}}</div>
+    <div>
+        <h3>Capacity: </h3>{{room.capacity}}</div>
     <div><span>Rates: </span>£{{room.rentRateHour}}/hour or £{{room.rentRateDay}}/day</div>
     <div class="col col-md-8">
         <div class="room-info-container">
@@ -18,7 +19,11 @@
                     <h3>Description</h3>
                 </div>
                 <div class="room-info-item-content" id="landlord-description-box">
-                        Jeg udlejer et værelse i min lejlighed pr. 1/11 og seks måneder frem.<br>Værelset er 8 kvm, så med lidt god indretningssans er der plads til både seng, skab og skrivebord.<br>Køkkenet rummer alverdens udstyr og en opvaskemaskine. Herudover er der en spiseplads. Badeværelset har et badekar, som er super lækkert i de kolde tider. Der er fri adgang til gratis vaskefaciliteter på et tørloft.<br>Hele herligheden står i 4000 kr i måneden inkl. Alt dvs. Vand, varme, internet, indboforsikring, el og godt roomieskab. Om du er kvinde eller mand, høj eller lav, tyk eller tynd er underordnet, så længe du har boet ude før, er i stand til at rydde op efter dig selv og sætte lejlighedens robotstøvsuger igang, når det trænges.<br><br>Lejligheden er placeret på Åboulevarden hvilket giver dig udsigt, fra værelsets store vinduesparti, til crosscafe, Aarhus å og byliv.<br><br>Smid mig en besked, hvis jeg har fanget din interesse!<br><br>Vh Emma ??
+                    Jeg udlejer et værelse i min lejlighed pr. 1/11 og seks måneder frem.<br>Værelset er 8 kvm, så med lidt god indretningssans er der plads til både seng, skab og skrivebord.<br>Køkkenet rummer alverdens udstyr og en opvaskemaskine. Herudover
+                    er der en spiseplads. Badeværelset har et badekar, som er super lækkert i de kolde tider. Der er fri adgang til gratis vaskefaciliteter på et tørloft.<br>Hele herligheden står i 4000 kr i måneden inkl. Alt dvs. Vand, varme, internet,
+                    indboforsikring, el og godt roomieskab. Om du er kvinde eller mand, høj eller lav, tyk eller tynd er underordnet, så længe du har boet ude før, er i stand til at rydde op efter dig selv og sætte lejlighedens robotstøvsuger igang, når
+                    det trænges.<br><br>Lejligheden er placeret på Åboulevarden hvilket giver dig udsigt, fra værelsets store vinduesparti, til crosscafe, Aarhus å og byliv.<br><br>Smid mig en besked, hvis jeg har fanget din interesse!<br><br>Vh Emma
+                    ??
                 </div>
             </div>
             <div class="room-info-item-container">
@@ -75,7 +80,7 @@
                                 <i class="fa fa-question-circle-o" aria-hidden="true"></i>
                                 <span>Internet</span>
                             </div>
-                        </div> 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,7 +89,7 @@
                     <i class="fa fa-calendar" aria-hidden="true"></i>
                     <h3>Availabilities</h3>
                 </div>
-                <app-room-calendar [room]="room"></app-room-calendar>
+                <app-room-calendar [room]="room" [scaleStartHour]="8" [scaleEndHour]="19" [readOnly]="true"></app-room-calendar>
             </div>
         </div>
     </div>
