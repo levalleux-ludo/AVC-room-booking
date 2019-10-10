@@ -36,6 +36,7 @@ import { FooterComponent } from './footer/footer.component';
 import { NgxScrollTopModule } from 'ngx-scrolltop';
 import { RoomCardComponent } from './room-card/room-card.component';
 import { RoomCalendarComponent } from './room-calendar/room-calendar.component';
+import { BookingFormComponent } from './booking-form/booking-form.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { RoomCalendarComponent } from './room-calendar/room-calendar.component';
     BarChartComponent,
     FooterComponent,
     RoomCardComponent,
-    RoomCalendarComponent
+    RoomCalendarComponent,
+    BookingFormComponent
   ],
   imports: [
     CommonModule,

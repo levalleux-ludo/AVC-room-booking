@@ -37,7 +37,7 @@
     </div>
     <div>{{booking.date | date : 'mediumDate'}} [ {{booking.startTime | date : 'shortTime'}} - {{booking.endTime | date : 'shortTime'}} ] (duration: {{booking.duration}} hours)</div>
 </div>
-
+<app-booking-form></app-booking-form>
 <div class="details_end">
     <button *ngIf="editable" (click)='save()'>save</button>
     <button *ngIf="!editable" (click)='goBack()'>go back</button>
