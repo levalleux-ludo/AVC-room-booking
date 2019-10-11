@@ -1,98 +1,91 @@
 <div *ngIf="room">
-    <h2>{{room.name | uppercase}}</h2>
-    <div>
-        <h3>Capacity: </h3>{{room.capacity}}</div>
-    <div><span>Rates: </span>£{{room.rentRateHour}}/hour or £{{room.rentRateDay}}/day</div>
-    <div class="col col-md-8">
-        <div class="room-info-container">
-            <div class="room-info-headliner show-sm">
-                <h1>{{room.name | uppercase}}</h1>
-            </div>
-            <ngb-carousel>
-                <ng-template ngbSlide *ngFor="let img of images">
-                    <img src="{{img}}" alt="{{img}}">
-                </ng-template>
-            </ngb-carousel>
-            <div class="room-info-item-container">
-                <div class="room-info-item-container-headline">
-                    <i class="fa fa-home" aria-hidden="true"></i>
-                    <h3>Description</h3>
-                </div>
-                <div class="room-info-item-content" id="landlord-description-box">
-                    Jeg udlejer et værelse i min lejlighed pr. 1/11 og seks måneder frem.<br>Værelset er 8 kvm, så med lidt god indretningssans er der plads til både seng, skab og skrivebord.<br>Køkkenet rummer alverdens udstyr og en opvaskemaskine. Herudover
-                    er der en spiseplads. Badeværelset har et badekar, som er super lækkert i de kolde tider. Der er fri adgang til gratis vaskefaciliteter på et tørloft.<br>Hele herligheden står i 4000 kr i måneden inkl. Alt dvs. Vand, varme, internet,
-                    indboforsikring, el og godt roomieskab. Om du er kvinde eller mand, høj eller lav, tyk eller tynd er underordnet, så længe du har boet ude før, er i stand til at rydde op efter dig selv og sætte lejlighedens robotstøvsuger igang, når
-                    det trænges.<br><br>Lejligheden er placeret på Åboulevarden hvilket giver dig udsigt, fra værelsets store vinduesparti, til crosscafe, Aarhus å og byliv.<br><br>Smid mig en besked, hvis jeg har fanget din interesse!<br><br>Vh Emma
-                    ??
-                </div>
-            </div>
-            <div class="room-info-item-container">
-                <div class="room-info-item-container-headline">
-                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                    <h3>Specifications</h3>
-                </div>
-                <div class="room-info-item-content">
-                    <div class="percent-row">
-                        <div class="col col-md-5">
-                            <div class="roommate-criteria-container no-border-item">
-                                <div class="roommate-criteria-item">
-                                    <div class="roommate-criteria-item-title">Rate:</div>
-                                    <div class="roommate-criteria-item-value">£9/hour (or £45/day)</div>
-                                </div>
-                                <div class="roommate-criteria-item">
-                                    <div class="roommate-criteria-item-title">Capacity:</div>
-                                    <div class="roommate-criteria-item-value">20</div>
-                                </div>
-                            </div>
+    <div fxLayout="column" fxLayoutWrap fxLayoutAlign="center center">
+        <div fxFlex>
+            <h1 style="text-align: center;">{{room.name}}</h1>
+        </div>
+        <div fxFlex style="width: 80%;">
+            <mat-carousel timings="250ms ease-in" [autoplay]="true" interval="5000" color="accent" maxWidth="auto" proportion="25" slides="5" [loop]="true" [hideArrows]="false" [hideIndicators]="false" [useKeyboard]="true" [useMouseWheel]="false">
+                <mat-carousel-slide #matCarouselSlide *ngFor="let img of images" [image]="img" overlayColor="#00000040" [hideOverlay]="false"></mat-carousel-slide>
+            </mat-carousel>
+        </div>
+        <div fxFlex fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+            <div fxFlex>
+                <mat-card>
+                    <mat-card-header>
+                        <h3><i class="fa fa-home" aria-hidden="true"></i>Description</h3>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <p>
+                            Jeg udlejer et værelse i min lejlighed pr. 1/11 og seks måneder frem.<br>Værelset er 8 kvm, så med lidt god indretningssans er der plads til både seng, skab og skrivebord.<br>Køkkenet rummer alverdens udstyr og en opvaskemaskine.
+                            Herudover er der en spiseplads. Badeværelset har et badekar, som er super lækkert i de kolde tider. Der er fri adgang til gratis vaskefaciliteter på et tørloft.<br>Hele herligheden står i 4000 kr i måneden inkl. Alt dvs. Vand,
+                            varme, internet, indboforsikring, el og godt roomieskab. Om du er kvinde eller mand, høj eller lav, tyk eller tynd er underordnet, så længe du har boet ude før, er i stand til at rydde op efter dig selv og sætte lejlighedens
+                            robotstøvsuger igang, når det trænges.<br><br>Lejligheden er placeret på Åboulevarden hvilket giver dig udsigt, fra værelsets store vinduesparti, til crosscafe, Aarhus å og byliv.<br><br>Smid mig en besked, hvis jeg har fanget
+                            din interesse!<br><br>Vh Emma ??
+                        </p>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card>
+                    <mat-card-header>
+                        <h3><i class="fa fa-info-circle" aria-hidden="true"></i>Specifications</h3>
+                    </mat-card-header>
+                    <mat-card-content style="width: 15em;">
+                        <mat-grid-list cols="2" rowHeight="50px" style="padding: 2em;" gutterSize="10">
+                            <mat-grid-tile [colspan]="1" [rowspan]="1">
+                                <div>Rate:</div>
+                            </mat-grid-tile>
+                            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
+                                <div>£9/hour<br> (or £45/day)</div>
+                            </mat-grid-tile>
+                        </mat-grid-list>
+                        <mat-grid-list cols="2" rowHeight="50px" style="padding: 2em;" gutterSize="10">
+                            <mat-grid-tile [colspan]="1" [rowspan]="1">
+                                <div>Capacity:</div>
+                            </mat-grid-tile>
+                            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
+                                <div>20</div>
+                            </mat-grid-tile>
+                        </mat-grid-list>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card>
+                    <mat-card-header>
+                        <h3><i class="fa fa-coffee" aria-hidden="true"></i>Extra Features</h3>
+                    </mat-card-header>
+                    <mat-card-content style="padding: 2em;">
+                        <div fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="flex-start">
+                            <div>Smoking</div>
+                            <div>Pets allowed</div>
+                            <div>Washing machine</div>
+                            <div>Dishwasher</div>
+                            <div>Cable tv</div>
+                            <div>Internet</div>
                         </div>
-                    </div>
-                </div>
+                    </mat-card-content>
+                </mat-card>
             </div>
-            <div class="room-info-item-container" style="padding-bottom: 0;">
-                <div class="room-info-item-container-headline">
-                    <i class="fa fa-coffee" aria-hidden="true"></i>
-                    <h3>Extra Features</h3>
-                </div>
-                <div class="room-info-item-content">
-                    <div class="percent-row">
-                        <div class="col col-md-5">
-                            <div class="facility-item">
-                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
-                                <span>Smoking</span>
-                            </div>
-                            <div class="facility-item">
-                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
-                                <span>Pets allowed</span>
-                            </div>
-                            <div class="facility-item">
-                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
-                                <span>Washing machine</span>
-                            </div>
-                            <div class="facility-item">
-                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
-                                <span>Dishwasher</span>
-                            </div>
-                            <div class="facility-item">
-                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
-                                <span>Cable tv</span>
-                            </div>
-                            <div class="facility-item">
-                                <i class="fa fa-question-circle-o" aria-hidden="true"></i>
-                                <span>Internet</span>
-                            </div>
+            <div fxFlex fxLayout="column" fxLayoutAlign="top">
+                <mat-card>
+                    <mat-card-header>
+                        <h3><i class="fa fa-calendar" aria-hidden="true"></i> Availabilities</h3>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <app-room-calendar [room]="room" [scaleStartHour]="8" [scaleEndHour]="19" [readOnly]="true"></app-room-calendar>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card>
+                    <mat-card-content>
+                        <div style="width: 10em;">
+                            <button fxFlex mat-flat-button color="primary" (click)='bookNow()' style="height: 3em; width: 10em;">
+                        <i class="fa fa-calendar-check-o"></i> Book Now
+                </button>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="room-info-item-container" style="padding-bottom: 0;">
-                <div class="room-info-item-container-headline">
-                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                    <h3>Availabilities</h3>
-                </div>
-                <app-room-calendar [room]="room" [scaleStartHour]="8" [scaleEndHour]="19" [readOnly]="true"></app-room-calendar>
+                    </mat-card-content>
+                </mat-card>
+
             </div>
         </div>
     </div>
+
     <div><span>Next bookings:</span></div>
     <ul class="bookings">
         <li *ngFor="let booking of nextBookings">

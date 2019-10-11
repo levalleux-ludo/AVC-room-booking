@@ -15,7 +15,18 @@ import { JwtInterceptor } from './_helpers';
 import { BookingOverviewComponent } from './booking-overview/booking-overview.component';
 import { BookingDetailComponent } from './booking-detail/booking-detail.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatNativeDateModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule  } from '@angular/material';
+import { 
+  MatNativeDateModule, 
+  MatDatepickerModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatSelectModule,
+  MatOptionModule,
+  MatGridListModule,
+  MatCardModule,
+  MatButtonModule
+  } from '@angular/material';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './time-picker/time-picker.component';
 import { InitDBComponent } from './init-db/init-db.component';
 import { TestCalendarComponent } from './test-calendar/test-calendar.component';
@@ -37,6 +48,7 @@ import { NgxScrollTopModule } from 'ngx-scrolltop';
 import { RoomCardComponent } from './room-card/room-card.component';
 import { RoomCalendarComponent } from './room-calendar/room-calendar.component';
 import { BookingFormComponent } from './booking-form/booking-form.component';
+import { MatCarouselModule } from '@ngmodule/material-carousel';
 
 @NgModule({
   declarations: [
@@ -84,7 +96,12 @@ import { BookingFormComponent } from './booking-form/booking-form.component';
     jqxCalendarModule,
     NgbCarouselModule,
     ChartistModule,
-    NgxScrollTopModule
+    NgxScrollTopModule,
+    MatGridListModule,
+    MatCardModule,
+    MatCarouselModule,
+    FlexLayoutModule,
+    MatButtonModule
   ],
   exports: [
     MatNativeDateModule,
