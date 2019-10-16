@@ -1,6 +1,6 @@
 <mat-form-field>
     <mat-select [(value)]="selectedHour" name="hour" [compareWith]="compareTimes">
-        <mat-option *ngFor="let hour of selectTimes" [value]="hour">
+        <mat-option *ngFor="let hour of selectTimes" [value]="hour" [disabled]="hour.disabled">
             {{hour.view}}
         </mat-option>
     </mat-select>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../_services/room.service';
 import { Location } from '@angular/common';
@@ -7,6 +7,7 @@ import { Booking, duration } from '../model/booking';
 import { BookingService } from '../_services/booking.service';
 import { MatDialog, MatDialogConfig } from '@angular/material';
 import { BookingDialogComponent } from '../booking-dialog/booking-dialog.component';
+import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
 
 @Component({
   selector: 'app-room-detail',
@@ -14,6 +15,8 @@ import { BookingDialogComponent } from '../booking-dialog/booking-dialog.compone
   styleUrls: ['./room-detail.component.scss']
 })
 export class RoomDetailComponent implements OnInit {
+
+  @ViewChild('calendar', {static: false}) calendar: RoomCalendarComponent;
 
   room: Room;
 
@@ -103,9 +106,32 @@ this.roomService.getRooms().subscribe(
     const dialogRef = this.dialog.open(BookingDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(
       data => {
-        console.log("Dialog output:", data)
+        console.log("Dialog output:", data);
+        let booking = this.bookingService.getEmptyBooking();
+        booking.title = data.title;
+        booking.details = '';
+        booking.organization = data.organization;
+        booking.roomId = data.room.id;
+        booking.startDate = data.startDate;
+        booking.endDate = data.endDate;
+        this.bookingService.createBooking(booking).subscribe(
+          (newBooking) => {
+            console.log("booking has been created:", newBooking);
+            if (booking.roomId === this.room.id) {
+              this.getBookings(this.room.id);
+              this.calendar.getBookings();
+            } else {
+              this.roomService.getRoomFromId(booking.roomId).subscribe(
+                room => {
+                  this.router.navigate(['room', room.name], {relativeTo: this.route, skipLocationChange: true});
+                }
+              )
+            }
+            
+          }
+        )
       }
-    )
+    );
 
     
   }

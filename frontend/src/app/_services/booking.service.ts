@@ -31,7 +31,11 @@ export class BookingService extends FetchService {
     let finalUrl = url.get();
     this.log(`getBookings req=${finalUrl}`)
     return this.http.get<Booking[]>(finalUrl).pipe(
-      tap(_ => this.log('fetched bookings')),
+      tap(bookings => {
+        this.log('fetched bookings:' + bookings);
+        bookings.forEach(booking => {booking.startDate = new Date(booking.startDate); booking.endDate = new Date(booking.endDate);})
+        return bookings;
+      }),
       catchError(this.handleError<Booking[]>('getBookings', []))
     );
   }

@@ -6,7 +6,8 @@ import { max } from 'moment';
 
 export interface TimeInSelect {
   value: number;
-  view: string
+  view: string;
+  disabled: boolean;
 }
 
 @Component({
@@ -16,32 +17,6 @@ export interface TimeInSelect {
 })
 export class TimePickerComponent implements OnInit {
 
-  // hours: TimeInSelect[] = [
-  //   {value:8, view:'8:00 AM'},
-  //   {value:8.5, view:'8:30 AM'},
-  //   {value:9, view:'9:00 AM'},
-  //   {value:9.5, view:'9:30 AM'},
-  //   {value:10, view:'10:00 AM'},
-  //   {value:10.5, view:'10:30 AM'},
-  //   {value:11, view:'11:00 AM'},
-  //   {value:11.5, view:'11:30 AM'},
-  //   {value:12, view:'12:00 PM'},
-  //   {value:12.5, view:'12:30 PM'},
-  //   {value:13, view:'1:00 PM'},
-  //   {value:13.5, view:'1:30 PM'},
-  //   {value:14, view:'2:00 PM'},
-  //   {value:14.5, view:'2:30 PM'},
-  //   {value:15, view:'3:00 PM'},
-  //   {value:15.5, view:'3:30 PM'},
-  //   {value:16, view:'4:00 PM'},
-  //   {value:16.5, view:'4:30 PM'},
-  //   {value:17, view:'5:00 PM'},
-  //   {value:17.5, view:'5:30 PM'},
-  //   {value:18, view:'6:00 PM'},
-  //   {value:18.5, view:'6:30 PM'},
-  //   {value:19, view:'7:00 PM'},
-  //   {value:19.5, view:'7:30 PM'},
-  // ];
   _selectedHour: TimeInSelect;
   get selectedHour(): TimeInSelect {
     return this._selectedHour;
@@ -110,47 +85,43 @@ export class TimePickerComponent implements OnInit {
     this.computeSelectTimes();
   }
 
+  _unavailableHours: number[];
+  @Input()
+  get unavailableHours(): number[] {
+    return this._unavailableHours;
+  }
+  set unavailableHours(value: number[]) {
+    console.log("TimePickerComponent::set unavailableHours()", value);
+    this._unavailableHours = value;
+    this.computeSelectTimes();
+  }
+
   computeSelectTimes() {
     let oldSelected = this.selectedHour;
     this.selectTimes = [];
     for (let time = this.minTime; time < this.maxTime; time = time + this.increment) {
       let date = new Date();
       date.setHours(Math.floor(time), 60*(time - Math.floor(time)), 0, 0);
+      let disabled = (this._unavailableHours && this._unavailableHours.includes(time));
       this.selectTimes.push({
         value: time,
-        view: date.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
+        view: date.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}),
+        disabled: disabled
       })
     }
-    if (oldSelected && this.selectTimes.map(time => time.value).includes(oldSelected.value)) {
+    if (oldSelected && this.selectTimes.find(time => (!time.disabled && time.value === oldSelected.value))) {
       this.selectedHour = oldSelected;
     } else {
-      this.selectedHour = this.selectTimes[0];
+      this.selectedHour = this.selectTimes.find(time => (!time.disabled));
     }
-    // if (!this.selectedHour || (!this.selectTimes.map(time => time.value).includes(this.selectedHour.value))) {
-    //   this.selectedHour = this.selectTimes[0];
-    // }
-    // this.selectTimes = this.hours.filter((time, index, array) => {return (time.value >= this.minTime) && (time.value <= this.maxTime);})
   }
   selectTimes: TimeInSelect[] = [];
 
-  // @Input()
-  // get minute(): number {
-  //   return this.selectedMinute.value;
-  // }
-  // @Output() minuteChange = new EventEmitter();
-  // set minute(value: number) {
-  //   // if (value < 30) value = 0;
-  //   // else value = 30;
-  //   this.selectedMinute = this.minutes.find(minute => minute.value === value);
-  //   if (this.selectedMinute)
-  //     this.minuteChange.emit(this.selectedMinute.value);
-  // }
-
   constructor() {
-    this.computeSelectTimes();
   }
 
   ngOnInit() {
+    this.computeSelectTimes();
   }
 
   compareTimes(time1: TimeInSelect, time2: TimeInSelect) {

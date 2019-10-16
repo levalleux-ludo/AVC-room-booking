@@ -58,17 +58,30 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         }
     }
     getBookings() {
-        this.bookingService.getBookings({ roomId: this.room.id, endAfter: new Date() }).subscribe(
+        let nextHour = new Date();
+        nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
+        console.log("RoomCalendarComponent::getBookings() compute next half hour : ", nextHour);
+        this.bookingService.getBookings({ roomId: this.room.id, endAfter: nextHour }).subscribe(
             bookings => {
                 this.myScheduler.beginAppointmentsUpdate();
+                this.myScheduler.getAppointments().forEach(
+                    appointment => {this.myScheduler.deleteAppointment(appointment.id as string);}
+                );
                 bookings.forEach(booking => {
-                    let appointment = this.booking2event(booking, this.room.name);
-                    this.myScheduler.addAppointment(appointment);
+                    let a = new Date(booking.startDate).valueOf();
+                    let b= nextHour.valueOf();
+                    if (new Date(booking.startDate).valueOf() < nextHour.valueOf()) {
+                        console.log("RoomCalendarComponent::getBookings() trunk booking startDate ", nextHour);
+                        booking.startDate = nextHour;
+                    }
+                    if (new Date(booking.startDate).valueOf() < new Date(booking.endDate).valueOf()) {
+                        let appointment = this.booking2event(booking, this.room.name);
+                        this.myScheduler.addAppointment(appointment);
+                    }
                 });
 
                 // ADD a fake appointment for the past 7 days (useful in week view)
-                let hourNow = (new Date()).getHours();
-                for (let hour = this.scaleStartHour; hour <= hourNow; hour++) {
+                for (let hour = this.scaleStartHour; hour < nextHour.getHours(); hour++) {
                     this.myScheduler.addAppointment(this.getFakeEvent(0, hour));
                 }
                 for (let pastDay = 1; pastDay < 8; pastDay++) {
@@ -89,12 +102,13 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
             title: booking.title,
             organization: booking.organization,
             roomId: booking.roomId,
-            tag: '',
+            tag: 'unavailable',
             description: booking.details
         };
         return {
         id: booking.ref,
-        subject: ' ',
+        subject: booking.startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
+                    + "-" + booking.endDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}),
         privateDatas: JSON.stringify(privateDatas),
         room: roomName,
         start: booking.startDate, // convert to local time
@@ -133,7 +147,8 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         };
         return {
             id: 'fake'  + uuid(),
-            subject: ' ',
+            subject: start.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
+            + "-" + end.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}),
             privateDatas: JSON.stringify(privateDatas),
             organization: '',
             room: this.room.name,
@@ -146,6 +161,8 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
     getPreviewEvent(title:string, startDate: Date, endDate: Date) {
         if (!title || (title === ''))
             title = ' ';
+        title += "\n" + startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
+        + "-" + endDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
         let privateDatas: EventPrivateData = {
             id: 'fake-' + uuid(),
             title: title,
@@ -173,21 +190,21 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         );
     }
 
-    setSelection(date: Date, startTime: number, endTime: number) {
-        console.log("RoomCalendar::setSelection() date=", date, "startTime=", startTime, "endTime=", endTime);
-        this.myScheduler.clearSelection();
-        for (let hour = startTime; hour < endTime; hour += 0.5) {
-            let jqxdate = new jqx.date(
-                date.getFullYear(),
-                date.getMonth() + 1, // getMonth(January) => 0
-                date.getDate(),
-                Math.floor(hour),
-                60*(hour - Math.floor(hour))
-            );
-            console.log("jqxdate=", jqxdate.toDate());
-            this.myScheduler.selectCell(jqxdate, false, '-1');
-        }
-    }
+    // setSelection(date: Date, startTime: number, endTime: number) {
+    //     console.log("RoomCalendar::setSelection() date=", date, "startTime=", startTime, "endTime=", endTime);
+    //     this.myScheduler.clearSelection();
+    //     for (let hour = startTime; hour < endTime; hour += this.increment) {
+    //         let jqxdate = new jqx.date(
+    //             date.getFullYear(),
+    //             date.getMonth() + 1, // getMonth(January) => 0
+    //             date.getDate(),
+    //             Math.floor(hour),
+    //             60*(hour - Math.floor(hour))
+    //         );
+    //         console.log("jqxdate=", jqxdate.toDate());
+    //         this.myScheduler.selectCell(jqxdate, false, '-1');
+    //     }
+    // }
 
     ngAfterViewInit() {
         this.myScheduler.beginAppointmentsUpdate();
@@ -291,6 +308,8 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
   readOnly = false;
   @Input()
   showViews = [];
+//   @Input()
+//   increment = 0.5;
 
   minDate = new jqx.date('todayDate'); // default is today
 

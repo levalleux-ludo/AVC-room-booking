@@ -73,7 +73,7 @@
                         <h3><i class="fa fa-calendar" aria-hidden="true"></i> Availabilities</h3>
                     </mat-card-header>
                     <mat-card-content>
-                        <app-room-calendar [room]="room" [scaleStartHour]="8" [scaleEndHour]="19" [readOnly]="true" [showViews]="['weekView']"></app-room-calendar>
+                        <app-room-calendar #calendar [room]="room" [scaleStartHour]="8" [scaleEndHour]="19" [readOnly]="true" [showViews]="['weekView']"></app-room-calendar>
                     </mat-card-content>
                 </mat-card>
                 <mat-card>
