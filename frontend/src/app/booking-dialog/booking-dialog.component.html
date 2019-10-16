@@ -28,16 +28,16 @@
                     </mat-form-field>
                     <div fxLayout="column">
                         <label for="startTime">Starting Time: </label>
-                        <app-time-picker required [minTime]="minTime" [maxTime]="maxTime" [increment]="increment" [unavailableHours]="unavailableStartHours" [(hour)]="startTime"></app-time-picker>
+                        <app-time-picker #startTimePicker required [minTime]="minTime" [maxTime]="maxTime" [increment]="increment" [unavailableHours]="unavailableStartHours" (hourChange)="startTimeChanged($event)"></app-time-picker>
                     </div>
                     <div fxLayout="column">
                         <label for="endTime">Ending Time: </label>
-                        <app-time-picker required [minTime]="startTime + increment" [maxTime]="maxTime + 1" [increment]="increment" [unavailableHours]="unavailableEndHours" [(hour)]="endTime"></app-time-picker>
+                        <app-time-picker #endTimePicker required [minTime]="startTime + increment" [maxTime]="maxTime + 1" [increment]="increment" [unavailableHours]="unavailableEndHours" (hourChange)="endTimeChanged($event)"></app-time-picker>
                     </div>
                 </div>
             </div>
             <div fxFlex>
-                <app-room-calendar #calendar [room]="selectedRoom" [scaleStartHour]="minTime" [scaleEndHour]="maxTime" [readOnly]="true" [showViews]="['weekView']" (selectionValidated)="OnCalendarPreviewUpdated($event)" (previewUpdated)="OnCalendarPreviewUpdated($event)"></app-room-calendar>
+                <app-room-calendar #calendar [room]="selectedRoom" [scaleStartHour]="minTime" [scaleEndHour]="maxTime-1" [readOnly]="true" [showViews]="['weekView']" (selectionValidated)="OnCalendarPreviewUpdated($event)" (previewUpdated)="OnCalendarPreviewUpdated($event)"></app-room-calendar>
             </div>
         </div>
     </mat-dialog-content>

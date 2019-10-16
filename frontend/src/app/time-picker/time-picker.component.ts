@@ -23,8 +23,10 @@ export class TimePickerComponent implements OnInit {
   }
   set selectedHour(value: TimeInSelect) {
     this._selectedHour = value;
-    if (this._selectedHour)
-      this.hourChange.emit(value.value);
+    if (this._selectedHour) {
+      console.log(`this.hourChange.emit(${this._selectedHour.value})`);
+      this.hourChange.emit(this._selectedHour.value);
+    }
   }
   // minutes: TimeInSelect[] = [
   //   {value:0, view:'00'},
@@ -53,6 +55,10 @@ export class TimePickerComponent implements OnInit {
       console.log(`this.hourChange.emit(${this.selectedHour.value})`);
       this.hourChange.emit(this.selectedHour.value);
     }
+  }
+
+  setHourWithoutNotification(value: number) {
+    this._selectedHour = this.selectTimes.find(hour => hour.value === value);
   }
 
   _minTime: number = 0;
@@ -108,11 +114,6 @@ export class TimePickerComponent implements OnInit {
         view: date.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}),
         disabled: disabled
       })
-    }
-    if (oldSelected && this.selectTimes.find(time => (!time.disabled && time.value === oldSelected.value))) {
-      this.selectedHour = oldSelected;
-    } else {
-      this.selectedHour = this.selectTimes.find(time => (!time.disabled));
     }
   }
   selectTimes: TimeInSelect[] = [];
