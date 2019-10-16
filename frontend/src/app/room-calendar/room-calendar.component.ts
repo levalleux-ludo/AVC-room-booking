@@ -1,42 +1,61 @@
-import { Component, OnInit, Input, ViewChild, AfterViewInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, AfterViewInit, EventEmitter, Output } from '@angular/core';
 import { v4 as uuid } from 'uuid';
 import { Room } from '../model';
 import { jqxSchedulerComponent } from 'jqwidgets-ng/jqxscheduler';
 import { BookingService } from '../_services/booking.service';
 import { Booking } from '../model/booking';
 import { RoomService } from '../_services/room.service';
+import { PipeResolver } from '@angular/compiler';
 
 // useful documentation : https://www.jqwidgets.com/jquery-widgets-documentation/documentation/jqxscheduler/jquery-scheduler-api.htm
 // and https://www.jqwidgets.com/angular-components-documentation/documentation/jqxscheduler/angular-scheduler-api.htm
 
+
+class EventPrivateData {
+    id: string;
+    title: string
+    organization: string;
+    roomId: string;
+    tag: string;
+    description: string;
+}
 @Component({
   selector: 'app-room-calendar',
   templateUrl: './room-calendar.component.html',
   styleUrls: ['./room-calendar.component.scss']
 })
 export class RoomCalendarComponent implements OnInit, AfterViewInit {
-  @ViewChild('schedulerReference', {static: false})
-  myScheduler: jqxSchedulerComponent;
+    @ViewChild('schedulerReference', {static: false})
+    myScheduler: jqxSchedulerComponent;
 
-  constructor(
-    private bookingService: BookingService,
-    private roomService: RoomService
+    constructor(
+        private bookingService: BookingService,
+        private roomService: RoomService
 
-  ) { }
+    ) { }
 
-  ngOnInit() {
+    ngOnInit() {
 
-      this.views = [
-          { type: 'dayView', showWeekends: false, timeRuler: { scaleStartHour: this.scaleStartHour, scaleEndHour: this.scaleEndHour } },
-          { 
-              type: 'weekView',
-              showWeekends: false,
-              timeRuler: { scaleStartHour: this.scaleStartHour, scaleEndHour: this.scaleEndHour },
-              allDayRowHeight: 24,
-              rowHeight: 8,
-              showWorkTime : false,
-         },
-      ]; 
+        if (this.showViews.includes('weekView')) {
+            this.views.push({ 
+                type: 'weekView',
+                showWeekends: false,
+                timeRuler: { scaleStartHour: this.scaleStartHour, scaleEndHour: this.scaleEndHour },
+                allDayRowHeight: 24,
+                rowHeight: 12,
+                showWorkTime : false,
+            });
+        }
+        if (this.showViews.includes('dayView')) {
+            this.views.push({ 
+                type: 'dayView',
+                showWeekends: false,
+                timeRuler: { scaleStartHour: this.scaleStartHour, scaleEndHour: this.scaleEndHour },
+                allDayRowHeight: 24,
+                rowHeight: 8,
+                showWorkTime : false,
+            });
+        }
     }
     getBookings() {
         this.bookingService.getBookings({ roomId: this.room.id, endAfter: new Date() }).subscribe(
@@ -63,20 +82,24 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         );
     }
 
+
     booking2event(booking: Booking, roomName: string) {
+        let privateDatas: EventPrivateData = {
+            id: booking.ref,
+            title: booking.title,
+            organization: booking.organization,
+            roomId: booking.roomId,
+            tag: '',
+            description: booking.details
+        };
         return {
         id: booking.ref,
-        title: ' ',
-        description: '',
-        resourceId: roomName,
+        subject: ' ',
+        privateDatas: JSON.stringify(privateDatas),
         room: roomName,
         start: booking.startDate, // convert to local time
         end: booking.endDate, // convert to local time
         organization: booking.organization,
-        resizable: !this.readOnly,
-        draggable: !this.readOnly,
-        readOnly: this.readOnly,
-        tooltip: 'UNAVAILABLE'
         }
     }
 
@@ -100,52 +123,156 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
             0,
             0
         )
+        let privateDatas: EventPrivateData = {
+            id: 'fake-' + uuid(),
+            title: '',
+            organization: '',
+            roomId: this.room.id,
+            tag: 'fake',
+            description: ''
+        };
         return {
             id: 'fake'  + uuid(),
-            title: ' ',
-            description: '',
+            subject: ' ',
+            privateDatas: JSON.stringify(privateDatas),
             organization: '',
-            resourceId: this.room.name,
             room: this.room.name,
             start: start, // convert to local time
             end: end, // convert to local time
         }
     }
 
-    setAppointmentProperties(id: string) {
-        this.myScheduler.setAppointmentProperty(id, 'resizable', !this.readOnly);
-        this.myScheduler.setAppointmentProperty(id, 'draggable', !this.readOnly);
-        this.myScheduler.setAppointmentProperty(id, 'readOnly', !this.readOnly);
-        this.myScheduler.setAppointmentProperty(id, 'tooltip', '');
+     _previewEventId = '';
+    getPreviewEvent(title:string, startDate: Date, endDate: Date) {
+        if (!title || (title === ''))
+            title = ' ';
+        let privateDatas: EventPrivateData = {
+            id: 'fake-' + uuid(),
+            title: title,
+            organization: '',
+            roomId: this.room.id,
+            tag: 'preview',
+            description: ''
+        };
+        return {
+            id: title,
+            subject: title,
+            privateDatas: JSON.stringify(privateDatas),
+            organization: '',
+            room: this.room.name,
+            start: startDate, // convert to local time
+            end: endDate, // convert to local time
+        };
+    }
+
+    previewEvent(title:string, startDate: Date, endDate: Date) {
+        console.log("RoomCalendar::previewEvent() title=", title, "startDate=", startDate, "endDate=", endDate);
+        this.myScheduler.deleteAppointment(this._previewEventId);
+        this.myScheduler.addAppointment(
+            this.getPreviewEvent(title, startDate, endDate)
+        );
+    }
+
+    setSelection(date: Date, startTime: number, endTime: number) {
+        console.log("RoomCalendar::setSelection() date=", date, "startTime=", startTime, "endTime=", endTime);
+        this.myScheduler.clearSelection();
+        for (let hour = startTime; hour < endTime; hour += 0.5) {
+            let jqxdate = new jqx.date(
+                date.getFullYear(),
+                date.getMonth() + 1, // getMonth(January) => 0
+                date.getDate(),
+                Math.floor(hour),
+                60*(hour - Math.floor(hour))
+            );
+            console.log("jqxdate=", jqxdate.toDate());
+            this.myScheduler.selectCell(jqxdate, false, '-1');
+        }
     }
 
     ngAfterViewInit() {
         this.myScheduler.beginAppointmentsUpdate();
 
-        // this.myScheduler.getAppointments().forEach(appointmentDataFields => {
-        //     this.setAppointmentProperties(appointmentDataFields.id as string);
-        // })
         this.myScheduler.renderAppointment(data => {
-            if (data.appointment.location === '') {
-                data.style = "#BEBEBE";
+            let privateDatas: EventPrivateData = JSON.parse(data.appointment.originalData.privateDatas);
+            if (privateDatas.tag === 'fake') {
+                data.style = "#BEBEBE"; // gray
+                data.cssClass = "fake-event";
+                data.html = "<div class='fake-event'></div>";
+            } else if (privateDatas.tag === 'preview') {
+                data.style = "#00008B"; // blue
+                data.cssClass = "preview-event";
+                // data.html = "<div class='preview-event'></div>";
+            } else if (privateDatas.tag === 'unavailable') {
+                data.style = "#8B0000"; // red
+                data.cssClass = "unavailable-event";
+                data.html = "<div class='unavailable-event'></div>";
             } else {
-                data.style = "#8B0000";
             }
-            
-            data.cssClass = "fake-event";
-            data.html = "<div class='fake-event'></div>";
             return data;
-        })
+        });
         this.myScheduler.onAppointmentAdd.subscribe((event: any) => {
             let args = event.args;
             let appointment = args.appointment;
-            this.setAppointmentProperties(appointment.id as string);
+            let privateDatas: EventPrivateData = JSON.parse(appointment.originalData.privateDatas);
+            if (privateDatas.tag === 'preview') {
+                this._previewEventId = appointment.id;
+            } else {
+                this.myScheduler.setAppointmentProperty(appointment.id, 'resizable', !this.readOnly);
+                this.myScheduler.setAppointmentProperty(appointment.id, 'draggable', !this.readOnly);
+                this.myScheduler.setAppointmentProperty(appointment.id, 'readOnly', !this.readOnly);
+                this.myScheduler.setAppointmentProperty(appointment.id, 'tooltip', '');
+            }
+        });
+        this.myScheduler.onCellClick.subscribe((event: any) => {
+            console.log("RoomCalendar::onCellClick() date=", event.args.date.toDate());
+            let selection = this.myScheduler.getSelection();
+            console.log("RoomCalendar::onCellClick() selection from=", selection.from.toDate(), "to=", selection.to.toDate(), "resource=", selection.ResourceId);
+        });
+        this.myScheduler.rendering(() => {
+            console.log("RoomCalendar::rendering()");
+        });
+        this.myScheduler.rendered(() => {
+            console.log("RoomCalendar::rendered()");
+        });
+        this.myScheduler.onContextMenuCreate.subscribe((event) => {
+            console.log("RoomCalendar::onContextMenuCreate(), event=", event);
+            event.args.menu.empty();
+            return event;
+        });
+        this.myScheduler.onContextMenuOpen.subscribe((event) => {
+            console.log("RoomCalendar::onContextMenuOpen(), event=", event);
+            event.args.menu.empty();
+            let selection = this.myScheduler.getSelection();
+            if (selection && selection.from && selection.to) {
+                console.log("RoomCalendar::onContextMenuOpen() selection from=", selection.from.toDate(), "to=", selection.to.toDate(), "resource=", selection.ResourceId);
+            }
+            this.validateSelection();
+            return event;
+        });
+        this.myScheduler.onAppointmentChange.subscribe((event) => {
+            let args = event.args;
+            let appointment = args.appointment;
+            let privateDatas: EventPrivateData = JSON.parse(appointment.originalData.privateDatas);
+            if (privateDatas.tag === 'preview') {
+                this.previewUpdated.emit({startDate: appointment.from.toDate(), endDate: appointment.to.toDate()});
+            }
         });
         this.myScheduler.endAppointmentsUpdate();
-  }
 
-  _room: Room;
+    }
+    @Output() selectionValidated = new EventEmitter();
+    validateSelection() {
+        let selection = this.myScheduler.getSelection();
+        if (selection && selection.from && selection.to) {
+            this.selectionValidated.emit({startDate: selection.from.toDate(), endDate: selection.to.toDate()});
+        }
+    }
+
+    @Output() previewUpdated = new EventEmitter();
+
+   _room: Room;
   set room(value: Room) {
+      console.log("room calendar select room:", value.name);
     this._room = value;
     this.getBookings();
   }
@@ -162,6 +289,8 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
   disabled = false;
   @Input()
   readOnly = false;
+  @Input()
+  showViews = [];
 
   minDate = new jqx.date('todayDate'); // default is today
 
@@ -172,11 +301,11 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         dataFields: [
             { name: 'id', type: 'string' },
             { name: 'organization', type: 'string' },
-            { name: 'title', type: 'string' },
-            { name: 'description', type: 'string' },
+            { name: 'subject', type: 'string' },
+            { name: 'privateDatas', type: 'string' },
             { name: 'room', type: 'string' },
             { name: 'start', type: 'date' },
-            { name: 'end', type: 'date' }
+            { name: 'end', type: 'date' },
         ],
         id: 'id',
         localData: [],
@@ -187,10 +316,10 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         from: "start",
         to: "end",
         id: "id",
-        description: "description",
+        description: "privateDatas",
         location: "organization",
-        subject: "title",
-        resourceId: "room"
+        subject: "subject",
+        resourceId: "room",
     };
     resources: any =
     {

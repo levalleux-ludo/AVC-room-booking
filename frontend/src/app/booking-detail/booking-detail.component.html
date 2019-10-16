@@ -21,7 +21,7 @@
         </div>
         <div>
             <label for="startTime">Starting Time: </label>
-            <app-time-picker *ngIf="editable" [(hour)]="startTimeHour" [(minute)]="startTimeMinute"></app-time-picker>
+            <!-- <app-time-picker *ngIf="editable" [(hour)]="startTimeHour" [(minute)]="startTimeMinute"></app-time-picker> -->
             <span *ngIf="!editable">  {{booking.startDate | date : 'shortTime'}}</span>
         </div>
         <div>

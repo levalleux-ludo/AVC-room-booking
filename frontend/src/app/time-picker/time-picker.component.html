@@ -1,16 +1,14 @@
 <mat-form-field>
-    <mat-select  [(value)]="selectedHour" name="hour">
-      <mat-option *ngFor="let hour of hours" [value]="hour" >
-        {{hour.view}}
-      </mat-option>
+    <mat-select [(value)]="selectedHour" name="hour" [compareWith]="compareTimes">
+        <mat-option *ngFor="let hour of selectTimes" [value]="hour">
+            {{hour.view}}
+        </mat-option>
     </mat-select>
 </mat-form-field>
-<mat-form-field>
+<!-- <mat-form-field>
     <mat-select [(value)]="selectedMinute" name="minute">
       <mat-option *ngFor="let minute of minutes" [value]="minute">
         {{minute.view}}
       </mat-option>
     </mat-select>
-</mat-form-field>
-
-
+</mat-form-field> -->

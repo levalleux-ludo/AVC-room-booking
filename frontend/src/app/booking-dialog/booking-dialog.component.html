@@ -1,0 +1,48 @@
+<form [formGroup]="form" (ngSubmit)="submit(form)">
+    <h1 mat-dialog-title>Booking Form</h1>
+    <mat-dialog-content>
+        <div fxLayout="column" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+            <div fxFlex fxLayout="column">
+                <mat-form-field>
+                    <input matInput placeholder="Enter Event Title" formControlName="title">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-select placeholder="Select Organization" formControlName="organization">
+                        <mat-option *ngFor="let organization of data.organizations" [value]="organization">
+                            {{organization}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-select placeholder="Select Room" [(value)]="selectedRoom" formControlName="room" [compareWith]="compareRooms">
+                        <mat-option *ngFor="let room of data.rooms" [value]="room">
+                            {{room.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <div fxLayout="row">
+                    <mat-form-field>
+                        <input #dateInput matInput (input)="picker.value = dateInput.value" [matDatepicker]="picker" placeholder="Choose a date" formControlName="date" (dateInput)="selectOnCalendar()" (dateChange)="selectOnCalendar()">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker (input)="dateInput.value = picker.value"></mat-datepicker>
+                    </mat-form-field>
+                    <div fxLayout="column">
+                        <label for="startTime">Starting Time: </label>
+                        <app-time-picker [minTime]="minTime" [maxTime]="maxTime" [increment]="0.5" [(hour)]="startTime"></app-time-picker>
+                    </div>
+                    <div fxLayout="column">
+                        <label for="endTime">Ending Time: </label>
+                        <app-time-picker [minTime]="startTime + 0.5" [maxTime]="maxTime + 1" [increment]="0.5" [(hour)]="endTime"></app-time-picker>
+                    </div>
+                </div>
+            </div>
+            <div fxFlex>
+                <app-room-calendar #calendar [room]="selectedRoom" [scaleStartHour]="minTime" [scaleEndHour]="maxTime" [readOnly]="true" [showViews]="['weekView']" (selectionValidated)="OnCalendarSelect($event)" (previewUpdated)="OnCalendarPreviewUpdated($event)"></app-room-calendar>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+        <button mat-button type="submit">Submit</button>
+        <button mat-button type="button" mat-dialog-close>Cancel</button>
+    </mat-dialog-actions>
+</form>

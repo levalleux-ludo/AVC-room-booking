@@ -24,13 +24,18 @@ import {
   MatOptionModule,
   MatGridListModule,
   MatCardModule,
-  MatButtonModule
+  MatButtonModule,
+  MatDialogModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './time-picker/time-picker.component';
 import { InitDBComponent } from './init-db/init-db.component';
 import { TestCalendarComponent } from './test-calendar/test-calendar.component';
-import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { 
+  NgbModalModule,
+  NgbCarouselModule,
+  NgbTimepickerModule
+ } from '@ng-bootstrap/ng-bootstrap';
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
@@ -40,7 +45,6 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // for FullCalendar!
 import { jqxSchedulerModule }    from 'jqwidgets-ng/jqxscheduler';
 import { TestJqxSchedulerComponent } from './test-jqx-scheduler/test-jqx-scheduler.component';
 import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar';
-import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { ChartistModule } from 'ng-chartist';
 import { BarChartComponent } from './bar-chart/bar-chart.component';
 import { FooterComponent } from './footer/footer.component';
@@ -49,6 +53,7 @@ import { RoomCardComponent } from './room-card/room-card.component';
 import { RoomCalendarComponent } from './room-calendar/room-calendar.component';
 import { BookingFormComponent } from './booking-form/booking-form.component';
 import { MatCarouselModule } from '@ngmodule/material-carousel';
+import { BookingDialogComponent } from './booking-dialog/booking-dialog.component';
 
 @NgModule({
   declarations: [
@@ -69,7 +74,8 @@ import { MatCarouselModule } from '@ngmodule/material-carousel';
     FooterComponent,
     RoomCardComponent,
     RoomCalendarComponent,
-    BookingFormComponent
+    BookingFormComponent,
+    BookingDialogComponent
   ],
   imports: [
     CommonModule,
@@ -101,7 +107,9 @@ import { MatCarouselModule } from '@ngmodule/material-carousel';
     MatCardModule,
     MatCarouselModule,
     FlexLayoutModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDialogModule,
+    NgbTimepickerModule
   ],
   exports: [
     MatNativeDateModule,
@@ -111,6 +119,9 @@ import { MatCarouselModule } from '@ngmodule/material-carousel';
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [
+    BookingDialogComponent // required to use the component as a dialog body
+  ]
 })
 export class AppModule { }

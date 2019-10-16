@@ -5,6 +5,8 @@ import { Location } from '@angular/common';
 import { Room } from '../model';
 import { Booking, duration } from '../model/booking';
 import { BookingService } from '../_services/booking.service';
+import { MatDialog, MatDialogConfig } from '@angular/material';
+import { BookingDialogComponent } from '../booking-dialog/booking-dialog.component';
 
 @Component({
   selector: 'app-room-detail',
@@ -15,22 +17,34 @@ export class RoomDetailComponent implements OnInit {
 
   room: Room;
 
+  roomDescription = `<font face="Times New Roman" size="7">Hello my friend.</font><div><font face="Arial"><br></font></div><div><font face="Arial">How are you today ?</font></div><div><font face="Arial">This is awesome, isn't it ?</font></div><div><ol><li><font face="Arial">one bla lab la bla</font></li></ol></div><div><font face="Arial"><br></font></div>`;
+
   images: string[];
 
   pastBookings: Booking[];
   nextBookings: Booking[];
+  rooms: Room[];
 
   constructor(
     private route: ActivatedRoute, // required to parse th current URL and find the room's name
     private router: Router, // required to force navigation to another route
     private roomService: RoomService,
     private bookingService: BookingService,
-    private location: Location // required to get back in navigation history
+    private location: Location, // required to get back in navigation history
+    private dialog: MatDialog // required to open a dialog
   ) { }
 
   ngOnInit() {
     this.getRoom();
+    this.getAllRooms();
   }
+
+  getAllRooms() {
+this.roomService.getRooms().subscribe(
+  rooms => {
+    this.rooms = rooms;
+  }
+)  }
 
   getRoom(): void {
     const name = this.route.snapshot.paramMap.get('name');
@@ -69,7 +83,31 @@ export class RoomDetailComponent implements OnInit {
   }
 
   bookNow() {
-    this.router.navigate(['/bookings/create'], { queryParams: { roomId: `${this.room.id}` } });
+    // this.router.navigate(['/bookings/create'], { queryParams: { roomId: `${this.room.id}` } });
+    const dialogConfig = new MatDialogConfig();
+
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      // room: this.room.name,
+      room: this.room,
+      organizations: [
+        "Company#1",
+        "Company#2",
+        "Company#3"
+      ],
+      rooms: this.rooms,
+      // rooms: this.rooms.map(room => room.name),
+    }
+
+    const dialogRef = this.dialog.open(BookingDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(
+      data => {
+        console.log("Dialog output:", data)
+      }
+    )
+
+    
   }
 
   duration (booking: Booking) {

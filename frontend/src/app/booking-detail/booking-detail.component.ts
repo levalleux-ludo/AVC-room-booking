@@ -47,8 +47,10 @@ export class BookingDetailComponent implements OnInit {
   _selectedDuration = this.durations[0];
   set selectedDuration(value) {
     this._selectedDuration = value;
-    let duration = this._selectedDuration.hour + (this._selectedDuration.minute / 60);
-    computeEndDate(this.booking, duration);
+    if (this._selectedDuration) {
+      let duration = this._selectedDuration.hour + (this._selectedDuration.minute / 60);
+      computeEndDate(this.booking, duration);
+    }
   }
   get selectedDuration() {
     return this._selectedDuration;

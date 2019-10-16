@@ -9,3 +9,26 @@ mat-card {
 .border-on-tile {
     border: solid 1px #000;
 }
+
+.edit-button {
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+.editable {
+    display: block;
+    overflow: visible;
+}
+
+.editable:hover {
+    border: solid 1px #000;
+}
+
+.editable>.edit-button {
+    display: none;
+}
+
+.editable:hover>.edit-button {
+    display: block;
+}
