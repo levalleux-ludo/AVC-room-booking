@@ -54,6 +54,7 @@ import { RoomCalendarComponent } from './room-calendar/room-calendar.component';
 import { BookingFormComponent } from './booking-form/booking-form.component';
 import { MatCarouselModule } from '@ngmodule/material-carousel';
 import { BookingDialogComponent } from './booking-dialog/booking-dialog.component';
+import { PriceDisplayComponent } from './price-display/price-display.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +76,8 @@ import { BookingDialogComponent } from './booking-dialog/booking-dialog.componen
     RoomCardComponent,
     RoomCalendarComponent,
     BookingFormComponent,
-    BookingDialogComponent
+    BookingDialogComponent,
+    PriceDisplayComponent
   ],
   imports: [
     CommonModule,

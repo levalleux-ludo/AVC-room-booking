@@ -1,0 +1,44 @@
+<mat-card>
+    <mat-card-content style="width: 10em;">
+        <mat-grid-list cols="3" rowHeight="24px">
+            <mat-grid-tile [colspan]="1" [rowspan]="1">
+                <div style="text-align: left;">Rate</div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="2" [rowspan]="1" class="border-on-tile">
+                <div>£9/hour</div>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </mat-card-content>
+</mat-card>
+<mat-card>
+    <mat-card-content style="width: 10em;">
+        <mat-grid-list cols="3" rowHeight="48px">
+            <mat-grid-tile [colspan]="2" [rowspan]="1" style="justify-content: left;">
+                <div>Room<br>(£9 x 4 hours)</div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
+                <div>£36</div>
+            </mat-grid-tile>
+        </mat-grid-list>
+        <mat-grid-list cols="3" rowHeight="48px">
+            <mat-grid-tile [colspan]="2" [rowspan]="1" style="justify-content: left;">
+                <div>Extras<br>(details)</div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
+                <div>£24</div>
+            </mat-grid-tile>
+        </mat-grid-list>
+        <mat-grid-list cols="3" rowHeight="48px">
+            <mat-grid-tile [colspan]="2" [rowspan]="1" style="justify-content: left;">
+                <div>
+                    <h3>Total</h3>
+                </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
+                <div>
+                    <h3>£60</h3>
+                </div>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </mat-card-content>
+</mat-card>

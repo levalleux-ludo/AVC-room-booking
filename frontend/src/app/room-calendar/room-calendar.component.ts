@@ -5,7 +5,6 @@ import { jqxSchedulerComponent } from 'jqwidgets-ng/jqxscheduler';
 import { BookingService } from '../_services/booking.service';
 import { Booking } from '../model/booking';
 import { RoomService } from '../_services/room.service';
-import { PipeResolver } from '@angular/compiler';
 
 // useful documentation : https://www.jqwidgets.com/jquery-widgets-documentation/documentation/jqxscheduler/jquery-scheduler-api.htm
 // and https://www.jqwidgets.com/angular-components-documentation/documentation/jqxscheduler/angular-scheduler-api.htm
@@ -42,7 +41,7 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
                 showWeekends: false,
                 timeRuler: { scaleStartHour: this.scaleStartHour, scaleEndHour: this.scaleEndHour },
                 allDayRowHeight: 24,
-                rowHeight: 12,
+                rowHeight: (this.height - 160) / 20,
                 showWorkTime : false,
             });
         }
@@ -52,7 +51,7 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
                 showWeekends: false,
                 timeRuler: { scaleStartHour: this.scaleStartHour, scaleEndHour: this.scaleEndHour },
                 allDayRowHeight: 24,
-                rowHeight: 8,
+                rowHeight: (this.height - 160) / 20,
                 showWorkTime : false,
             });
         }
@@ -88,6 +87,11 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
                     for (let hour = this.scaleStartHour; hour <= this.scaleEndHour; hour++) {
                         this.myScheduler.addAppointment(this.getFakeEvent(pastDay, hour));
                     }
+                }
+
+                // ADD preview event if defined
+                if (this.lastPreviewEvent) {
+                    this.previewEvent(this.lastPreviewEvent.title, this.lastPreviewEvent.startDate, this.lastPreviewEvent.endDate);
                 }
 
                 this.myScheduler.endAppointmentsUpdate();
@@ -182,8 +186,10 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         };
     }
 
+    lastPreviewEvent: {title:string, startDate: Date, endDate: Date};
     previewEvent(title:string, startDate: Date, endDate: Date) {
         console.log("RoomCalendar::previewEvent() title=", title, "startDate=", startDate, "endDate=", endDate);
+        this.lastPreviewEvent = {title:title, startDate:startDate, endDate:endDate};
         this.myScheduler.deleteAppointment(this._previewEventId);
         this.myScheduler.addAppointment(
             this.getPreviewEvent(title, startDate, endDate)
@@ -308,6 +314,10 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
   readOnly = false;
   @Input()
   showViews = [];
+  @Input()
+  height = 400;
+  @Input()
+  width = 500;
 //   @Input()
 //   increment = 0.5;
 

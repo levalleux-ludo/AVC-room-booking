@@ -123,7 +123,14 @@ this.roomService.getRooms().subscribe(
             } else {
               this.roomService.getRoomFromId(booking.roomId).subscribe(
                 room => {
-                  this.router.navigate(['room', room.name], {relativeTo: this.route, skipLocationChange: true});
+                  this.router.navigate(['../', encodeURI(room.name)], {relativeTo: this.route, skipLocationChange: false}).then(
+                    result => {
+                      console.log("routing result=", result);
+                      window.location.reload();
+                  },
+                  error => {
+                    console.error("routing failed", error);
+                  })
                 }
               )
             }

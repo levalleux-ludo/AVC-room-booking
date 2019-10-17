@@ -50,6 +50,7 @@ export class TimePickerComponent implements OnInit {
   set hour(value: number) {
     // if (value < this.hours[0].value) value = this.hours[0].value;
     // if (value > this.hours[this.hours.length-1].value) value = this.hours[this.hours.length-1].value;
+    this._requestedTime = value;
     this.selectedHour = this.selectTimes.find(hour => hour.value === value);
     if (this.selectedHour) {
       console.log(`this.hourChange.emit(${this.selectedHour.value})`);
@@ -57,7 +58,9 @@ export class TimePickerComponent implements OnInit {
     }
   }
 
+  _requestedTime: number;
   setHourWithoutNotification(value: number) {
+    this._requestedTime = value;
     this._selectedHour = this.selectTimes.find(hour => hour.value === value);
   }
 
@@ -91,6 +94,21 @@ export class TimePickerComponent implements OnInit {
     this.computeSelectTimes();
   }
 
+  // @Input()
+  // required: boolean = false;
+  @Input('required') isRequired: boolean;
+
+  
+  _placeholder: string = 'feefezfef';
+  @Input()
+  get placeholder() {
+    return this._placeholder;
+  }
+  set placeholder(value: string) {
+    this._placeholder = value;
+  }
+  
+  
   _unavailableHours: number[];
   @Input()
   get unavailableHours(): number[] {
@@ -103,7 +121,6 @@ export class TimePickerComponent implements OnInit {
   }
 
   computeSelectTimes() {
-    let oldSelected = this.selectedHour;
     this.selectTimes = [];
     for (let time = this.minTime; time < this.maxTime; time = time + this.increment) {
       let date = new Date();
@@ -115,6 +132,7 @@ export class TimePickerComponent implements OnInit {
         disabled: disabled
       })
     }
+    this.setHourWithoutNotification(this._requestedTime);
   }
   selectTimes: TimeInSelect[] = [];
 

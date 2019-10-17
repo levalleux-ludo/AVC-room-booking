@@ -56,3 +56,8 @@ body {
     // margin-top: -1px !important;
     // margin-left: -1px !important;
 }
+
+.mat-grid-tile .mat-figure {
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+}

@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
+import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Room } from '../model';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
@@ -22,6 +22,12 @@ export class BookingDialogComponent implements OnInit {
   @ViewChild('endTimePicker', {static: false}) endTimePicker: TimePickerComponent;
 
   _selectedRoom: Room;
+  availableExtras = [
+    {extra: 'flipchart_paper_pens', defaultRate: 5.5 },
+    {extra: 'projector_screen', defaultRate: 5.5},
+    {extra: 'refreshment_fullDay', defaultRate: 15.5},
+    {extra: 'refreshment_halfDay', defaultRate: 10}
+  ];
   actualBookings: Booking[] = [];
   unavailableStartHours: number[] = [];
   unavailableEndHours: number[] = [];
@@ -29,6 +35,17 @@ export class BookingDialogComponent implements OnInit {
   minTime = 8;
   maxTime = 20;
   today = new Date();
+
+  _selectedExtras: any[] = [];
+  set selectedExtras(value: any[]) {
+    console.log("BookingDialogCOmponent::selectedExtras() ", value);
+    this._selectedExtras = value;
+  }
+  get selectedExtras() {
+    return this._selectedExtras;
+  }
+
+
   get selectedRoom(): Room {
     return this._selectedRoom;
   }
@@ -40,6 +57,11 @@ export class BookingDialogComponent implements OnInit {
           this.actualBookings = bookings;
           if (this.selectedDate) {
             this.computeUnavailableHours();
+            if (this.checkConflicts(this.startDate, this.endDate)) {
+              console.log("BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities")
+              this.unsetTimePickers();
+            }
+            this.updateCalendar();
           }
         }
       )
@@ -47,11 +69,29 @@ export class BookingDialogComponent implements OnInit {
 
   }
 
+  unsetTimePickers() {
+      try {
+        this.startTimePicker.setHourWithoutNotification(undefined);
+      this._startTime = undefined;
+      this.form.patchValue({startDate: undefined});
+      this.startTimePicker.setHourWithoutNotification(undefined);
+      this._endTime = undefined;
+      this.form.patchValue({endDate: undefined});
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   get selectedDate(): Date {
     return this.form.value.date;
   }
   onSelectedDateChanged() {
     this.computeUnavailableHours();
+    // If the current selected time slot in not available anymore with the new date, unset it
+    if (this.checkConflicts(this.startDate, this.endDate)) {
+        console.log("BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities");
+        this.unsetTimePickers();
+    }
     // this.startTime = this.validateStartTime(this._startTime, this._startTime);
     // this.endTime = this.validateEndTime(this._endTime, this._endTime);
     this.updateCalendar();
@@ -137,6 +177,7 @@ export class BookingDialogComponent implements OnInit {
         }
       }
     }
+    this.form.patchValue({startDate: this.startDate});
     this.updateCalendar();
   }
   endTimeChanged(event: any) { // this event is raised when the user select another time in time-picker
@@ -150,6 +191,7 @@ export class BookingDialogComponent implements OnInit {
         }
       }
     }
+    this.form.patchValue({endDate: this.endDate});
     this.updateCalendar();
   }
 
@@ -252,12 +294,12 @@ export class BookingDialogComponent implements OnInit {
   }
 
   validateHours(startTime: number, endTime: number): {valid: boolean, startTime: number, endTime: number} {
-    if (this.unavailableStartHours.includes(startTime)) {
-      return {valid: false, startTime: 0, endTime: 0};
-    }
-    if (this.unavailableEndHours.includes(endTime)) {
-      return {valid: false, startTime: 0, endTime: 0};
-    }
+    // if (this.unavailableStartHours.includes(startTime)) {
+    //   return {valid: false, startTime: 0, endTime: 0};
+    // }
+    // if (this.unavailableEndHours.includes(endTime)) {
+    //   return {valid: false, startTime: 0, endTime: 0};
+    // }
     if (startTime < this.minTime) {
       startTime = this.minTime;
     }
@@ -279,6 +321,8 @@ export class BookingDialogComponent implements OnInit {
         this.startTime = startTime;
         // this.endTime = this.validateEndTime(endTime, this._endTime);
         this.endTime = endTime;
+        this.form.patchValue({startDate: this.startDate});
+        this.form.patchValue({endDate: this.endDate});
         this.shallUpdateCalendar = true;  
       }
     }
@@ -300,11 +344,13 @@ export class BookingDialogComponent implements OnInit {
   ngOnInit() {
       this.form = this.fb.group({
           title: '',
-          organization: 'Company#3',
+          organization: '',
+          description: '',
           room: this.selectedRoom,
+          extras: new FormControl(),
           date: new FormControl(),
-          startDate: new FormControl(),
-          endDate: new FormControl()
+          startDate: new FormControl('', [Validators.required]),
+          endDate: new FormControl('', [Validators.required])
        });
        this.onSelectedDateChanged();
   }
@@ -321,6 +367,12 @@ export class BookingDialogComponent implements OnInit {
      } else {
       return room1 === room2
      }
+  }
+
+  datePickerFilter = (d: Date): boolean => {
+    const day = d.getDay();
+    // Prevent Saturday and Sunday from being selected.
+    return day !== 0 && day !== 6;
   }
 
 }

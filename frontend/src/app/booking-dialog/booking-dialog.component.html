@@ -1,11 +1,8 @@
 <form [formGroup]="form" (ngSubmit)="submit(form)">
     <h1 mat-dialog-title>Booking Form</h1>
     <mat-dialog-content>
-        <div fxLayout="column" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
-            <div fxFlex fxLayout="column">
-                <mat-form-field>
-                    <input matInput required placeholder="Enter Event Title" formControlName="title">
-                </mat-form-field>
+        <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+            <div fxFlex fxLayout="column" style="width: 20em;">
                 <mat-form-field>
                     <mat-select required placeholder="Select Organization" formControlName="organization">
                         <mat-option *ngFor="let organization of data.organizations" [value]="organization">
@@ -14,35 +11,55 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field>
-                    <mat-select required placeholder="Select Room" [(value)]="selectedRoom" formControlName="room" [compareWith]="compareRooms">
-                        <mat-option *ngFor="let room of data.rooms" [value]="room">
-                            {{room.name}}
-                        </mat-option>
+                    <input matInput required placeholder="Enter Event Title" formControlName="title">
+                </mat-form-field>
+                <mat-form-field>
+                    <textarea matInput required placeholder="Describe Event" formControlName="description"></textarea>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Extra Services</mat-label>
+                    <mat-select formControlName="extras" multiple [(value)]="selectedExtras">
+                        <mat-option *ngFor="let extra of availableExtras" [value]="extra">{{extra.extra}} (£{{extra.defaultRate}})</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <div fxLayout="row">
-                    <mat-form-field>
-                        <input required #dateInput matInput [min]="today" (input)="picker.value = dateInput.value" [matDatepicker]="picker" placeholder="Choose a date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()">
-                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                        <mat-datepicker #picker (input)="dateInput.value = picker.value"></mat-datepicker>
-                    </mat-form-field>
-                    <div fxLayout="column">
-                        <label for="startTime">Starting Time: </label>
-                        <app-time-picker #startTimePicker required [minTime]="minTime" [maxTime]="maxTime" [increment]="increment" [unavailableHours]="unavailableStartHours" (hourChange)="startTimeChanged($event)"></app-time-picker>
-                    </div>
-                    <div fxLayout="column">
-                        <label for="endTime">Ending Time: </label>
-                        <app-time-picker #endTimePicker required [minTime]="startTime + increment" [maxTime]="maxTime + 1" [increment]="increment" [unavailableHours]="unavailableEndHours" (hourChange)="endTimeChanged($event)"></app-time-picker>
-                    </div>
+                <div fxFlex fxLayout="column" style="margin: 1em;">
+                    <app-price-display></app-price-display>
                 </div>
             </div>
-            <div fxFlex>
-                <app-room-calendar #calendar [room]="selectedRoom" [scaleStartHour]="minTime" [scaleEndHour]="maxTime-1" [readOnly]="true" [showViews]="['weekView']" (selectionValidated)="OnCalendarPreviewUpdated($event)" (previewUpdated)="OnCalendarPreviewUpdated($event)"></app-room-calendar>
+            <div fxFlex fxLayout="column" style="margin: 1em;">
+                <div fxFlex fxLayout="column" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top center">
+                    <mat-form-field style="width: 18em;">
+                        <mat-select required placeholder="Select Room" [(value)]="selectedRoom" formControlName="room" [compareWith]="compareRooms">
+                            <mat-option *ngFor="let room of data.rooms" [value]="room">
+                                {{room.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field style="width: 18em;">
+                        <input required #dateInput matInput [min]="today" (input)="picker.value = dateInput.value" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()" [matDatepickerFilter]="datePickerFilter">
+                        <mat-datepicker-toggle matSuffix [for]="picker "></mat-datepicker-toggle>
+                        <mat-datepicker #picker (input)="dateInput.value=picker.value "></mat-datepicker>
+                    </mat-form-field>
+                    <div fxLayout="row" fxLayoutAlign="top center">
+                        <div fxLayout="column" style="width: 10em;">
+                            <!-- <label for="startTime">Starting Time: </label> -->
+                            <app-time-picker #startTimePicker [required]="true" placeholder="Starting Time" [minTime]="minTime " [maxTime]="maxTime " [increment]="increment " [unavailableHours]="unavailableStartHours " (hourChange)="startTimeChanged($event) "></app-time-picker>
+                        </div>
+                        <div fxLayout="column" style="width: 10em;">
+                            <!-- <label for="endTime ">Ending Time: </label> -->
+                            <app-time-picker #endTimePicker [required]="true" placeholder="Ending Time" [minTime]="startTime + increment " [maxTime]="maxTime + 1 " [increment]="increment " [unavailableHours]="unavailableEndHours " (hourChange)="endTimeChanged($event) "></app-time-picker>
+                        </div>
+                    </div>
+                </div>
+                <div [ngStyle.xs]="{'overflow-x': 'auto', 'white-space': 'nowrap', 'width': '20em'}">
+                    <app-room-calendar #calendar [room]="selectedRoom " [height]="350 " [width]="400 " [scaleStartHour]="minTime " [scaleEndHour]="maxTime-1 " [readOnly]="true " [showViews]="[ 'weekView'] " (selectionValidated)="OnCalendarPreviewUpdated($event)" (previewUpdated)="OnCalendarPreviewUpdated($event) "></app-room-calendar>
+                </div>
             </div>
+
         </div>
     </mat-dialog-content>
     <mat-dialog-actions>
-        <button mat-button type="submit" [disabled]="!form.valid">Submit</button>
-        <button mat-button type="button" mat-dialog-close>Cancel</button>
+        <button mat-button type="submit " [disabled]="!form.valid ">Submit</button>
+        <button mat-button type="button " mat-dialog-close>Cancel</button>
     </mat-dialog-actions>
 </form>
