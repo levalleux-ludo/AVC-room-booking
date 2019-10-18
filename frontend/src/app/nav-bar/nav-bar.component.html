@@ -13,6 +13,9 @@
                 <a class="nav-item nav-link" routerLink="/bookings" *ngIf="currentUser">Bookings</a>
             </li>
             <li class="nav-item">
+                <a class="nav-item nav-link" routerLink="/configure" *ngIf="currentUser">Configure</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-item nav-link" routerLink="/logout" *ngIf="currentUser">Logout</a>
             </li>
         </ul>

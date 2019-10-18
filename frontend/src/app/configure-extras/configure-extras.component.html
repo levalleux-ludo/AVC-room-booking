@@ -1,0 +1,39 @@
+<div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+    <table style="width: 24em;">
+        <tr>
+            <th style>Extra Service</th>
+            <th>Rate</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr *ngFor="let extra of extras">
+            <td>
+                <div class="extra">{{extra.extra}}</div>
+            </td>
+            <td>
+                <div class="rate">{{extra.defaultRate | currency:'GBP':'symbol-narrow'}}</div>
+            </td>
+            <td>
+                <button class="edit" title="edit extra '{{extra.extra}}'" (click)="addNew = true; editExtra=extra; submitAction=update;"><i class="fa fa-edit"></i></button>
+            </td>
+            <td>
+                <button class="delete" title="delete extra '{{extra.extra}}'" (click)="delete(extra)"><i class="fa fa-trash"></i></button>
+            </td>
+        </tr>
+    </table>
+    <div fxLayout="column" style="width: 20em;">
+        <button mat-button [disabled]="addNew" (click)="addNew = true; editExtra={extra:'', defaultRate:0}; submitAction=create;">Add</button>
+        <div *ngIf="addNew">
+            <mat-form-field appearance="standard" required>
+                <input #extraName matInput required placeholder="Enter extra Name" [(value)]="editExtra.extra">
+            </mat-form-field>
+            <mat-form-field appearance="standard" required>
+                <input #extraRate matInput required type="number" placeholder="Enter extra Rate" [(value)]="editExtra.defaultRate">
+            </mat-form-field>
+            <div>
+                <button mat-button (click)="addNew = false">Cancel</button>
+                <button #submit [disabled]="extraName.value === ''" mat-button (click)="addNew = false; submitAction(extraName.value, extraRate.value);">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

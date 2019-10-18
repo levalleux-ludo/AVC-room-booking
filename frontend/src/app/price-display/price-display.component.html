@@ -5,38 +5,63 @@
                 <div style="text-align: left;">Rate</div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="2" [rowspan]="1" class="border-on-tile">
-                <div>£9/hour</div>
+                <div>£{{roomRatePerHour}}/hour</div>
             </mat-grid-tile>
         </mat-grid-list>
     </mat-card-content>
 </mat-card>
 <mat-card>
-    <mat-card-content style="width: 10em;">
+    <mat-card-content style="width: 16em;">
         <mat-grid-list cols="3" rowHeight="48px">
             <mat-grid-tile [colspan]="2" [rowspan]="1" style="justify-content: left;">
-                <div>Room<br>(£9 x 4 hours)</div>
+                <div>Room<br>({{rentalFormula}})</div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
-                <div>£36</div>
+                <div>{{rentalPrice | currency}}</div>
             </mat-grid-tile>
         </mat-grid-list>
-        <mat-grid-list cols="3" rowHeight="48px">
+        <mat-grid-list cols="3" rowHeight="24px" gutterSize="0">
             <mat-grid-tile [colspan]="2" [rowspan]="1" style="justify-content: left;">
-                <div>Extras<br>(details)</div>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
-                <div>£24</div>
-            </mat-grid-tile>
-        </mat-grid-list>
-        <mat-grid-list cols="3" rowHeight="48px">
-            <mat-grid-tile [colspan]="2" [rowspan]="1" style="justify-content: left;">
-                <div>
-                    <h3>Total</h3>
+                <div>Extras
                 </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
+                <div>{{extrasPrice | currency}}</div>
+            </mat-grid-tile>
+        </mat-grid-list>
+        <mat-grid-list cols="1" rowHeight="24px" gutterSize="0">
+            <mat-grid-tile *ngIf="!showExtrasDetails" [colspan]="1" [rowspan]=" 1" class="border-on-tile">
+                <div>(
+                    <a (click)="showExtrasDetails=!showExtrasDetails">
+                        <span>Show details</span>
+                    </a>)</div>
+            </mat-grid-tile>
+            <div *ngIf="showExtrasDetails">
+                <mat-grid-tile *ngFor="let extra of extraDetails()" [colspan]="1" [rowspan]="1" class="border-on-tile">
+                    <div [innerHTML]="extra"></div>
+                </mat-grid-tile>
+            </div>
+            <mat-grid-tile *ngIf="showExtrasDetails" [colspan]="1" [rowspan]="1" class="border-on-tile">
+                <div>(
+                    <a (click)="showExtrasDetails=!showExtrasDetails">
+                        <span>Hide details</span>
+                    </a>)</div>
+            </mat-grid-tile>
+            <!-- <mat-grid-tile *ngIf="showExtrasDetails" [colspan]="3" [rowspan]="1" style="justify-content: left;"> -->
+            <!-- <ngb-toast [delay]="180000" (hide)="showExtrasDetails=false"> -->
+
+            <!-- </ngb-toast> -->
+            <!-- </mat-grid-tile> -->
+        </mat-grid-list>
+        <mat-grid-list cols="3" rowHeight="36px">
+            <mat-grid-tile [colspan]="2" [rowspan]="1" style="justify-content: left;">
                 <div>
-                    <h3>£60</h3>
+                    <h4 style="margin-top: 10px;">Total</h4>
+                </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile" style="justify-content: left;">
+                <div>
+                    <h4 style="margin-top: 10px;">{{totalPrice | currency:'GBP':'symbol-narrow'}}</h4>
                 </div>
             </mat-grid-tile>
         </mat-grid-list>

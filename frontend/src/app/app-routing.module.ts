@@ -11,11 +11,13 @@ import { InitDBComponent } from './init-db/init-db.component';
 import { TestCalendarComponent } from './test-calendar/test-calendar.component';
 import { TestFullCalendarComponent } from './test-full-calendar/test-full-calendar.component';
 import { TestJqxSchedulerComponent } from './test-jqx-scheduler/test-jqx-scheduler.component';
+import { ConfigureComponent } from './configure/configure.component';
 
 
 const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'rooms', component: RoomsComponent, canActivate: [AuthGuard] },
+  { path: 'configure', component: ConfigureComponent, canActivate: [AuthGuard] },
   { path: 'bookings', component: BookingOverviewComponent, canActivate: [AuthGuard] },
   { path: 'bookings/booking/:ref', component: BookingDetailComponent, canActivate: [AuthGuard] },
   { path: 'bookings/create', component: BookingDetailComponent, canActivate: [AuthGuard] },

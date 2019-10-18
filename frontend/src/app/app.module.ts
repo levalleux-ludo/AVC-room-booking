@@ -25,7 +25,10 @@ import {
   MatGridListModule,
   MatCardModule,
   MatButtonModule,
-  MatDialogModule
+  MatDialogModule,
+  MatTooltipModule,
+  MatExpansionModule,
+  MatListModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './time-picker/time-picker.component';
@@ -34,7 +37,8 @@ import { TestCalendarComponent } from './test-calendar/test-calendar.component';
 import { 
   NgbModalModule,
   NgbCarouselModule,
-  NgbTimepickerModule
+  NgbTimepickerModule,
+  NgbToastModule
  } from '@ng-bootstrap/ng-bootstrap';
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
@@ -55,6 +59,10 @@ import { BookingFormComponent } from './booking-form/booking-form.component';
 import { MatCarouselModule } from '@ngmodule/material-carousel';
 import { BookingDialogComponent } from './booking-dialog/booking-dialog.component';
 import { PriceDisplayComponent } from './price-display/price-display.component';
+import { ConfigureComponent } from './configure/configure.component';
+import { ConfigureOrganisationsComponent } from './configure-organisations/configure-organisations.component';
+import { ConfigureRoomsComponent } from './configure-rooms/configure-rooms.component';
+import { ConfigureExtrasComponent } from './configure-extras/configure-extras.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +85,11 @@ import { PriceDisplayComponent } from './price-display/price-display.component';
     RoomCalendarComponent,
     BookingFormComponent,
     BookingDialogComponent,
+    PriceDisplayComponent,
+    ConfigureComponent,
+    ConfigureOrganisationsComponent,
+    ConfigureRoomsComponent,
+    ConfigureExtrasComponent,
     PriceDisplayComponent
   ],
   imports: [
@@ -92,6 +105,8 @@ import { PriceDisplayComponent } from './price-display/price-display.component';
     MatOptionModule,
     MatDatepickerModule,  // required for mat-date-picker in forms
     MatSelectModule,
+    MatTooltipModule,
+    MatExpansionModule,
     FormsModule,
     NgbModalModule,
     FlatpickrModule.forRoot(),
@@ -110,8 +125,10 @@ import { PriceDisplayComponent } from './price-display/price-display.component';
     MatCarouselModule,
     FlexLayoutModule,
     MatButtonModule,
+    MatListModule,
     MatDialogModule,
-    NgbTimepickerModule
+    NgbTimepickerModule,
+    NgbToastModule
   ],
   exports: [
     MatNativeDateModule,

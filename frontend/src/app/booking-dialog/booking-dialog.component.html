@@ -23,7 +23,7 @@
                     </mat-select>
                 </mat-form-field>
                 <div fxFlex fxLayout="column" style="margin: 1em;">
-                    <app-price-display></app-price-display>
+                    <app-price-display #price [roomRatePerHour]="selectedRoom.rentRateHour"></app-price-display>
                 </div>
             </div>
             <div fxFlex fxLayout="column" style="margin: 1em;">

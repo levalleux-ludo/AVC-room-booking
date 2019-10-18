@@ -7,6 +7,7 @@ import { RoomCalendarComponent } from '../room-calendar/room-calendar.component'
 import { BookingService } from '../_services/booking.service';
 import { Booking } from '../model/booking';
 import { TimePickerComponent } from '../time-picker/time-picker.component';
+import { PriceDisplayComponent } from '../price-display/price-display.component';
 
 
 @Component({
@@ -20,6 +21,7 @@ export class BookingDialogComponent implements OnInit {
   @ViewChild('calendar', {static: false}) calendar: RoomCalendarComponent;
   @ViewChild('startTimePicker', {static: false}) startTimePicker: TimePickerComponent;
   @ViewChild('endTimePicker', {static: false}) endTimePicker: TimePickerComponent;
+  @ViewChild('price', {static: false}) priceDisplay: PriceDisplayComponent;
 
   _selectedRoom: Room;
   availableExtras = [
@@ -40,6 +42,12 @@ export class BookingDialogComponent implements OnInit {
   set selectedExtras(value: any[]) {
     console.log("BookingDialogCOmponent::selectedExtras() ", value);
     this._selectedExtras = value;
+    if (this.priceDisplay) {
+      this.priceDisplay.extras = {};
+    }
+    for (let extra of this._selectedExtras) {
+      this.priceDisplay.extras[extra.extra] = extra.defaultRate;
+    }
   }
   get selectedExtras() {
     return this._selectedExtras;
