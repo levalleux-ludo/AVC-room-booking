@@ -25,10 +25,10 @@ export class BookingDialogComponent implements OnInit {
 
   _selectedRoom: Room;
   availableExtras = [
-    {extra: 'flipchart_paper_pens', defaultRate: 5.5 },
-    {extra: 'projector_screen', defaultRate: 5.5},
-    {extra: 'refreshment_fullDay', defaultRate: 15.5},
-    {extra: 'refreshment_halfDay', defaultRate: 10}
+    // {extra: 'flipchart_paper_pens', defaultRate: 5.5 },
+    // {extra: 'projector_screen', defaultRate: 5.5},
+    // {extra: 'refreshment_fullDay', defaultRate: 15.5},
+    // {extra: 'refreshment_halfDay', defaultRate: 10}
   ];
   actualBookings: Booking[] = [];
   unavailableStartHours: number[] = [];

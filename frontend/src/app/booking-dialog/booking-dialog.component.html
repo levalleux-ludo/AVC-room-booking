@@ -18,8 +18,8 @@
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Extra Services</mat-label>
-                    <mat-select formControlName="extras" multiple [(value)]="selectedExtras">
-                        <mat-option *ngFor="let extra of availableExtras" [value]="extra">{{extra.extra}} (£{{extra.defaultRate}})</mat-option>
+                    <mat-select *ngIf="selectedRoom" formControlName="extras" multiple [(value)]="selectedExtras">
+                        <mat-option *ngFor="let extra of selectedRoom.availableExtras" [value]="extra">UNDEF (request info about extra with ID {{extra}})</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <div fxFlex fxLayout="column" style="margin: 1em;">

@@ -16,10 +16,10 @@ describe('Test RoomService', () => {
             rentRateHour: 10.5,
             rentRateDay: 50,
             availableExtras: [
-                {extra: 'flipchart_paper_pens', defaultRate: 5.5 },
-                {extra: 'projector_screen', defaultRate: 5.5},
-                {extra: 'refreshment_fullDay', defaultRate: 15.5},
-                {extra: 'refreshment_halfDay', defaultRate: 10}
+                // {extra: 'flipchart_paper_pens', defaultRate: 5.5 },
+                // {extra: 'projector_screen', defaultRate: 5.5},
+                // {extra: 'refreshment_fullDay', defaultRate: 15.5},
+                // {extra: 'refreshment_halfDay', defaultRate: 10}
             ]
         }).then(() => {
             console.log(room);
@@ -30,14 +30,15 @@ describe('Test RoomService', () => {
     });
     it('creates a room with same name', (done) => {
         assert.rejects(
-            () => { return roomService.create({
-                        name: 'Conference Room',
-                        capacity: 10,
-                        rentRateHour: 8,
-                        rentRateDay: 40,
-                    });
-                },
-                /Room \"(.*)\" is already taken/);
+            () => {
+                return roomService.create({
+                    name: 'Conference Room',
+                    capacity: 10,
+                    rentRateHour: 8,
+                    rentRateDay: 40,
+                });
+            },
+            /Room \"(.*)\" is already taken/);
         done();
     });
     it('getAll()', (done) => {
@@ -77,8 +78,7 @@ describe('Test RoomService', () => {
                     assert(room.rentRateHour === 5);
                     done();
                 });
-            });
+        });
     });
 
 });
-

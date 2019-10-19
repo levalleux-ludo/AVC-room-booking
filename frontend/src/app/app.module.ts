@@ -64,6 +64,7 @@ import { ConfigureOrganisationsComponent } from './configure-organisations/confi
 import { ConfigureRoomsComponent } from './configure-rooms/configure-rooms.component';
 import { ConfigureExtrasComponent } from './configure-extras/configure-extras.component';
 import { ConfigureGenericComponent } from './configure-generic/configure-generic.component';
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +92,8 @@ import { ConfigureGenericComponent } from './configure-generic/configure-generic
     ConfigureOrganisationsComponent,
     ConfigureRoomsComponent,
     ConfigureExtrasComponent,
-    ConfigureGenericComponent
+    ConfigureGenericComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     CommonModule,
@@ -141,7 +143,8 @@ import { ConfigureGenericComponent } from './configure-generic/configure-generic
   ],
   bootstrap: [AppComponent],
   entryComponents: [
-    BookingDialogComponent // required to use the component as a dialog body
+    BookingDialogComponent, // required to use the component as a dialog body
+    ConfirmDialogComponent
   ]
 })
 export class AppModule { }

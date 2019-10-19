@@ -17,13 +17,14 @@ app.use(jwt());
 app.use('/users', require('./users/users.controller'));
 app.use('/room', require('./rooms/room.controller'));
 app.use('/booking', require('./bookings/booking.controller'));
+app.use('/extra', require('./extras/extras.controller'));
 
 // global error handler
 app.use(errorHandler);
 
 // start server
 const port = process.env.NODE_ENV === 'production' ? (process.env.PORT || 80) : 4000;
-const server = app.listen(port, function () {
+const server = app.listen(port, function() {
     console.log('Server listening on port ' + port);
 });
 

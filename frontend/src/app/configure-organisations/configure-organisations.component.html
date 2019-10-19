@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+<!-- <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
     <div fxLayout="column" style="width: 20em;">
         <mat-list>
             <mat-list-item *ngFor="let organization of organizations">
@@ -16,4 +16,20 @@
             <button mat-button (click)="addNew = false; create(companyName.value);">Submit</button>
         </div>
     </div>
-</div>
+</div> -->
+
+<ng-template #tableHeadersTemplate>
+    <th>Organization</th>
+</ng-template>
+<ng-template #itemRowTemplate let-organization="organization">
+    <td>
+        <div class="organization">{{organization}}</div>
+    </td>
+</ng-template>
+<ng-template #itemEditTemplate let-organization="organization" let-setOrganization="setOrganization">
+    <mat-form-field appearance="standard" required>
+        <input #companyName matInput required placeholder="Enter Organization Name" [value]="organization" (change)="setOrganization($event.target.value)">
+    </mat-form-field>
+</ng-template>
+<app-configure-generic [items]="organizations" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [delete]="delete" [update]="update" [create]="create" [newItem]="newItem" [getEditedItem]="getEditedItem"
+    [setEditedItem]="setEditedItem" [getItemEditContext]="getItemEditContext" [submitEnabled]="submitEnabled" [itemToString]="itemToString"></app-configure-generic>
