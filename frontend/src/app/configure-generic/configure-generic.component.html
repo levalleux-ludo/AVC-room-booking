@@ -1,0 +1,42 @@
+<!-- <div>
+    <tr *ngFor="let item of items">
+        <td>
+            <ng-container *ngTemplateOutlet="myItemTemplate;context:item"></ng-container>
+        </td>
+        <td>
+            <button class="edit" title="edit extra"><i class="fa fa-edit"></i></button>
+        </td>
+        <td>
+            <button class="delete" title="delete extra"><i class="fa fa-trash"></i></button>
+        </td>
+    </tr>
+</div> -->
+
+<div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+    <table style="width: 24em;">
+        <tr>
+            <ng-container *ngTemplateOutlet="tableHeadersTemplate;context:item"></ng-container>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr *ngFor="let item of items">
+            <ng-container *ngTemplateOutlet="itemRowTemplate;context:item"></ng-container>
+            <td>
+                <button class="edit" title="edit '{{itemToString(item)}}'" (click)="setEditedItem(item); submitAction=update; editItem = true;"><i class="fa fa-edit"></i></button>
+            </td>
+            <td>
+                <button class="delete" title="delete '{{itemToString(item)}}'" (click)="delete(item)"><i class="fa fa-trash"></i></button>
+            </td>
+        </tr>
+    </table>
+    <div fxLayout="column" style="width: 20em;">
+        <button mat-button [disabled]="editItem" (click)="setEditedItem(newItem()); submitAction=create; editItem = true;">Add</button>
+        <div *ngIf="editItem">
+            <ng-container *ngTemplateOutlet="itemEditTemplate;context:getItemEditContext()"></ng-container>
+            <div>
+                <button mat-button (click)="editItem = false">Cancel</button>
+                <button #submit [disabled]="!submitEnabled()" mat-button (click)="editItem = false; submitAction(getEditedItem());">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

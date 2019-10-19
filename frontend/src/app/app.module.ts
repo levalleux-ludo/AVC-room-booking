@@ -63,6 +63,7 @@ import { ConfigureComponent } from './configure/configure.component';
 import { ConfigureOrganisationsComponent } from './configure-organisations/configure-organisations.component';
 import { ConfigureRoomsComponent } from './configure-rooms/configure-rooms.component';
 import { ConfigureExtrasComponent } from './configure-extras/configure-extras.component';
+import { ConfigureGenericComponent } from './configure-generic/configure-generic.component';
 
 @NgModule({
   declarations: [
@@ -90,7 +91,7 @@ import { ConfigureExtrasComponent } from './configure-extras/configure-extras.co
     ConfigureOrganisationsComponent,
     ConfigureRoomsComponent,
     ConfigureExtrasComponent,
-    PriceDisplayComponent
+    ConfigureGenericComponent
   ],
   imports: [
     CommonModule,
