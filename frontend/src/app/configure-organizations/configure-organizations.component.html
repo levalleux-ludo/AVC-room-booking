@@ -21,14 +21,14 @@
 <ng-template #tableHeadersTemplate>
     <th>Organization</th>
 </ng-template>
-<ng-template #itemRowTemplate let-organization="organization">
+<ng-template #itemRowTemplate let-name="name">
     <td>
-        <div class="organization">{{organization}}</div>
+        <div class="organization">{{name}}</div>
     </td>
 </ng-template>
-<ng-template #itemEditTemplate let-organization="organization" let-setOrganization="setOrganization">
+<ng-template #itemEditTemplate let-name="name" let-setName="setName">
     <mat-form-field appearance="standard" required>
-        <input #companyName matInput required placeholder="Enter Organization Name" [value]="organization" (change)="setOrganization($event.target.value)">
+        <input #companyName matInput required placeholder="Enter Organization Name" [value]="name" (change)="setName($event.target.value)">
     </mat-form-field>
 </ng-template>
 <app-configure-generic [items]="organizations" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [delete]="delete" [update]="update" [create]="create" [newItem]="newItem" [getEditedItem]="getEditedItem"

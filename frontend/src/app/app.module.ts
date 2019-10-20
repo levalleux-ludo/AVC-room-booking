@@ -60,7 +60,7 @@ import { MatCarouselModule } from '@ngmodule/material-carousel';
 import { BookingDialogComponent } from './booking-dialog/booking-dialog.component';
 import { PriceDisplayComponent } from './price-display/price-display.component';
 import { ConfigureComponent } from './configure/configure.component';
-import { ConfigureOrganisationsComponent } from './configure-organisations/configure-organisations.component';
+import { ConfigureOrganizationsComponent } from './configure-organizations/configure-organizations.component';
 import { ConfigureRoomsComponent } from './configure-rooms/configure-rooms.component';
 import { ConfigureExtrasComponent } from './configure-extras/configure-extras.component';
 import { ConfigureGenericComponent } from './configure-generic/configure-generic.component';
@@ -89,7 +89,7 @@ import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.componen
     BookingDialogComponent,
     PriceDisplayComponent,
     ConfigureComponent,
-    ConfigureOrganisationsComponent,
+    ConfigureOrganizationsComponent,
     ConfigureRoomsComponent,
     ConfigureExtrasComponent,
     ConfigureGenericComponent,

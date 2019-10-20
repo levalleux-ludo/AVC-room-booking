@@ -7,7 +7,8 @@ module.exports = {
     User: require('../users/user.model').model,
     Room: require('../rooms/room.model').model,
     Booking: require('../bookings/booking.model').model,
-    Extra: require('../extras/extras.model').model
+    Extra: require('../extras/extras.model').model,
+    Organization: require('../organizations/organization.model').model
         // rooms: require('../rooms/room.model').collection,
         // users: require('../users/user.model').collection,
         // db: mongoose.connection,
