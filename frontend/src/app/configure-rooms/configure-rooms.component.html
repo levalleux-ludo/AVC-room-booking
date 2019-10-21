@@ -1,22 +1,80 @@
 <ng-template #tableHeadersTemplate>
-    <th>Extra Service</th>
-    <th>Rate</th>
+    <th>Rooms</th>
 </ng-template>
-<ng-template #itemRowTemplate let-extra="extra" let-rate="defaultRate">
-    <td>
-        <div class="extra">{{extra}}</div>
-    </td>
-    <td>
-        <div class="rate">{{rate | currency:'GBP':'symbol-narrow'}}</div>
-    </td>
+<ng-template #itemRowTemplate let-name="name" let-descriptionHTML="descriptionHTML" let-rate="defaultRate" let-capacity="capacity" let-availableExtras="availableExtras" let-pictures="pictures">
+    <mat-expansion-panel>
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                <div class="name">{{name}}</div>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div fxFlex fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+            <div fxFlex>
+                <mat-card>
+                    <mat-card-header>
+                        <h3><i class="fa fa-home" aria-hidden="true"></i>Description</h3>
+                    </mat-card-header>
+                    <mat-card-content class="descriptionHTML">
+                        <div [innerHTML]="descriptionHTML"></div>
+                    </mat-card-content>
+                    <mat-card-footer>
+                    </mat-card-footer>
+                </mat-card>
+                <mat-card>
+                    <mat-card-header>
+                        <h3><i class="fa fa-info-circle" aria-hidden="true"></i>Specifications</h3>
+                    </mat-card-header>
+                    <mat-card-content style="width: 15em;">
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Rate:</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{rate | currency:'GBP':'symbol-narrow'}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Capacity:</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{capacity}}</div>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card>
+                    <mat-card-header>
+                        <h3><i class="fa fa-coffee" aria-hidden="true"></i>Available Services (Extras)</h3>
+                    </mat-card-header>
+                    <mat-card-content style="padding: 2em;">
+                        <div fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="flex-start">
+                            <div *ngFor="let extra of availableExtras" class="extra">{{extra.extra}} ({{extra.defaultRate}})</div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card>
+                    <mat-card-header>
+                        <h3><i class="fa fa-coffee" aria-hidden="true"></i>Pictures</h3>
+                    </mat-card-header>
+                    <mat-card-content style="padding: 2em;">
+                        <div fxFlex fxLayout="column" fxLayoutAlign="top">
+                            <div *ngFor="let picture of pictures" class="picture">
+                                <img src="picture">
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+    </mat-expansion-panel>
 </ng-template>
-<ng-template #itemEditTemplate let-extra="extra" let-defaultRate="defaultRate" let-setExtra="setExtra" let-setDefaultRate="setDefaultRate">
-    <mat-form-field appearance="standard" required>
-        <input #extraName matInput required placeholder="Enter extra Name" [value]="extra" (change)="setExtra($event.target.value)">
-    </mat-form-field>
-    <mat-form-field appearance="standard" required>
-        <input #extraRate matInput required type="number" placeholder="Enter extra Rate" [value]="defaultRate" (change)="setDefaultRate($event.target.value)">
-    </mat-form-field>
+<ng-template #itemEditTemplate let-name="name" let-descriptionHTML="descriptionHTML" let-rate="defaultRate" let-capacity="capacity" let-availableExtras="availableExtras" let-pictures="pictures">
+
 </ng-template>
-<app-configure-generic [items]="items" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [delete]="delete" [update]="update" [create]="create" [newItem]="newItem" [getEditedItem]="getEditedItem"
-    [setEditedItem]="setEditedItem" [getItemEditContext]="getItemEditContext" [submitEnabled]="submitEnabled" [itemToString]="itemToString"></app-configure-generic>
+<app-configure-generic [listStyle]="'table'" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>

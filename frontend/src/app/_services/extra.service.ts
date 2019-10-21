@@ -62,7 +62,7 @@ export class ExtraService extends FetchService {
   updateExtra(extra: Extra): Observable<any> {
     const url = `${this.apiExtras}/${extra.id}`;
     return this.http.put(url, extra.getData(), this.httpOptions).pipe(
-      tap(_ => this.log(`updated extra ${extra.extra}`)),
+      tap(_ => this.log(`updated extra ${extra.name}`)),
       catchError(this.handleError<any>('updateExtra'))
     );
   }

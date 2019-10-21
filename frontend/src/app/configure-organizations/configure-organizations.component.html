@@ -31,5 +31,4 @@
         <input #companyName matInput required placeholder="Enter Organization Name" [value]="name" (change)="setName($event.target.value)">
     </mat-form-field>
 </ng-template>
-<app-configure-generic [items]="organizations" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [delete]="delete" [update]="update" [create]="create" [newItem]="newItem" [getEditedItem]="getEditedItem"
-    [setEditedItem]="setEditedItem" [getItemEditContext]="getItemEditContext" [submitEnabled]="submitEnabled" [itemToString]="itemToString"></app-configure-generic>
+<app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>

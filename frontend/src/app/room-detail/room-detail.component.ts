@@ -45,7 +45,7 @@ export class RoomDetailComponent implements OnInit {
   getAllRooms() {
 this.roomService.getRooms().subscribe(
   rooms => {
-    this.rooms = rooms;
+    this.rooms = rooms.map(room => new Room(room));
   }
 )  }
 
@@ -54,7 +54,7 @@ this.roomService.getRooms().subscribe(
     console.log("RoomDetailComponent get room name from URL :", name);
     this.roomService.getRoom(name).subscribe(
       room => {
-        this.room = room;
+        this.room = new Room(room);
         this.getBookings(this.room.id);
         this.images = [this.roomService.getRoomImage(room.name)];
       });

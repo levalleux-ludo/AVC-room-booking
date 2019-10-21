@@ -27,6 +27,10 @@ export class RoomService extends FetchService {
 
   private apiRooms = `${environment.apiRoomBooking}/room`;
 
+  httpOptions = {
+    headers: new HttpHeaders({'Content-Type': 'application/json' })
+  }
+
   constructor(
     protected http: HttpClient
   ) {
@@ -63,6 +67,31 @@ export class RoomService extends FetchService {
 
   getRoomImage(roomName): string {
     return imageDir + '/' + roomImages[roomName];
+  }
+
+  createRoom(room: Room): Observable<Room> {
+    return this.http.post<Room>(`${this.apiRooms}/create`, room.getData(), this.httpOptions).pipe(
+      tap((newRoom) => this.log(`created room ${newRoom}`)),
+      catchError(this.handleError<Room>('createRoom'))
+    )
+  }
+
+  updateRoom(room: Room): Observable<any> {
+    const url = `${this.apiRooms}/${room.id}`;
+    return this.http.put(url, room.getData(), this.httpOptions).pipe(
+      tap(_ => this.log(`updated room ${room.name}`)),
+      catchError(this.handleError<any>('updateRoom'))
+    );
+  }
+
+  deleteRoom(room: Room | number) : Observable<Room> {
+    const id = typeof  room === 'number' ? room : room.id;
+    const url = `${this.apiRooms}/${id}`;
+
+    return this.http.delete<Room>(url, this.httpOptions).pipe(
+      tap(_ => this.log(`deleted room id=${id}`)),
+      catchError(this.handleError<Room>('deleteRoom'))
+    );
   }
 
 }

@@ -1,122 +1,197 @@
 import { Component, OnInit } from '@angular/core';
 import { v4 as uuid } from 'uuid';
+import { Room } from '../model';
+import { MatDialog } from '@angular/material';
+import { RoomService } from '../_services/room.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { Extra } from '../model/extra';
+import { ExtraService } from '../_services/extra.service';
+import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
 
+var allAvailableExtras: Extra[];
 
-
-
-class Extra {
-  private _id = uuid();
-  constructor (
-    private _extra: string,
-    private _defaultRate: number
-  ) {}
-
-  clone(): Extra {
-    let copy = new Extra(this.extra, this.defaultRate);
-    copy._id = this._id;
-    return copy;
-  }
-
-  copyContentFrom(original: Extra) {
-    this.extra = original.extra;
-    this.defaultRate = original.defaultRate;
-  }
-
-  get id () {
-    return this._id;
-  }
-
-  get extra() {
-    return this._extra;
-  }
-  set extra(value: string) {
-    this._extra = value;
-  }
-
-  get defaultRate() {
-    return this._defaultRate;
-  }
-  set defaultRate(value: number) {
-    this._defaultRate = value;
-  }
-
-  context() {
-    return {
-      extra: this.extra,
-      defaultRate: this.defaultRate,
-      setExtra: (value) => {this.extra = value;},
-      setDefaultRate: (value) => {this.defaultRate = value;}
-    }
+function getExtraFromId(extraId): Extra {
+  let extra = allAvailableExtras.find(extra => (extra.id === extraId));
+  if (!extra) {
+    console.error("Unable to find Extra with Id:", extraId);
+    return extra;
   }
 }
 
-
+class RoomContext implements IItemContext {
+  room;
+  
+  constructor(room: Room) {
+    this.room = room;
+  }
+  clone() {
+    return new RoomContext(this.room.clone());
+  }
+  context() {
+    return {
+      room: this.room,
+      name: this.room.name,
+      descriptionHTML: this.room.descriptionHTML,
+      defaultRate: this.room.rentRateHour,
+      capacity: this.room.capacity,
+      availableExtras: this.room.availableExtras.map(extraId => getExtraFromId(extraId)).filter(extra => (extra !== undefined)),
+      pictures: this.room.pictures,
+      setName: (value) => {this.room.name = value;},
+      setDescriptionHTML: (value) => {this.room.descriptionHTML = value;},
+      setDefaultRate: (value) => {this.room.rentRateHour = value;},
+      setCapacity: (value) => {this.room.capacity = value;},
+      setAvailableExtras: (value) => {this.room.availableExtras = value.map(extra => extra.Id);},
+      setPictures: (value) => {this.room.pictures = value;}
+    }
+  }
+}
 
 @Component({
   selector: 'app-configure-rooms',
   templateUrl: './configure-rooms.component.html',
   styleUrls: ['./configure-rooms.component.scss']
 })
-export class ConfigureRoomsComponent implements OnInit {
+export class ConfigureRoomsComponent extends ConfigureAbstractComponent implements OnInit {
 
-  items = [
-    new Extra('flipchart_paper_pens', 5.5),
-    new Extra('projector_screen', 5.5),
-    new Extra('refreshment_fullDay', 15.5),
-    new Extra('refreshment_halfDay', 10)
-  ];
+  rooms = [];
+  _editedItem: RoomContext;
 
-  delete = (item) => {
-    console.log("would like to delete item: ", this.itemToString(item));
+  //////////////////////////////////////////////////////
+  /// ConfigureAbstractComponent implementation
+  get items(): IItemContext[] {
+    return this.rooms;
+  }
+  deleteItem = (item: IItemContext) => {
+    this.roomService.deleteRoom((item as RoomContext).room).subscribe(() => this.refreshList());
+  }
+  createItem = (item: IItemContext) => {
+    this.roomService.createRoom((item as RoomContext).room).subscribe(() => this.refreshList());
+  }
+  updateItem = (item: IItemContext) => {
+    this.roomService.updateRoom((item as RoomContext).room).subscribe(() => this.refreshList());
+  }
+  getNewItem(): IItemContext {
+    return new RoomContext(new Room({}));
+  }
+  get editedItem(): IItemContext {
+    return this._editedItem;
+  }
+  set editedItem(item: IItemContext) {
+    this._editedItem = item as RoomContext;
+  }
+  get submitEnabled(): boolean {
+    if (!this._editedItem)
+      return false;
+    let room = (this.editedItem as RoomContext).room;
+    return room.name !== '' && room.capacity !== 0 && room.descriptionHTML !== '' && room.rentRateHour !== 0 && room.pictures.length > 0;
+  }
+  itemToString(item: IItemContext): string {
+    return (item as RoomContext).room.name;
   }
 
-  update = (item) => {
-    console.log("would like to udpate item: ", item);
-    let toUpdate = this.items.find(candidate => (candidate.id === item.id));
-    if (!toUpdate) {
-      throw new Error("Unable to find extra with id " + item.id);
-    }
-    toUpdate.copyContentFrom(item);
-  }
+  //////////////////////////////////////////////////////
 
-  create = (item) => {
-    console.log("would like to create new item: ", item);
-    this.items.push(item);
-  }
+  // delete = (item) => {
+  //   let room = item.room;
+  //   console.log("would like to delete room: ", room);
+  //   const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+  //     width: '350px',
+  //     data: {title: "Delete Confirmation", message: `Are you sure you want to delete room '${room.name}'`}
+  //   });
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if (result) {
+  //       this.roomService.deleteRoom(room).subscribe(() => this.refreshList());
+  //     }
+  //   });
+  // }
 
-  newItem = () => {
-    console.log("ConfigureRoomsComponent::newItem()");
-    return new Extra('', 0);
-  }
+  // update = (item) => {
+  //   let room = item.room;
+  //   console.log("would like to edit room: ", room);
+  //   this.roomService.updateRoom(room).subscribe(
+  //     () => {
+  //       this.refreshList();
+  //     }
+  //   )
+  // }
 
-  getEditedItem = () => {
-    return this.editedItem;
-  }
+  // create = (item) => {
+  //   let room = item.room;
+  //   console.log("would like to create a new room called: ", room.name);
+  //   this.roomService.createRoom(room).subscribe(
+  //     () => {
+  //       this.refreshList();
+  //     }
+  //   )
+  // }
 
-  getItemEditContext = () => {
-    return this.editedItem.context();
-  }
+  // newItem = () => {
+  //   console.log("ConfigureRoomsComponent::newItem()");
+  //   let room = new Room({});
+  //   return this.room2Context(room);
+  // }
 
-  setEditedItem = (item) => {
-    console.log("ConfigureRoomsComponent::setEditedItem()", item);
-    this.editedItem = item.clone();
-  }
+  // getEditedItem = () => {
+  //   return this.editedItem;
+  // }
 
-  submitEnabled = () => {
-    return this.editedItem && this.editedItem.extra !== '';
-  }
+  // getItemEditContext = () => {
+  //   return this.room2Context(this.editedItem);
+  // }
 
-  itemToString = (item) => {
-    return item.extra;
-  }
+  // setEditedItem = (item) => {
+  //   console.log("ConfigureRoomsComponent::setEditedItem()", item);
+  //   this.editedItem = this.room2Context(item.room);
+  // }
 
-  constructor() { }
+  // submitEnabled = () => {
+  //   return this.editedItem && this.editedItem.name !== '' && this.editedItem.capacity !== 0 && this.editedItem.descriptionHTML !== '' && this.editedItem.rentRateHour !== 0 && this.editedItem.pictures.length > 0;
+  // }
+
+  // itemToString = (item) => {
+  //   return item.name;
+  // }
+
+  constructor(
+    private roomService: RoomService,
+    private extraService: ExtraService,
+  ) { 
+    super();
+  }
 
   ngOnInit() {
+    this.refreshList();
   }
 
-  editedItem: Extra = new Extra('', 0);
+  async refreshList() {
+    await this.extraService.getExtras().subscribe(extras => {
+      allAvailableExtras = extras.map(extra => new Extra(extra));
+    });
+    this.roomService.getRooms().subscribe(rooms => {
+      this.rooms = rooms.map(room => new RoomContext(new Room(room)));
+    });
+  }
 
+  // editedItem;
+
+  // room2Context(room: Room) {
+  //   return {
+  //     room: room,
+  //     name: room.name,
+  //     descriptionHTML: room.descriptionHTML,
+  //     defaultRate: room.rentRateHour,
+  //     capacity: room.capacity,
+  //     availableExtras: room.availableExtras.map(extraId => this.getExtraFromId(extraId)).filter(extra => (extra !== undefined)),
+  //     pictures: room.pictures,
+  //     setName: (value) => {room.name = value;},
+  //     setDescriptionHTML: (value) => {room.descriptionHTML = value;},
+  //     setDefaultRate: (value) => {room.rentRateHour = value;},
+  //     setCapacity: (value) => {room.capacity = value;},
+  //     setAvailableExtras: (value) => {room.availableExtras = value;},
+  //     setPictures: (value) => {room.pictures = value;}
+  //   }
+  // }
+  
   // get extra() {
   //   return this.editedItem.extra;
   // }

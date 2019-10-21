@@ -28,7 +28,8 @@ import {
   MatDialogModule,
   MatTooltipModule,
   MatExpansionModule,
-  MatListModule
+  MatListModule,
+  MatTabsModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './time-picker/time-picker.component';
@@ -110,6 +111,7 @@ import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.componen
     MatSelectModule,
     MatTooltipModule,
     MatExpansionModule,
+    MatTabsModule,
     FormsModule,
     NgbModalModule,
     FlatpickrModule.forRoot(),

@@ -101,7 +101,7 @@ export class BookingDetailComponent implements OnInit {
   getRoom(roomId) {
     this.roomService.getRoomFromId(roomId).subscribe(
       room => {
-        this.room = room;
+        this.room = new Room(room);
         this.booking.roomId = this.room.id;
       }
     );

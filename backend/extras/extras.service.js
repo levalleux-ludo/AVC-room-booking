@@ -19,14 +19,14 @@ async function getById(id) {
 }
 
 async function getByName(name) {
-    return await Extra.findOne({ extra: name });
+    return await Extra.findOne({ name: name });
 }
 
 async function create(extraParam) {
     // validate
-    if (await Extra.findOne({ extra: extraParam.extra })) {
-        console.log('found the extra', extraParam.extra);
-        throw 'An extra with the name "' + extraParam.extra + '" already exists';
+    if (await Extra.findOne({ name: extraParam.name })) {
+        console.log('found the extra', extraParam.name);
+        throw 'An extra with the name "' + extraParam.name + '" already exists';
     }
 
     const extra = new Extra(extraParam);

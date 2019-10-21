@@ -2,20 +2,20 @@ import { v4 as uuid } from 'uuid';
 
 export class Extra {
     private _id;
-    private _extra: string;
+    private _name: string;
     private _defaultRate: number;
     constructor(fetched_data: any) {
-        this._extra = (fetched_data.extra)?fetched_data.extra:'';
+        this._name = (fetched_data.name)?fetched_data.name:'';
         this._defaultRate = (fetched_data.defaultRate)?fetched_data.defaultRate:0;
         this._id = (fetched_data.id)?fetched_data.id:uuid();
     }
 
     clone(): Extra {
-        return new Extra({id: this.id, extra: this.extra, defaultRate: this.defaultRate});
+        return new Extra({id: this.id, name: this.name, defaultRate: this.defaultRate});
     }
 
     copyContentFrom(original: Extra) {
-        this.extra = original.extra;
+        this.name = original.name;
         this.defaultRate = original.defaultRate;
     }
 
@@ -23,11 +23,11 @@ export class Extra {
         return this._id;
     }
 
-    get extra() {
-        return this._extra;
+    get name() {
+        return this._name;
     }
-    set extra(value: string) {
-        this._extra = value;
+    set name(value: string) {
+        this._name = value;
     }
 
     get defaultRate() {
@@ -39,7 +39,7 @@ export class Extra {
 
     getData() {
         return {
-            extra: this.extra,
+            name: this.name,
             defaultRate: this.defaultRate
         };
     }

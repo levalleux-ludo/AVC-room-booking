@@ -2,21 +2,20 @@
     <th>Extra Service</th>
     <th>Rate</th>
 </ng-template>
-<ng-template #itemRowTemplate let-extra="extra" let-rate="defaultRate">
+<ng-template #itemRowTemplate let-name="name" let-rate="defaultRate">
     <td>
-        <div class="extra">{{extra}}</div>
+        <div class="extra">{{name}}</div>
     </td>
     <td>
         <div class="rate">{{rate | currency:'GBP':'symbol-narrow'}}</div>
     </td>
 </ng-template>
-<ng-template #itemEditTemplate let-extra="extra" let-defaultRate="defaultRate" let-setExtra="setExtra" let-setDefaultRate="setDefaultRate">
-    <mat-form-field appearance="standard" required>
-        <input #extraName matInput required placeholder="Enter extra Name" [value]="extra" (change)="setExtra($event.target.value)">
+<ng-template #itemEditTemplate let-name="name" let-defaultRate="defaultRate" let-setName="setName" let-setDefaultRate="setDefaultRate">
+    <mat-form-field appearance="outline" required>
+        <input #extraName matInput required placeholder="Enter Extra Name" [value]="name" (change)="setName($event.target.value)">
     </mat-form-field>
-    <mat-form-field appearance="standard" required>
-        <input #extraRate matInput required type="number" placeholder="Enter extra Rate" [value]="defaultRate" (change)="setDefaultRate($event.target.value)">
+    <mat-form-field appearance="outline" required>
+        <input #extraRate matInput required type="number" placeholder="Enter Extra Rate" [value]="defaultRate" (change)="setDefaultRate($event.target.value)">
     </mat-form-field>
 </ng-template>
-<app-configure-generic [items]="items" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [delete]="delete" [update]="update" [create]="create" [newItem]="newItem" [getEditedItem]="getEditedItem"
-    [setEditedItem]="setEditedItem" [getItemEditContext]="getItemEditContext" [submitEnabled]="submitEnabled" [itemToString]="itemToString"></app-configure-generic>
+<app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>

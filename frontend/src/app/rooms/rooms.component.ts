@@ -21,7 +21,7 @@ export class RoomsComponent implements OnInit {
 
   getRooms(): void {
     this.roomService.getRooms().subscribe(
-      rooms => this.rooms = rooms
+      rooms => this.rooms = rooms.map(room => new Room(room))
     );
   }
 

@@ -4,88 +4,133 @@ import { v4 as uuid } from 'uuid';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { Organization } from '../model/organization';
 import { OrganizationService } from '../_services/organization.service';
+import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
 
-function organization2Context(organization: Organization) {
-  return {
-    name: organization.name,
-    setName: (value) => {organization.name = value;},
+class OrganizationContext implements IItemContext {
+  organization;
+  
+  constructor(organization: Organization) {
+    this.organization = organization;
+  }
+  clone() {
+    return new OrganizationContext(this.organization.clone());
+  }
+  context() {
+    return {
+      organization: this.organization,
+      name: this.organization.name,
+      setName: (value) => {this.organization.name = value;},
+    }
   }
 }
-
 @Component({
   selector: 'app-configure-organizations',
   templateUrl: './configure-organizations.component.html',
   styleUrls: ['./configure-organizations.component.scss']
 })
-export class ConfigureOrganizationsComponent implements OnInit {
+export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent implements OnInit {
 
-  organizations = [
-    // new Organization("company1"),
-    // new Organization("company2"),
-    // new Organization("company3")
-  ];
- 
-  delete = (organization: Organization) => {
-    console.log("would like to delete organization: ", organization);
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '350px',
-      data: {title: "Delete Confirmation", message: `Are you sure you want to delete organization '${organization.name}'`}
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.organizationService.deleteOrganization(organization).subscribe(() => this.refreshList());
-      }
-    });
+  organizations = [];
+  _editedItem: OrganizationContext;
+
+   //////////////////////////////////////////////////////
+  /// ConfigureAbstractComponent implementation
+  get items(): IItemContext[] {
+    return this.organizations;
+  }
+  deleteItem = (item: IItemContext) => {
+    this.organizationService.deleteOrganization((item as OrganizationContext).organization).subscribe(() => this.refreshList());
+  }
+  createItem = (item: IItemContext) => { 
+  // createItem(item: IItemContext) {
+    this.organizationService.createOrganization((item as OrganizationContext).organization).subscribe(() => this.refreshList());
+  }
+  updateItem = (item: IItemContext) => {
+    this.organizationService.updateOrganization((item as OrganizationContext).organization).subscribe(() => this.refreshList());
+  }
+  getNewItem(): IItemContext {
+    return new OrganizationContext(new Organization({}));
+  }
+  get editedItem(): IItemContext {
+    return this._editedItem;
+  }
+  set editedItem(item: IItemContext) {
+    this._editedItem = item as OrganizationContext;
+  }
+  get submitEnabled(): boolean {
+    if (!this._editedItem)
+      return false;
+    let organization = (this.editedItem as OrganizationContext).organization;
+    return organization.name !== '';
+  }
+  itemToString(item: IItemContext): string {
+    return (item as OrganizationContext).organization.name;
   }
 
-  update = (organization: Organization) => {
-    console.log("would like to edit organization: ", organization);
-    this.organizationService.updateOrganization(organization).subscribe(
-      () => {
-        this.refreshList();
-      }
-    )
-  }
+  //////////////////////////////////////////////////////
 
-  create = (organization: Organization) => {
-    console.log("would like to create a new organization called: ", organization.name);
-    this.organizationService.createOrganization(organization).subscribe(
-      () => {
-        this.refreshList();
-      }
-    )
-  }
+  // delete = (item) => {
+  //   let organization = item.organization;
+  //   console.log("would like to delete organization: ", organization);
+  //   const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+  //     width: '350px',
+  //     data: {title: "Delete Confirmation", message: `Are you sure you want to delete organization '${organization.name}'`}
+  //   });
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if (result) {
+  //       this.organizationService.deleteOrganization(organization).subscribe(() => this.refreshList());
+  //     }
+  //   });
+  // }
 
-  newItem = () => {
-    console.log("ConfigureOrganizationsComponent::newItem()");
-    return new Organization('');
-  }
+  // update = (item) => {
+  //   let organization = item.organization;
+  //   console.log("would like to edit organization: ", organization.name);
+  //   this.organizationService.updateOrganization(organization).subscribe(
+  //     () => {
+  //       this.refreshList();
+  //     }
+  //   )
+  // }
 
-  getEditedItem = () => {
-    return this.editedItem;
-  }
+  // create = (item) => {
+  //   let organization = item.organization;
+  //   console.log("would like to create a new organization called: ", organization.name);
+  //   this.organizationService.createOrganization(organization).subscribe(
+  //     () => {
+  //       this.refreshList();
+  //     }
+  //   )
+  // }
 
-  getItemEditContext = () => {
-    return organization2Context(this.editedItem);
-  }
+  // newItem = () => {
+  //   console.log("ConfigureOrganizationsComponent::newItem()");
+  //   return this.organization2Context(new Organization(''));
+  // }
 
-  setEditedItem = (item) => {
-    console.log("ConfigureOrganizationsComponent::setEditedItem()", item);
-    this.editedItem = item.clone();
-  }
+  // getEditedItem = () => {
+  //   return this.editedItem;
+  // }
 
-  submitEnabled = () => {
-    return this.editedItem && this.editedItem.name !== '';
-  }
+  // setEditedItem = (item) => {
+  //   console.log("ConfigureOrganizationsComponent::setEditedItem()", item);
+  //   this.editedItem = this.organization2Context(item.organization.clone()); // clone item context
+  // }
 
-  itemToString = (item) => {
-    return item.organization;
-  }
+  // submitEnabled = () => {
+  //   return this.editedItem && this.editedItem.name !== '';
+  // }
+
+  // itemToString = (item) => {
+  //   return item.name;
+  // }
 
   constructor( 
     private organizationService: OrganizationService,
     private dialog: MatDialog
-     ) { }
+     ) {
+       super();
+     }
 
   ngOnInit() {
     this.refreshList();
@@ -93,12 +138,18 @@ export class ConfigureOrganizationsComponent implements OnInit {
 
   refreshList() {
     this.organizationService.getOrganizations().subscribe(organizations => {
-      this.organizations = organizations.map(organization => new Organization(organization));
+      this.organizations = organizations.map(organization => new OrganizationContext(new Organization(organization)));
     });
 
   }
 
-  editedItem: Organization = new Organization('');
-
-
+  // organization2Context(organization: Organization) {
+  //   return {
+  //     organization: organization,
+  //     name: organization.name,
+  //     setName: (value) => {organization.name = value;},
+  //   }
+  // }
+  
+  
 }

@@ -46,7 +46,7 @@ export class BookingDialogComponent implements OnInit {
       this.priceDisplay.extras = {};
     }
     for (let extra of this._selectedExtras) {
-      this.priceDisplay.extras[extra.extra] = extra.defaultRate;
+      this.priceDisplay.extras[extra.name] = extra.defaultRate;
     }
   }
   get selectedExtras() {

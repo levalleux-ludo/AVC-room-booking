@@ -1,6 +1,24 @@
 import {Component, Input} from "@angular/core";
+import { ConfigureComponent } from '../configure/configure.component';
+import { MatDialog } from '@angular/material';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
  
 
+export interface IItemContext {
+  clone();
+  context(): any;
+}
+export abstract class ConfigureAbstractComponent {
+  abstract get items(): IItemContext[];
+  abstract deleteItem: (item: IItemContext) => void;
+  abstract createItem: (item: IItemContext) => void;
+  abstract updateItem: (item: IItemContext) => void;
+  abstract getNewItem(): IItemContext;
+  abstract get editedItem(): IItemContext;
+  abstract set editedItem(item: IItemContext);
+  abstract get submitEnabled(): boolean;
+  abstract itemToString(item: IItemContext): string;
+}
 @Component({
   selector: 'app-configure-generic',
   templateUrl: './configure-generic.component.html',
@@ -9,7 +27,7 @@ import {Component, Input} from "@angular/core";
 export class ConfigureGenericComponent {
   
   @Input()
-  items: any[];
+  configureComponent: ConfigureAbstractComponent;
 
   @Input()
   tableHeadersTemplate: string;
@@ -19,35 +37,17 @@ export class ConfigureGenericComponent {
 
   @Input()
   itemEditTemplate: string;
-
-  @Input()
-  delete: (item) => void;
-
-  @Input()
-  update: (item) => void;
-
-  @Input()
-  create: (item) => void;
-
-  @Input()
-  newItem: () => any;
-
-  @Input()
-  getEditedItem: () => any;
-
-  @Input()
-  getItemEditContext: () => any;
   
   @Input()
-  setEditedItem: (item) => void;
-  
-  @Input()
-  submitEnabled: () => boolean;
+  tableWidth = 24;
 
   @Input()
-  itemToString: (item) => string;
+  listStyle = 'table';
 
-  constructor() { }
+  constructor(
+    private dialog: MatDialog
+
+  ) { }
 
   ngOnInit() {
   }
@@ -58,32 +58,42 @@ export class ConfigureGenericComponent {
 
   onClickAdd() {
     this.editItem = true;
-    if (!this.setEditedItem) {
-      throw new Error("'setEditedItem' input must be defined for ConfigureGenericComponent");
+    if (!this.configureComponent) {
+      throw new Error("'configureComponent' input must be defined for ConfigureGenericComponent");
     }
-    if (!this.newItem) {
-      throw new Error("'newItem' input must be defined for ConfigureGenericComponent");
-    }
-    if (!this.create) {
-      throw new Error("'newItem' input must be defined for ConfigureGenericComponent");
-    }
-    this.setEditedItem(this.newItem());
-    this.submitAction=this.create;
+    this.configureComponent.editedItem = this.configureComponent.getNewItem();
+    this.submitAction=this.configureComponent.createItem;
   }
 
-  onClickEdit(item) {
+  onClickEdit(item: IItemContext) {
     this.editItem = true;
-    if (!this.setEditedItem) {
-      throw new Error("'setEditedItem' input must be defined for ConfigureGenericComponent");
+    if (!this.configureComponent) {
+      throw new Error("'configureComponent' input must be defined for ConfigureGenericComponent");
     }
-    if (!this.newItem) {
-      throw new Error("'newItem' input must be defined for ConfigureGenericComponent");
-    }
-    if (!this.create) {
-      throw new Error("'newItem' input must be defined for ConfigureGenericComponent");
-    }
-    this.setEditedItem(item);
-    this.submitAction=this.update;
+    this.configureComponent.editedItem = item.clone();
+    this.submitAction=this.configureComponent.updateItem;
+  }
+
+  onClickDelete(item: IItemContext) {
+    let itemName = this.configureComponent.itemToString(item);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {title: "Delete Confirmation", message: `Are you sure you want to delete item '${itemName}'`}
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.configureComponent.deleteItem(item);
+      }
+    });
+  }
+
+  onClickSubmit() {
+    this.editItem = false;
+    this.submitAction(this.configureComponent.editedItem);
+  }
+
+  onClickCancel() {
+    this.editItem = false;
   }
 
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { InitDbService } from '../_services/init-db.service';
 import { AuthenticationService } from '../_services';
 import { RoomService } from '../_services/room.service';
+import { Room } from '../model';
 
 @Component({
   selector: 'app-init-db',
@@ -15,7 +16,7 @@ export class InitDBComponent implements OnInit {
   firstName = "Walt";
   lastName = "Disney";
   user;
-  rooms;
+  rooms: Room[];
 
   constructor(
     private initDbService: InitDbService,
@@ -69,7 +70,7 @@ export class InitDBComponent implements OnInit {
     this.roomService.getRoom(name).subscribe(
       room => {
         if (room)
-          this.rooms.push(room)
+          this.rooms.push(new Room(room))
       }
     );
   }

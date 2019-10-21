@@ -3,91 +3,136 @@ import { Extra } from '../model/extra';
 import { ExtraService } from '../_services/extra.service';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
 
-function extra2Context(extra: Extra) {
-  return {
-    extra: extra.extra,
-    defaultRate: extra.defaultRate,
-    setExtra: (value) => {extra.extra = value;},
-    setDefaultRate: (value) => {extra.defaultRate = value;}
+class ExtraContext implements IItemContext {
+  extra: Extra;
+
+  constructor(extra: Extra) {
+    this.extra = extra;
+  }
+  clone() {
+    return new ExtraContext(this.extra.clone());
+  }
+  context() {
+    return {
+      extra: this.extra,
+      name: this.extra.name,
+      defaultRate: this.extra.defaultRate,
+      setName: (value) => {this.extra.name = value;},
+      setDefaultRate: (value) => {this.extra.defaultRate = value;}
+    }
   }
 }
-
 @Component({
   selector: 'app-configure-extras',
   templateUrl: './configure-extras.component.html',
   styleUrls: ['./configure-extras.component.scss']
 })
-export class ConfigureExtrasComponent implements OnInit {
+export class ConfigureExtrasComponent extends ConfigureAbstractComponent implements OnInit {
 
-  items = [
-    new Extra({extra: 'flipchart_paper_pens', defaultRate: 5.5}),
-    new Extra({extra: 'projector_screen', defaultRate: 5.5}),
-    new Extra({extra: 'refreshment_fullDay', defaultRate: 15.5}),
-    new Extra({extra: 'refreshment_halfDay', defaultRate: 10})
-  ];
+  extras = [];
+  _editedItem: ExtraContext;
 
-  delete = (item: Extra) => {
-    console.log("would like to delete item: ", this.itemToString(item));
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '350px',
-      data: {title: "Delete Confirmation", message: `Are you sure you want to delete extra '${item.extra}'`}
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.extraService.deleteExtra(item).subscribe(() => this.refreshList());
-      }
-    });
+  //////////////////////////////////////////////////////
+  /// ConfigureAbstractComponent implementation
+  get items(): IItemContext[] {
+    return this.extras;
+  }
+  deleteItem = (item: IItemContext) => {
+    this.extraService.deleteExtra((item as ExtraContext).extra).subscribe(() => this.refreshList());
+  }
+  createItem = (item: IItemContext) => { 
+  // createItem(item: IItemContext) {
+    this.extraService.createExtra((item as ExtraContext).extra).subscribe(() => this.refreshList());
+  }
+  updateItem = (item: IItemContext) => {
+    this.extraService.updateExtra((item as ExtraContext).extra).subscribe(() => this.refreshList());
+  }
+  getNewItem(): IItemContext {
+    return new ExtraContext(new Extra({}));
+  }
+  get editedItem(): IItemContext {
+    return this._editedItem;
+  }
+  set editedItem(item: IItemContext) {
+    this._editedItem = item as ExtraContext;
+  }
+  get submitEnabled(): boolean {
+    if (!this._editedItem)
+      return false;
+    let extra = (this.editedItem as ExtraContext).extra;
+    return extra.name !== '';
+  }
+  itemToString(item: IItemContext): string {
+    return (item as ExtraContext).extra.name;
   }
 
-  update = (item: Extra) => {
-    console.log("would like to udpate item: ", item);
-    this.extraService.updateExtra(item).subscribe(
-      () => {
-        this.refreshList();
-      }
-    )
-  }
+  //////////////////////////////////////////////////////
 
-  create = (item: Extra) => {
-    console.log("would like to create new item: ", item);
-    this.extraService.createExtra(item).subscribe(
-      () => {
-        this.refreshList();
-      }
-    )
-  }
+  // delete = (item) => {
+  //   let extra: Extra = item.extra;
+  //   console.log("would like to delete item: ", this.itemToString(item));
+  //   const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+  //     width: '350px',
+  //     data: {title: "Delete Confirmation", message: `Are you sure you want to delete extra '${item.name}'`}
+  //   });
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if (result) {
+  //       this.extraService.deleteExtra(extra).subscribe(() => this.refreshList());
+  //     }
+  //   });
+  // }
 
-  newItem = () => {
-    console.log("ConfigureRoomsComponent::newItem()");
-    return new Extra({});
-  }
+  // update = (item) => {
+  //   let extra: Extra = item.extra;
+  //   console.log("would like to udpate item: ", item);
+  //   this.extraService.updateExtra(extra).subscribe(
+  //     () => {
+  //       this.refreshList();
+  //     }
+  //   )
+  // }
 
-  getEditedItem = () => {
-    return this.editedItem;
-  }
+  // create = (item) => {
+  //   let extra: Extra = item.extra;
+  //   console.log("would like to create new item: ", item);
+  //   this.extraService.createExtra(extra).subscribe(
+  //     () => {
+  //       this.refreshList();
+  //     }
+  //   )
+  // }
 
-  getItemEditContext = () => {
-    return extra2Context(this.editedItem);
-  }
+  // newItem = () => {
+  //   console.log("ConfigureRoomsComponent::newItem()");
+  //   return this.extra2Context(new Extra({}));
+  // }
 
-  setEditedItem = (item: Extra) => {
-    console.log("ConfigureRoomsComponent::setEditedItem()", item);
-    this.editedItem = item.clone();
-  }
+  // getEditedItem = () => {
+  //   return this.editedItem;
+  // }
 
-  submitEnabled = () => {
-    return this.editedItem && this.editedItem.extra !== '';
-  }
+  // setEditedItem = (item) => {
+  //   console.log("ConfigureRoomsComponent::setEditedItem()", item);
+  //   this.editedItem = this.extra2Context(item.extra.clone()); // clone the context item
+  // }
 
-  itemToString = (item: Extra) => {
-    return item.extra;
-  }
+  // submitEnabled = () => {
+  //   return this.editedItem && this.editedItem.name !== '';
+  // }
+
+  // itemToString = (item: Extra) => {
+  //   return item.name;
+  // }
 
   constructor( 
     private extraService: ExtraService,
     private dialog: MatDialog
-     ) { }
+     ) {
+       super();
+     }
+
 
   ngOnInit() {
     this.refreshList();
@@ -95,13 +140,23 @@ export class ConfigureExtrasComponent implements OnInit {
 
   refreshList() {
     this.extraService.getExtras().subscribe(extras => {
-      this.items = extras.map(extra => new Extra(extra));
+      this.extras = extras.map(extra => new ExtraContext(new Extra(extra)));
     });
 
   }
 
-  editedItem: Extra = new Extra({});
 
+  // extra2Context(extra: Extra) {
+  //   return {
+  //     extra: extra,
+  //     name: extra.name,
+  //     defaultRate: extra.defaultRate,
+  //     setName: (value) => {extra.name = value;},
+  //     setDefaultRate: (value) => {extra.defaultRate = value;}
+  //   }
+  // }
+  
+  
   // get extra() {
   //   return this.editedItem.extra;
   // }
