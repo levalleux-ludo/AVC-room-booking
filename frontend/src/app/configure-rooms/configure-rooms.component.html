@@ -1,80 +1,100 @@
 <ng-template #tableHeadersTemplate>
     <th>Rooms</th>
 </ng-template>
-<ng-template #itemRowTemplate let-name="name" let-descriptionHTML="descriptionHTML" let-rate="defaultRate" let-capacity="capacity" let-availableExtras="availableExtras" let-pictures="pictures">
-    <mat-expansion-panel>
-        <mat-expansion-panel-header>
-            <mat-panel-title>
-                <div class="name">{{name}}</div>
-            </mat-panel-title>
-            <mat-panel-description>
-            </mat-panel-description>
-        </mat-expansion-panel-header>
-        <div fxFlex fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
-            <div fxFlex>
-                <mat-card>
-                    <mat-card-header>
-                        <h3><i class="fa fa-home" aria-hidden="true"></i>Description</h3>
-                    </mat-card-header>
-                    <mat-card-content class="descriptionHTML">
-                        <div [innerHTML]="descriptionHTML"></div>
-                    </mat-card-content>
-                    <mat-card-footer>
-                    </mat-card-footer>
-                </mat-card>
-                <mat-card>
-                    <mat-card-header>
-                        <h3><i class="fa fa-info-circle" aria-hidden="true"></i>Specifications</h3>
-                    </mat-card-header>
-                    <mat-card-content style="width: 15em;">
-                        <table>
-                            <tr>
-                                <td>
-                                    <div class="specTitle">Rate:</div>
-                                </td>
-                                <td>
-                                    <div class="specValue">{{rate | currency:'GBP':'symbol-narrow'}}</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="specTitle">Capacity:</div>
-                                </td>
-                                <td>
-                                    <div class="specValue">{{capacity}}</div>
-                                </td>
-                            </tr>
+<ng-template #roomFields let-editable="editable" let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="rate" let-setRate="setRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML">
+    <div fxFlex fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+        <div fxFlex>
+            <mat-card *ngIf="editable">
+                <mat-card-header>
+                    <h3><i class="fa fa-home" aria-hidden="true"></i>Name</h3>
+                </mat-card-header>
+                <mat-card-content>
+                    <mat-form-field appearance="outline" required class="roomName">
+                        <input class="name" matInput required placeholder="Enter Room Name" [value]="name" (change)="setName($event.target.value)">
+                    </mat-form-field>
+                </mat-card-content>
+                <mat-card-footer>
+                </mat-card-footer>
+            </mat-card>
+            <mat-card>
+                <mat-card-header>
+                    <h3><i class="fa fa-home" aria-hidden="true"></i>Description</h3>
+                </mat-card-header>
+                <mat-card-content class="descriptionHTML">
+                    <div *ngIf="!editable" [innerHTML]="descriptionHTML"></div>
+                    <div *ngIf="editable">
+                        <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [ngModel]="descriptionHTML" (ngModelChange)="setDescriptionHTML($event)"></angular-editor>
+                    </div>
+                </mat-card-content>
+                <mat-card-footer>
+                </mat-card-footer>
+            </mat-card>
+            <mat-card>
+                <mat-card-header>
+                    <h3><i class="fa fa-info-circle" aria-hidden="true"></i>Specifications</h3>
+                </mat-card-header>
+                <mat-card-content class="specifications">
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="specTitle">Rate:</div>
+                            </td>
+                            <td>
+                                <div class="specValue">{{rate | currency:'GBP':'symbol-narrow'}}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="specTitle">Capacity:</div>
+                            </td>
+                            <td>
+                                <div class="specValue">{{capacity}}</div>
+                            </td>
+                        </tr>
 
-                        </table>
-                    </mat-card-content>
-                </mat-card>
-                <mat-card>
-                    <mat-card-header>
-                        <h3><i class="fa fa-coffee" aria-hidden="true"></i>Available Services (Extras)</h3>
-                    </mat-card-header>
-                    <mat-card-content style="padding: 2em;">
-                        <div fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="flex-start">
-                            <div *ngFor="let extra of availableExtras" class="extra">{{extra.extra}} ({{extra.defaultRate}})</div>
+                    </table>
+                </mat-card-content>
+            </mat-card>
+            <mat-card>
+                <mat-card-header>
+                    <h3><i class="fa fa-coffee" aria-hidden="true"></i>Available Services (Extras)</h3>
+                </mat-card-header>
+                <mat-card-content style="padding: 2em;">
+                    <div fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="flex-start">
+                        <div *ngFor="let extra of availableExtras" class="extra">{{extra.extra}} ({{extra.defaultRate}})</div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+            <mat-card>
+                <mat-card-header>
+                    <h3><i class="fa fa-coffee" aria-hidden="true"></i>Pictures</h3>
+                </mat-card-header>
+                <mat-card-content style="padding: 2em;">
+                    <div fxFlex fxLayout="column" fxLayoutAlign="top">
+                        <div *ngFor="let picture of pictures" class="picture">
+                            <img src="picture">
                         </div>
-                    </mat-card-content>
-                </mat-card>
-                <mat-card>
-                    <mat-card-header>
-                        <h3><i class="fa fa-coffee" aria-hidden="true"></i>Pictures</h3>
-                    </mat-card-header>
-                    <mat-card-content style="padding: 2em;">
-                        <div fxFlex fxLayout="column" fxLayoutAlign="top">
-                            <div *ngFor="let picture of pictures" class="picture">
-                                <img src="picture">
-                            </div>
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-            </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
         </div>
-    </mat-expansion-panel>
+    </div>
 </ng-template>
-<ng-template #itemEditTemplate let-name="name" let-descriptionHTML="descriptionHTML" let-rate="defaultRate" let-capacity="capacity" let-availableExtras="availableExtras" let-pictures="pictures">
-
+<ng-template #itemRowTemplate let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="defaultRate" let-setRate="setDefaultRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML"
+    let-availableExtras="availableExtras" let-pictures="pictures">
+    <!-- <mat-expansion-panel> -->
+    <!-- <mat-expansion-panel-header>
+        <mat-panel-title>
+            <div class="name">{{name}}</div>
+        </mat-panel-title>
+        <mat-panel-description>
+        </mat-panel-description>
+    </mat-expansion-panel-header> -->
+    <ng-container *ngTemplateOutlet="roomFields;context:{editable: false, name: name, descriptionHTML: descriptionHTML, rate:rate, capacity:capacity}"></ng-container>
+    <!-- </mat-expansion-panel> -->
 </ng-template>
-<app-configure-generic [listStyle]="'table'" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>
+<ng-template #itemEditTemplate let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="defaultRate" let-setRate="setDefaultRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML"
+    let-availableExtras="availableExtras" let-pictures="pictures">
+    <ng-container *ngTemplateOutlet="roomFields;context:{editable: true, name: name, descriptionHTML: descriptionHTML, rate:rate, capacity:capacity, setName:setName, setDescriptionHTML:setDescriptionHTML, setRate:setRate, setCapacity:setCapacity}"></ng-container>
+</ng-template>
+<app-configure-generic [listStyle]="'accordion'" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>

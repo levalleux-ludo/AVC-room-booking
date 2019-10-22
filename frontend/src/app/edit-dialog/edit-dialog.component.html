@@ -1,0 +1,7 @@
+<div fxLayout="column">
+    <ng-container *ngTemplateOutlet="params.template;context:params.getTemplateContext()"></ng-container>
+    <div fxLayout="row">
+        <button mat-raised-button color="accent" mat-dialog-close>Cancel</button>
+        <button #submit [disabled]="!params.isSubmitEnabled()" mat-raised-button color="accent" [mat-dialog-close]="true">Submit</button>
+    </div>
+</div>

@@ -18,4 +18,4 @@
         <input #extraRate matInput required type="number" placeholder="Enter Extra Rate" [value]="defaultRate" (change)="setDefaultRate($event.target.value)">
     </mat-form-field>
 </ng-template>
-<app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplate]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>
+<app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>

@@ -66,6 +66,8 @@ import { ConfigureRoomsComponent } from './configure-rooms/configure-rooms.compo
 import { ConfigureExtrasComponent } from './configure-extras/configure-extras.component';
 import { ConfigureGenericComponent } from './configure-generic/configure-generic.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
+import { AngularEditorModule } from '@kolkov/angular-editor';
+import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
 
 @NgModule({
   declarations: [
@@ -94,7 +96,8 @@ import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.componen
     ConfigureRoomsComponent,
     ConfigureExtrasComponent,
     ConfigureGenericComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    EditDialogComponent
   ],
   imports: [
     CommonModule,
@@ -133,7 +136,8 @@ import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.componen
     MatListModule,
     MatDialogModule,
     NgbTimepickerModule,
-    NgbToastModule
+    NgbToastModule,
+    AngularEditorModule
   ],
   exports: [
     MatNativeDateModule,
@@ -146,7 +150,8 @@ import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.componen
   bootstrap: [AppComponent],
   entryComponents: [
     BookingDialogComponent, // required to use the component as a dialog body
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    EditDialogComponent
   ]
 })
 export class AppModule { }

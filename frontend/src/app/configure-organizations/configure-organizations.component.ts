@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { MatListOption, MatDialog } from '@angular/material';
 import { v4 as uuid } from 'uuid';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
@@ -32,6 +32,7 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
 
   organizations = [];
   _editedItem: OrganizationContext;
+  @ViewChild('itemEditTemplate', { static: true }) itemEditTemplateRef: TemplateRef<any>;
 
    //////////////////////////////////////////////////////
   /// ConfigureAbstractComponent implementation

@@ -1,9 +1,9 @@
-div.extra {
-    width: 10em;
+div.name {
+    font-size: large;
 }
 
-div.rate {
-    width: 6em;
+input.name {
+    font-size: large;
 }
 
 h3 {
@@ -11,7 +11,29 @@ h3 {
     line-height: 1.4;
     margin: 1em 0 0px;
     border: none;
-    border-bottom: black;
-    border-bottom-width: thin;
-    border-bottom-style: groove;
+    // border-bottom: black;
+    // border-bottom-width: thin;
+    // border-bottom-style: groove;
+}
+
+.descriptionHTML {
+    padding: 1em;
+    border-style: solid;
+    border-width: thin;
+    width: 36em;
+}
+
+.specifications {
+    padding: 1em;
+    border-style: solid;
+    border-width: thin;
+    width: 18em;
+}
+
+mat-card {
+    padding: 0em !important;
+}
+
+.roomName {
+    width: 18em;
 }

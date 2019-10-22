@@ -16,22 +16,44 @@
     <h2>[ERROR]: No component configure defined !</h2>
 </div>
 <div *ngIf="configureComponent" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
-    <table *ngIf="listStyle === 'table' && itemRowTemplate" style="width: {{tableWidth}}em;">
-        <tr *ngIf="tableHeadersTemplate">
-            <ng-container *ngTemplateOutlet="tableHeadersTemplate"></ng-container>
-            <th></th>
-            <th></th>
-        </tr>
-        <tr *ngFor="let item of configureComponent.items">
-            <ng-container *ngTemplateOutlet="itemRowTemplate;context:item.context()"></ng-container>
-            <td style="vertical-align: top;">
-                <button class="edit" title="edit '{{configureComponent.itemToString(item)}}'" (click)="onClickEdit(item)"><i class="fa fa-edit"></i></button>
-            </td>
-            <td style="vertical-align: top;">
-                <button class="delete" title="delete '{{configureComponent.itemToString(item)}}'" (click)="onClickDelete(item)"><i class="fa fa-trash"></i></button>
-            </td>
-        </tr>
-    </table>
+    <div fxLayout="column">
+        <table *ngIf="listStyle === 'table' && itemRowTemplate">
+            <tr *ngIf="tableHeadersTemplate">
+                <ng-container *ngTemplateOutlet="tableHeadersTemplate"></ng-container>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr *ngFor="let item of configureComponent.items">
+                <ng-container *ngTemplateOutlet="itemRowTemplate;context:item.context()"></ng-container>
+                <td style="vertical-align: top; text-align: center;">
+                    <button mat-raised-button color="primary" title="edit '{{configureComponent.itemToString(item)}}'" (click)="onClickEdit(item)"><i class="fa fa-edit"></i>Edit</button>
+                </td>
+                <td style="vertical-align: top; text-align: center;">
+                    <button mat-raised-button color="primary" title="delete '{{configureComponent.itemToString(item)}}'" (click)="onClickDelete(item)"><i class="fa fa-trash"></i>Delete</button>
+                </td>
+            </tr>
+        </table>
+        <mat-accordion *ngIf="listStyle === 'accordion'">
+            <mat-expansion-panel *ngFor="let item of configureComponent.items">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <div class="name">{{configureComponent.itemToString(item)}}</div>
+                    </mat-panel-title>
+                    <mat-panel-description>
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <mat-action-row>
+                    <button mat-raised-button color="primary" title="edit '{{configureComponent.itemToString(item)}}'" (click)="onClickEdit(item)"><i class="fa fa-edit"></i>Edit</button>
+                    <button mat-raised-button color="primary" title="delete '{{configureComponent.itemToString(item)}}'" (click)="onClickDelete(item)"><i class="fa fa-trash"></i>Delete</button>
+                </mat-action-row>
+                <ng-container *ngTemplateOutlet="itemRowTemplate;context:item.context()"></ng-container>
+            </mat-expansion-panel>
+        </mat-accordion>
+        <div style=" width: 10em;">
+            <button mat-raised-button color="primary" [disabled]="editItem" (click)="onClickAdd()"><i class="fa fa-plus-square"></i>Add</button>
+        </div>
+    </div>
+
     <!-- <mat-accordion *ngIf="listStyle === 'accordion'">
         <div fxLayout="column" *ngFor="let item of items">
             <ng-container *ngTemplateOutlet="itemPanelTemplate;context:item"></ng-container>
@@ -41,14 +63,13 @@
             </div>
         </div>
     </mat-accordion> -->
-    <div fxLayout="column" style="width: 20em;">
-        <button mat-button [disabled]="editItem" (click)="onClickAdd()">Add</button>
-        <div *ngIf="editItem && itemEditTemplate">
+    <!-- <div fxLayout="column">
+        <div fxLayout="column" *ngIf="editItem && itemEditTemplate">
             <ng-container *ngTemplateOutlet="itemEditTemplate;context:configureComponent.editedItem.context()"></ng-container>
-            <div>
-                <button mat-button (click)="onClickCancel()">Cancel</button>
-                <button #submit [disabled]="!configureComponent.submitEnabled" mat-button (click)="onClickSubmit()">Submit</button>
+            <div fxLayout="row">
+                <button mat-raised-button color="accent" (click)="onClickCancel()">Cancel</button>
+                <button #submit [disabled]="!configureComponent.submitEnabled" mat-raised-button color="accent" (click)="onClickSubmit()">Submit</button>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>

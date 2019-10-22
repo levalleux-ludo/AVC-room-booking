@@ -1,7 +1,8 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, TemplateRef} from "@angular/core";
 import { ConfigureComponent } from '../configure/configure.component';
 import { MatDialog } from '@angular/material';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
  
 
 export interface IItemContext {
@@ -30,14 +31,14 @@ export class ConfigureGenericComponent {
   configureComponent: ConfigureAbstractComponent;
 
   @Input()
-  tableHeadersTemplate: string;
+  tableHeadersTemplate: TemplateRef<any>;
 
   @Input()
-  itemRowTemplate: string;
+  itemRowTemplate: TemplateRef<any>;
 
   @Input()
-  itemEditTemplate: string;
-  
+  itemEditTemplateRef: TemplateRef<any>;
+
   @Input()
   tableWidth = 24;
 
@@ -56,13 +57,34 @@ export class ConfigureGenericComponent {
 
   submitAction: (item) => void;
 
+  editDialog() {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
+      data: {
+        template: this.itemEditTemplateRef,
+        getTemplateContext: () => {return this.configureComponent.editedItem.context();},
+        isSubmitEnabled: () => {return this.configureComponent.submitEnabled;}
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.editItem = false;
+      console.log("editDialog::afterClose() result=", result);
+      if (result) {
+        this.submitAction(this.configureComponent.editedItem);
+      }
+    });
+  }
+
   onClickAdd() {
     this.editItem = true;
     if (!this.configureComponent) {
       throw new Error("'configureComponent' input must be defined for ConfigureGenericComponent");
     }
+    if (!this.itemEditTemplateRef) {
+      throw new Error("'itemEditTemplateRef' input must be defined for ConfigureGenericComponent");
+    }
     this.configureComponent.editedItem = this.configureComponent.getNewItem();
     this.submitAction=this.configureComponent.createItem;
+    this.editDialog();
   }
 
   onClickEdit(item: IItemContext) {
@@ -72,6 +94,7 @@ export class ConfigureGenericComponent {
     }
     this.configureComponent.editedItem = item.clone();
     this.submitAction=this.configureComponent.updateItem;
+    this.editDialog();
   }
 
   onClickDelete(item: IItemContext) {
@@ -87,13 +110,13 @@ export class ConfigureGenericComponent {
     });
   }
 
-  onClickSubmit() {
-    this.editItem = false;
-    this.submitAction(this.configureComponent.editedItem);
-  }
+  // onClickSubmit() {
+  //   this.editItem = false;
+  //   this.submitAction(this.configureComponent.editedItem);
+  // }
 
-  onClickCancel() {
-    this.editItem = false;
-  }
+  // onClickCancel() {
+  //   this.editItem = false;
+  // }
 
 }

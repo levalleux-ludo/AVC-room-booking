@@ -7,6 +7,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { Extra } from '../model/extra';
 import { ExtraService } from '../_services/extra.service';
 import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
+import { AngularEditorConfig } from '@kolkov/angular-editor';
 
 var allAvailableExtras: Extra[];
 
@@ -31,13 +32,13 @@ class RoomContext implements IItemContext {
     return {
       room: this.room,
       name: this.room.name,
-      descriptionHTML: this.room.descriptionHTML,
+      descriptionHTML: atob(this.room.descriptionHTML),
       defaultRate: this.room.rentRateHour,
       capacity: this.room.capacity,
       availableExtras: this.room.availableExtras.map(extraId => getExtraFromId(extraId)).filter(extra => (extra !== undefined)),
       pictures: this.room.pictures,
       setName: (value) => {this.room.name = value;},
-      setDescriptionHTML: (value) => {this.room.descriptionHTML = value;},
+      setDescriptionHTML: (value) => {this.room.descriptionHTML = btoa(value);},
       setDefaultRate: (value) => {this.room.rentRateHour = value;},
       setCapacity: (value) => {this.room.capacity = value;},
       setAvailableExtras: (value) => {this.room.availableExtras = value.map(extra => extra.Id);},
@@ -55,6 +56,47 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
 
   rooms = [];
   _editedItem: RoomContext;
+  editorConfig: AngularEditorConfig = {
+    editable: true,
+      spellcheck: true,
+      height: 'auto',
+      minHeight: '0',
+      maxHeight: 'auto',
+      width: 'auto',
+      minWidth: '0',
+      translate: 'yes',
+      enableToolbar: true,
+      showToolbar: true,
+      placeholder: 'Enter text here...',
+      defaultParagraphSeparator: '',
+      defaultFontName: '',
+      defaultFontSize: '',
+      fonts: [
+        {class: 'arial', name: 'Arial'},
+        {class: 'times-new-roman', name: 'Times New Roman'},
+        {class: 'calibri', name: 'Calibri'},
+        {class: 'comic-sans-ms', name: 'Comic Sans MS'}
+      ],
+      customClasses: [
+      {
+        name: 'quote',
+        class: 'quote',
+      },
+      {
+        name: 'redText',
+        class: 'redText'
+      },
+      {
+        name: 'titleText',
+        class: 'titleText',
+        tag: 'h1',
+      },
+    ],
+    uploadUrl: 'v1/image',
+    sanitize: true,
+    toolbarPosition: 'top',
+};
+
 
   //////////////////////////////////////////////////////
   /// ConfigureAbstractComponent implementation
@@ -83,7 +125,8 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
     if (!this._editedItem)
       return false;
     let room = (this.editedItem as RoomContext).room;
-    return room.name !== '' && room.capacity !== 0 && room.descriptionHTML !== '' && room.rentRateHour !== 0 && room.pictures.length > 0;
+    // return room.name !== '' && room.capacity !== 0 && room.descriptionHTML !== '' && room.rentRateHour !== 0 && room.pictures.length > 0;
+    return room.name !== '' && room.capacity !== 0 && room.descriptionHTML !== '' && room.rentRateHour !== 0;
   }
   itemToString(item: IItemContext): string {
     return (item as RoomContext).room.name;
