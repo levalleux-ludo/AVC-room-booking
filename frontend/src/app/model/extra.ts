@@ -14,6 +14,10 @@ export class Extra {
         return new Extra({id: this.id, name: this.name, defaultRate: this.defaultRate});
     }
 
+    equals(extra: Extra): boolean {
+        return (extra) && (extra.id === this.id);
+    }
+
     copyContentFrom(original: Extra) {
         this.name = original.name;
         this.defaultRate = original.defaultRate;

@@ -34,7 +34,8 @@
             </tr>
         </table>
         <mat-accordion *ngIf="listStyle === 'accordion'">
-            <mat-expansion-panel *ngFor="let item of configureComponent.items">
+            <mat-expansion-panel #itemPanel *ngFor="let item of configureComponent.items">
+                <app-item-panel [item]="item" [panel]="itemPanel"></app-item-panel>
                 <mat-expansion-panel-header>
                     <mat-panel-title>
                         <div class="name">{{configureComponent.itemToString(item)}}</div>

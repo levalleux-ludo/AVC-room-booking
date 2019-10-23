@@ -15,7 +15,8 @@
         <input #extraName matInput required placeholder="Enter Extra Name" [value]="name" (change)="setName($event.target.value)">
     </mat-form-field>
     <mat-form-field appearance="outline" required>
-        <input #extraRate matInput required type="number" placeholder="Enter Extra Rate" [value]="defaultRate" (change)="setDefaultRate($event.target.value)">
+        <!-- <input #extraRate matInput required type="number" placeholder="Enter Extra Rate" [value]="defaultRate" (change)="setDefaultRate($event.target.value)"> -->
+        <input #extraRate matInput required type="text" placeholder="Enter Extra Rate" [ngModel]="defaultRate | currency:'GBP':'symbol-narrow'" [value]="{updateOn:'blur'}" (change)="setDefaultRate($event.target.value)" />
     </mat-form-field>
 </ng-template>
 <app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>

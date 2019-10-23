@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+import { OrganizationService } from '../_services/organization.service';
 
 export class Organization {
     private _id;
@@ -10,6 +11,10 @@ export class Organization {
 
     clone(): Organization {
         return new Organization({id: this.id, name: this.name});
+    }
+
+    equals(organization: Organization): boolean {
+        return (organization) && (organization.id === this.id);
     }
 
     copyContentFrom(original: Organization) {

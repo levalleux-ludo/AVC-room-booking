@@ -14,13 +14,25 @@ class ExtraContext implements IItemContext {
   clone() {
     return new ExtraContext(this.extra.clone());
   }
+  equals(item: IItemContext) {
+    let extraContext = item as ExtraContext;
+    return (extraContext) && this.extra.equals(extraContext.extra);
+  }
   context() {
     return {
       extra: this.extra,
       name: this.extra.name,
       defaultRate: this.extra.defaultRate,
       setName: (value) => {this.extra.name = value;},
-      setDefaultRate: (value) => {this.extra.defaultRate = value;}
+      setDefaultRate: (value) => {
+        let regex = new RegExp(/\d[\d,\,, ]*[.|,]?\d*/);
+        if (!regex.test(value)) {
+          throw new Error(`Unable to parse entry '${value}' from currency format to a number.`);
+        }
+        let results = regex.exec(value);
+        console.log("setDefaultRate() value =", value, "regex.results = ", results[0]);
+        this.extra.defaultRate = +results[0];
+      }
     }
   }
 }

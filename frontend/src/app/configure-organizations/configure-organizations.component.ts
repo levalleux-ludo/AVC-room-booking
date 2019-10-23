@@ -15,6 +15,10 @@ class OrganizationContext implements IItemContext {
   clone() {
     return new OrganizationContext(this.organization.clone());
   }
+  equals(item: IItemContext) {
+    let organizationContext = item as OrganizationContext;
+    return (organizationContext) && this.organization.equals(organizationContext.organization);
+  }
   context() {
     return {
       organization: this.organization,

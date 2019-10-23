@@ -15,8 +15,15 @@ function getExtraFromId(extraId): Extra {
   let extra = allAvailableExtras.find(extra => (extra.id === extraId));
   if (!extra) {
     console.error("Unable to find Extra with Id:", extraId);
-    return extra;
   }
+  return extra;
+}
+
+function compareExtras(extra1: Extra, extra2: Extra): boolean {
+  if (extra1 && extra2) {
+    return extra1.equals(extra2);
+  }
+  return extra1 === extra2;
 }
 
 class RoomContext implements IItemContext {
@@ -28,6 +35,10 @@ class RoomContext implements IItemContext {
   clone() {
     return new RoomContext(this.room.clone());
   }
+  equals(item: IItemContext) {
+    let roomContext = item as RoomContext;
+    return (roomContext) && this.room.equals(roomContext.room);
+  }
   context() {
     return {
       room: this.room,
@@ -36,12 +47,27 @@ class RoomContext implements IItemContext {
       defaultRate: this.room.rentRateHour,
       capacity: this.room.capacity,
       availableExtras: this.room.availableExtras.map(extraId => getExtraFromId(extraId)).filter(extra => (extra !== undefined)),
+      // availableExtras: [allAvailableExtras[0], allAvailableExtras[2]],
+      allAvailableExtras: allAvailableExtras,
+      // compareExtras: (extra1,extra2) => {return compareExtras(extra1, extra2);},
+      compareExtras: compareExtras,
       pictures: this.room.pictures,
       setName: (value) => {this.room.name = value;},
       setDescriptionHTML: (value) => {this.room.descriptionHTML = btoa(value);},
-      setDefaultRate: (value) => {this.room.rentRateHour = value;},
+      setDefaultRate: (value) => {
+        let regex = new RegExp(/\d[\d,\,, ]*[.|,]?\d*/);
+        if (!regex.test(value)) {
+          throw new Error(`Unable to parse entry '${value}' from currency format to a number.`);
+        }
+        let results = regex.exec(value);
+        console.log("setDefaultRate() value =", value, "regex.results = ", results[0]);
+        this.room.rentRateHour = results[0];
+      },
       setCapacity: (value) => {this.room.capacity = value;},
-      setAvailableExtras: (value) => {this.room.availableExtras = value.map(extra => extra.Id);},
+      setAvailableExtras: (value) => {
+        let extrasIds = value.map(extra => extra.id);
+        this.room.availableExtras = extrasIds;
+      },
       setPictures: (value) => {this.room.pictures = value;}
     }
   }

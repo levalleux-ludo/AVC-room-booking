@@ -64,7 +64,7 @@ import { ConfigureComponent } from './configure/configure.component';
 import { ConfigureOrganizationsComponent } from './configure-organizations/configure-organizations.component';
 import { ConfigureRoomsComponent } from './configure-rooms/configure-rooms.component';
 import { ConfigureExtrasComponent } from './configure-extras/configure-extras.component';
-import { ConfigureGenericComponent } from './configure-generic/configure-generic.component';
+import { ConfigureGenericComponent, ItemPanelDirective } from './configure-generic/configure-generic.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
@@ -97,7 +97,8 @@ import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
     ConfigureExtrasComponent,
     ConfigureGenericComponent,
     ConfirmDialogComponent,
-    EditDialogComponent
+    EditDialogComponent,
+    ItemPanelDirective
   ],
   imports: [
     CommonModule,

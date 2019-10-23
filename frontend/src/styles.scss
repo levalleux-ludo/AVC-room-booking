@@ -61,3 +61,8 @@ body {
     justify-content: flex-start !important;
     align-items: flex-start !important;
 }
+
+.mat-dialog-container {
+    height: auto !important;
+    overflow: overlay !important;
+}

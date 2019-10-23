@@ -1,7 +1,8 @@
 <ng-template #tableHeadersTemplate>
     <th>Rooms</th>
 </ng-template>
-<ng-template #roomFields let-editable="editable" let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="rate" let-setRate="setRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML">
+<ng-template #roomFields let-editable="editable" let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="rate" let-setRate="setRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML"
+    let-availableExtras="availableExtras" let-setAvailableExtras="setAvailableExtras" let-allAvailableExtras="allAvailableExtras" let-compareExtras="compareExtras" let-pictures="pictures" let-setPictures="setPictures">
     <div fxFlex fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
         <div fxFlex>
             <mat-card *ngIf="editable">
@@ -40,7 +41,12 @@
                                 <div class="specTitle">Rate:</div>
                             </td>
                             <td>
-                                <div class="specValue">{{rate | currency:'GBP':'symbol-narrow'}}</div>
+                                <div *ngIf="!editable" class="specValue">{{rate | currency:'GBP':'symbol-narrow'}}</div>
+                                <div *ngIf="editable">
+                                    <!-- <input class="specValue" currencyMask required placeholder="Enter Room Rate" type="number" [value]="rate" (change)="setRate($event.target.value)"> -->
+                                    <input matInput type="text" placeholder="Enter Room Rate" [ngModel]="rate | currency:'GBP':'symbol-narrow'" [value]="{updateOn:'blur'}" (change)="setRate($event.target.value)" />
+                                    <!-- https://stackoverflow.com/questions/48321610/angular-4-how-to-use-currency-pipe-in-input-type -->
+                                </div>
                             </td>
                         </tr>
                         <tr>
@@ -48,10 +54,10 @@
                                 <div class="specTitle">Capacity:</div>
                             </td>
                             <td>
-                                <div class="specValue">{{capacity}}</div>
+                                <div *ngIf="!editable" class="specValue">{{capacity}}</div>
+                                <input *ngIf="editable" class="specValue" matInput required placeholder="Enter Room Capacity" type="number" [value]="capacity" (change)="setCapacity($event.target.value)">
                             </td>
                         </tr>
-
                     </table>
                 </mat-card-content>
             </mat-card>
@@ -60,9 +66,15 @@
                     <h3><i class="fa fa-coffee" aria-hidden="true"></i>Available Services (Extras)</h3>
                 </mat-card-header>
                 <mat-card-content style="padding: 2em;">
-                    <div fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="flex-start">
-                        <div *ngFor="let extra of availableExtras" class="extra">{{extra.extra}} ({{extra.defaultRate}})</div>
+                    <div *ngIf="!editable" fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="flex-start">
+                        <div *ngFor="let extra of availableExtras" class="extra">{{extra.name}} ({{extra.defaultRate | currency:'GBP':'symbol-narrow'}})</div>
                     </div>
+                    <mat-form-field *ngIf="editable">
+                        <mat-label>Extra Services</mat-label>
+                        <mat-select multiple [value]="availableExtras" (selectionChange)="setAvailableExtras($event.value)" [compareWith]="compareExtras">
+                            <mat-option *ngFor="let extra of allAvailableExtras" [value]="extra">{{extra.name}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
                 </mat-card-content>
             </mat-card>
             <mat-card>
@@ -90,11 +102,11 @@
         <mat-panel-description>
         </mat-panel-description>
     </mat-expansion-panel-header> -->
-    <ng-container *ngTemplateOutlet="roomFields;context:{editable: false, name: name, descriptionHTML: descriptionHTML, rate:rate, capacity:capacity}"></ng-container>
+    <ng-container *ngTemplateOutlet="roomFields;context:{editable: false, name: name, descriptionHTML: descriptionHTML, rate:rate, capacity:capacity, availableExtras:availableExtras, pictures:pictures}"></ng-container>
     <!-- </mat-expansion-panel> -->
 </ng-template>
 <ng-template #itemEditTemplate let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="defaultRate" let-setRate="setDefaultRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML"
-    let-availableExtras="availableExtras" let-pictures="pictures">
-    <ng-container *ngTemplateOutlet="roomFields;context:{editable: true, name: name, descriptionHTML: descriptionHTML, rate:rate, capacity:capacity, setName:setName, setDescriptionHTML:setDescriptionHTML, setRate:setRate, setCapacity:setCapacity}"></ng-container>
+    let-availableExtras="availableExtras" let-setAvailableExtras="setAvailableExtras" let-allAvailableExtras="allAvailableExtras" let-compareExtras="compareExtras" let-pictures="pictures" let-setPictures="setPictures">
+    <ng-container *ngTemplateOutlet="roomFields;context:{editable: true, name: name, descriptionHTML: descriptionHTML, rate:rate, capacity:capacity, availableExtras:availableExtras, pictures:pictures, setName:setName, setDescriptionHTML:setDescriptionHTML, setRate:setRate, setCapacity:setCapacity, allAvailableExtras:allAvailableExtras, setAvailableExtras:setAvailableExtras, compareExtras:compareExtras, setPictures:setPictures}"></ng-container>
 </ng-template>
 <app-configure-generic [listStyle]="'accordion'" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>

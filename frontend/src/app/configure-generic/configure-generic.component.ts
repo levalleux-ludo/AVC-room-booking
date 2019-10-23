@@ -1,12 +1,14 @@
-import {Component, Input, TemplateRef} from "@angular/core";
+import {Component, Input, TemplateRef, ViewChildren, QueryList, ElementRef, AfterViewInit, Directive} from "@angular/core";
 import { ConfigureComponent } from '../configure/configure.component';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatExpansionPanel, MatExpansionModule } from '@angular/material';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
+import { isThisSecond } from 'date-fns';
  
 
 export interface IItemContext {
   clone();
+  equals(item: IItemContext);
   context(): any;
 }
 export abstract class ConfigureAbstractComponent {
@@ -20,12 +22,35 @@ export abstract class ConfigureAbstractComponent {
   abstract get submitEnabled(): boolean;
   abstract itemToString(item: IItemContext): string;
 }
+
+@Directive({
+  selector: 'app-item-panel'
+})
+export class ItemPanelDirective {
+  @Input()
+  item: IItemContext;
+  @Input()
+  panel: MatExpansionPanel;
+
+  constructor(private el: ElementRef) {}
+}
+
 @Component({
   selector: 'app-configure-generic',
   templateUrl: './configure-generic.component.html',
   styleUrls: ['./configure-generic.component.scss']
 })
-export class ConfigureGenericComponent {
+export class ConfigureGenericComponent implements AfterViewInit {
+
+  @ViewChildren(ItemPanelDirective) itemPanels: QueryList<ItemPanelDirective>;
+
+  getPanelForItem(item): MatExpansionPanel {
+    let itemPanel = this.itemPanels.find( panel => item.equals(panel.item) );
+    if (itemPanel) {
+      return itemPanel.panel;
+    }
+    return null;
+  }
   
   @Input()
   configureComponent: ConfigureAbstractComponent;
@@ -51,6 +76,15 @@ export class ConfigureGenericComponent {
   ) { }
 
   ngOnInit() {
+  }
+
+  ngAfterViewInit(): void {
+    this.itemPanels.changes.subscribe((r) => {
+      if (this.configureComponent.editedItem) {
+        let panel = this.getPanelForItem(this.configureComponent.editedItem);
+        if (panel) panel.expanded = true;
+      }
+    });
   }
 
   editItem: boolean = false;

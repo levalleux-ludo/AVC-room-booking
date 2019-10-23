@@ -7,7 +7,7 @@ export class Room {
     private _capacity: number;
     private _rentRateHour: number;
     private _rentRateDay: number;
-    private _availableExtras: number[];
+    private _availableExtras: any[];
     private _pictures: string[];
 
     constructor(fetched_data: any) {
@@ -23,6 +23,10 @@ export class Room {
 
     clone(): Room {
         return new Room({id: this.id, name: this.name, descriptionHTML: this.descriptionHTML, capacity: this.capacity, rentRateDay: this.rentRateDay, rentRateHour: this.rentRateHour, availableExtras: this.availableExtras.map(value => value), pictures: this.pictures.map(value => value)});
+    }
+
+    equals(room: Room): boolean {
+        return (room) && (room.id === this.id);
     }
 
     copyContentFrom(original: Room) {
@@ -74,10 +78,10 @@ export class Room {
         this._rentRateDay = value;
     }
 
-    get availableExtras(): number[] {
+    get availableExtras(): any[] {
         return this._availableExtras;
     }
-    set availableExtras(value: number[]) {
+    set availableExtras(value: any[]) {
         this._availableExtras = value;
     }
 
