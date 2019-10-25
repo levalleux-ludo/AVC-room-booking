@@ -6,7 +6,7 @@
                 <mat-form-field>
                     <mat-select required placeholder="Select Organization" formControlName="organization">
                         <mat-option *ngFor="let organization of data.organizations" [value]="organization">
-                            {{organization}}
+                            {{organization.name}}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -14,12 +14,12 @@
                     <input matInput required placeholder="Enter Event Title" formControlName="title">
                 </mat-form-field>
                 <mat-form-field>
-                    <textarea matInput required placeholder="Describe Event" formControlName="description"></textarea>
+                    <textarea matInput placeholder="Describe Event" formControlName="description"></textarea>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Extra Services</mat-label>
                     <mat-select *ngIf="selectedRoom" formControlName="extras" multiple [(value)]="selectedExtras">
-                        <mat-option *ngFor="let extra of selectedRoom.availableExtras" [value]="extra">UNDEF (request info about extra with ID {{extra}})</mat-option>
+                        <mat-option *ngFor="let extraId of selectedRoom.availableExtras" [value]="extraId">{{getExtraFromId(extraId).name}} ({{getExtraFromId(extraId).defaultRate | currency:'GBP':'symbol-narrow'}})</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <div fxFlex fxLayout="column" style="margin: 1em;">

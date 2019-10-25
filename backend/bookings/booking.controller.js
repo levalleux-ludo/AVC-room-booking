@@ -23,7 +23,7 @@ module.exports = router;
 
 function create(req, res, next) {
     bookingService.create(req.body)
-        .then(() => res.json({}))
+        .then((booking) => res.json(booking))
         .catch(err => next(err));
 }
 

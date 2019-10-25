@@ -57,20 +57,30 @@ export class BookingService extends FetchService {
     )
   }
 
+  updateBooking(booking: Booking): Observable<Booking> {
+    const url = `${this.apiBookings}/${booking.id}`;
+    return this.http.put<Booking>(url, booking, this.httpOptions).pipe(
+      tap((newBooking: Booking) => this.log(`created booking event w/ ref=${newBooking.ref}`)),
+      catchError(this.handleError<Booking>('createBooking'))
+    )
+  }
+
   getNewRef(): string {
     return new Date().valueOf().toString();
   }
 
   getEmptyBooking(): Booking {
     return {
+      id: undefined,
       ref: this.getNewRef(),
       title: '',
       details: '',
-      organization: '',
+      organizationId: '',
       startDate: new Date(),
       endDate: new Date(),
       roomId: 0,
-      extras: []
+      extras: [],
+      totalPrice: 0
     };
   }
 

@@ -8,6 +8,11 @@ import { BookingService } from '../_services/booking.service';
 import { MatDialog, MatDialogConfig } from '@angular/material';
 import { BookingDialogComponent } from '../booking-dialog/booking-dialog.component';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
+import { ExtraService } from '../_services/extra.service';
+import { Extra } from '../model/extra';
+import { OrganizationService } from '../_services/organization.service';
+import { Organization } from '../model/organization';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-room-detail',
@@ -20,19 +25,36 @@ export class RoomDetailComponent implements OnInit {
 
   room: Room;
 
-  roomDescription = `<font face="Times New Roman" size="7">Hello my friend.</font><div><font face="Arial"><br></font></div><div><font face="Arial">How are you today ?</font></div><div><font face="Arial">This is awesome, isn't it ?</font></div><div><ol><li><font face="Arial">one bla lab la bla</font></li></ol></div><div><font face="Arial"><br></font></div>`;
+  get roomDescription(): string {
+    if (this.room)
+      return atob(this.room.descriptionHTML);
+    return `<div></div>`;
+  }
 
   images: string[];
 
   pastBookings: Booking[];
   nextBookings: Booking[];
   rooms: Room[];
+  organizations: Organization[];
+
+  getExtraFromId(extraId): Extra {
+    return this.extraService.getExtraFromId(extraId);
+  }
+  getRoomExtras() {
+    if (this.room) {
+      return this.room.availableExtras.map(extraId => this.getExtraFromId(extraId));
+    }
+    return [];
+  }
 
   constructor(
     private route: ActivatedRoute, // required to parse th current URL and find the room's name
     private router: Router, // required to force navigation to another route
     private roomService: RoomService,
     private bookingService: BookingService,
+    private extraService: ExtraService,
+    private organizationService: OrganizationService,
     private location: Location, // required to get back in navigation history
     private dialog: MatDialog // required to open a dialog
   ) { }
@@ -40,14 +62,19 @@ export class RoomDetailComponent implements OnInit {
   ngOnInit() {
     this.getRoom();
     this.getAllRooms();
+    this.extraService.refreshExtras();
+    this.organizationService.getOrganizations().subscribe(
+      organizations => this.organizations = organizations.map(organization => new Organization(organization))
+    );
   }
 
   getAllRooms() {
-this.roomService.getRooms().subscribe(
-  rooms => {
-    this.rooms = rooms.map(room => new Room(room));
-  }
-)  }
+  this.roomService.getRooms().subscribe(
+    rooms => {
+      this.rooms = rooms.map(room => new Room(room));
+    }
+  ) 
+ }
 
   getRoom(): void {
     const name = this.route.snapshot.paramMap.get('name');
@@ -86,59 +113,85 @@ this.roomService.getRooms().subscribe(
   }
 
   bookNow() {
-    // this.router.navigate(['/bookings/create'], { queryParams: { roomId: `${this.room.id}` } });
-    const dialogConfig = new MatDialogConfig();
-
-    dialogConfig.disableClose = true;
-    dialogConfig.autoFocus = true;
-    dialogConfig.data = {
-      // room: this.room.name,
-      room: this.room,
-      organizations: [
-        "Company#1",
-        "Company#2",
-        "Company#3"
-      ],
-      rooms: this.rooms,
-      // rooms: this.rooms.map(room => room.name),
-    }
-
-    const dialogRef = this.dialog.open(BookingDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe(
-      data => {
-        console.log("Dialog output:", data);
-        let booking = this.bookingService.getEmptyBooking();
-        booking.title = data.title;
-        booking.details = '';
-        booking.organization = data.organization;
-        booking.roomId = data.room.id;
-        booking.startDate = data.startDate;
-        booking.endDate = data.endDate;
-        this.bookingService.createBooking(booking).subscribe(
-          (newBooking) => {
-            console.log("booking has been created:", newBooking);
-            if (booking.roomId === this.room.id) {
-              this.getBookings(this.room.id);
-              this.calendar.getBookings();
-            } else {
-              this.roomService.getRoomFromId(booking.roomId).subscribe(
-                room => {
-                  this.router.navigate(['../', encodeURI(room.name)], {relativeTo: this.route, skipLocationChange: false}).then(
-                    result => {
-                      console.log("routing result=", result);
-                      window.location.reload();
-                  },
-                  error => {
-                    console.error("routing failed", error);
-                  })
-                }
-              )
+    BookingDialogComponent.editBooking(
+      this.dialog,
+      (newBooking) => this.bookingService.createBooking(newBooking),
+      (newBooking) =>  {
+        console.log("booking has been created:", newBooking);
+        if (newBooking.roomId === this.room.id) {
+          this.getBookings(this.room.id);
+          this.calendar.getBookings();
+        } else {
+          this.roomService.getRoomFromId(newBooking.roomId).subscribe(
+            room => {
+              this.router.navigate(['../', encodeURI(room.name)], {relativeTo: this.route, skipLocationChange: false}).then(
+                result => {
+                  console.log("routing result=", result);
+                  window.location.reload();
+              },
+              error => {
+                console.error("routing failed", error);
+              })
             }
-            
-          }
-        )
-      }
+          )
+        }
+      },
+      this.organizations,
+      this.rooms,
+      this.bookingService.getEmptyBooking(),
+      this.room
     );
+    // this.router.navigate(['/bookings/create'], { queryParams: { roomId: `${this.room.id}` } });
+    // const dialogConfig = new MatDialogConfig();
+
+    // dialogConfig.disableClose = true;
+    // dialogConfig.autoFocus = true;
+    // dialogConfig.data = {
+    //   // room: this.room.name,
+    //   room: this.room,
+    //   organizations: this.organizations,
+    //   rooms: this.rooms,
+    //   // rooms: this.rooms.map(room => room.name),
+    // }
+
+    // const dialogRef = this.dialog.open(BookingDialogComponent, dialogConfig);
+    // dialogRef.afterClosed().subscribe(
+    //   data => {
+    //     console.log("Dialog output:", data);
+    //     let booking = this.bookingService.getEmptyBooking();
+    //     booking.title = data.title;
+    //     booking.details = data.description;
+    //     booking.organizationId = data.organization.id;
+    //     booking.roomId = data.room.id;
+    //     booking.startDate = data.startDate;
+    //     booking.endDate = data.endDate;
+    //     booking.extras = data.extras;
+    //     booking.totalPrice = data.totalPrice;
+    //     this.bookingService.createBooking(booking).subscribe(
+    //       (newBooking) => {
+    //         console.log("booking has been created:", newBooking);
+    //         if (booking.roomId === this.room.id) {
+    //           this.getBookings(this.room.id);
+    //           this.calendar.getBookings();
+    //         } else {
+    //           this.roomService.getRoomFromId(booking.roomId).subscribe(
+    //             room => {
+    //               this.router.navigate(['../', encodeURI(room.name)], {relativeTo: this.route, skipLocationChange: false}).then(
+    //                 result => {
+    //                   console.log("routing result=", result);
+    //                   window.location.reload();
+    //               },
+    //               error => {
+    //                 console.error("routing failed", error);
+    //               })
+    //             }
+    //           )
+    //         }
+            
+    //       }
+    //     )
+    //   }
+    // );
 
     
   }
@@ -146,5 +199,6 @@ this.roomService.getRooms().subscribe(
   duration (booking: Booking) {
     duration(booking);
   }
+
 
 }

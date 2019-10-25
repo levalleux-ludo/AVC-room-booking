@@ -14,16 +14,8 @@
                     <mat-card-header>
                         <h3><i class="fa fa-home" aria-hidden="true"></i>Description</h3>
                     </mat-card-header>
-                    <mat-card-content class="editable">
-                        <!-- <p>
-                            Jeg udlejer et værelse i min lejlighed pr. 1/11 og seks måneder frem.<br>Værelset er 8 kvm, så med lidt god indretningssans er der plads til både seng, skab og skrivebord.<br>Køkkenet rummer alverdens udstyr og en opvaskemaskine.
-                            Herudover er der en spiseplads. Badeværelset har et badekar, som er super lækkert i de kolde tider. Der er fri adgang til gratis vaskefaciliteter på et tørloft.<br>Hele herligheden står i 4000 kr i måneden inkl. Alt dvs. Vand,
-                            varme, internet, indboforsikring, el og godt roomieskab. Om du er kvinde eller mand, høj eller lav, tyk eller tynd er underordnet, så længe du har boet ude før, er i stand til at rydde op efter dig selv og sætte lejlighedens
-                            robotstøvsuger igang, når det trænges.<br><br>Lejligheden er placeret på Åboulevarden hvilket giver dig udsigt, fra værelsets store vinduesparti, til crosscafe, Aarhus å og byliv.<br><br>Smid mig en besked, hvis jeg har fanget
-                            din interesse!<br><br>Vh Emma ??
-                        </p> -->
+                    <mat-card-content>
                         <div [innerHTML]="roomDescription"></div>
-                        <button mat-flat-button class="edit-button">Edit This Field</button>
                     </mat-card-content>
                     <mat-card-footer>
                     </mat-card-footer>
@@ -33,22 +25,24 @@
                         <h3><i class="fa fa-info-circle" aria-hidden="true"></i>Specifications</h3>
                     </mat-card-header>
                     <mat-card-content style="width: 15em;">
-                        <mat-grid-list cols="2" rowHeight="50px" style="padding: 2em;" gutterSize="10">
-                            <mat-grid-tile [colspan]="1" [rowspan]="1">
-                                <div>Rate:</div>
-                            </mat-grid-tile>
-                            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
-                                <div>£9/hour<br> (or £45/day)</div>
-                            </mat-grid-tile>
-                        </mat-grid-list>
-                        <mat-grid-list cols="2" rowHeight="50px" style="padding: 2em;" gutterSize="10">
-                            <mat-grid-tile [colspan]="1" [rowspan]="1">
-                                <div>Capacity:</div>
-                            </mat-grid-tile>
-                            <mat-grid-tile [colspan]="1" [rowspan]="1" class="border-on-tile">
-                                <div>20</div>
-                            </mat-grid-tile>
-                        </mat-grid-list>
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Rate:</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{room.rentRateHour | currency:'GBP':'symbol-narrow'}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Capacity:</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{room.capacity}}</div>
+                                </td>
+                            </tr>
+                        </table>
                     </mat-card-content>
                 </mat-card>
                 <mat-card>
@@ -57,12 +51,7 @@
                     </mat-card-header>
                     <mat-card-content style="padding: 2em;">
                         <div fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="flex-start">
-                            <div>Smoking</div>
-                            <div>Pets allowed</div>
-                            <div>Washing machine</div>
-                            <div>Dishwasher</div>
-                            <div>Cable tv</div>
-                            <div>Internet</div>
+                            <div *ngFor="let extra of getRoomExtras()" class="extra">{{extra.name}} ({{extra.defaultRate | currency:'GBP':'symbol-narrow'}})</div>
                         </div>
                     </mat-card-content>
                 </mat-card>

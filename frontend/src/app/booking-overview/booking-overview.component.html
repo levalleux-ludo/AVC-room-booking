@@ -1,8 +1,9 @@
-<ul class="bookings">
+<app-global-calendar [width]="800" [height]="600" [showViews]="['monthView', 'weekView', 'dayView']"></app-global-calendar>
+<!-- <ul class="bookings">
     <li *ngFor="let booking of bookings">
         <a routerLink="/bookings/booking/{{booking.ref}}">
             <span class="badge">{{booking.ref}}</span>
             <div>{{booking.startDate | date : 'mediumDate'}} [ {{booking.startDate | date : 'shortTime'}} - {{booking.endDate | date : 'shortTime'}} ] (duration: {{duration(booking)}} hours)</div>
         </a>
     </li>
-</ul>
+</ul> -->

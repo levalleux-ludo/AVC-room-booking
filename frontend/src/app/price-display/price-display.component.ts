@@ -73,11 +73,7 @@ export class PriceDisplayComponent implements OnInit {
     return this.rentalPrice + this.extrasPrice;
   }
 
-  constructor() { 
-    this.extras["extra1"] = 10;
-    this.extras["extra2"] = 20;
-    this.extras["extra3"] = 10;
-    this.extras["extra4"] = 20;
+  constructor() {
   }
 
   ngOnInit() {

@@ -42,14 +42,24 @@ export class ExtraService extends FetchService {
       );
   }
 
-  getExtraFromId(extraId):Observable<Extra> {
-    const url = `${this.apiExtras}/${extraId}`;
-    this.log(`getExtra url=${url}`);
-    return this.http.get<Extra>(url)
-      .pipe(
-        tap(_ => this.log(`fetch extra from Id "${extraId}"`)),
-        catchError(this.handleError<Extra>(`getExtraFromId(${extraId})`))
-      );
+  allAvailableExtras: Extra[] = [];
+
+  refreshExtras() {
+    this.getExtras().subscribe(
+      extras => this.allAvailableExtras = extras.map(extra => new Extra(extra))
+    );
+  }
+
+  getExtraFromId(extraId): Extra {
+    if (this.allAvailableExtras.length === 0) {
+      return new Extra({});
+    }
+    let extra = this.allAvailableExtras.find(extra => extra.id === extraId);
+    if (!extra) {
+      console.error(`Unable to find the extra with id '${extraId}'`);
+      return new Extra({});
+    }
+    return extra;
   }
 
   createExtra(extra: Extra): Observable<Extra> {

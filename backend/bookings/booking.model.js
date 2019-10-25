@@ -11,10 +11,12 @@ const ExtraSchema = new Schema({
 var BookingSchema = new Schema({
     ref: { type: String, unique: true, required: true },
     title: { type: String, required: false },
+    organizationId: { type: Schema.Types.ObjectId, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     roomId: { type: Schema.Types.ObjectId, required: true },
-    extras: { type: [ExtraSchema], required: false }
+    extras: { type: [Schema.Types.ObjectId], required: false },
+    totalPrice: { type: Number, required: false, default: 0 }
 });
 
 BookingSchema.set('toJSON', { virtuals: true });

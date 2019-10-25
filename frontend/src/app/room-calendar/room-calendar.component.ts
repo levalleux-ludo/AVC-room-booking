@@ -5,9 +5,8 @@ import { jqxSchedulerComponent } from 'jqwidgets-ng/jqxscheduler';
 import { BookingService } from '../_services/booking.service';
 import { Booking } from '../model/booking';
 import { RoomService } from '../_services/room.service';
+import { AbstractCalendarComponent } from '../abstract-calendar/abstract-calendar.component';
 
-// useful documentation : https://www.jqwidgets.com/jquery-widgets-documentation/documentation/jqxscheduler/jquery-scheduler-api.htm
-// and https://www.jqwidgets.com/angular-components-documentation/documentation/jqxscheduler/angular-scheduler-api.htm
 
 
 class EventPrivateData {
@@ -23,101 +22,61 @@ class EventPrivateData {
   templateUrl: './room-calendar.component.html',
   styleUrls: ['./room-calendar.component.scss']
 })
-export class RoomCalendarComponent implements OnInit, AfterViewInit {
-    @ViewChild('schedulerReference', {static: false})
-    myScheduler: jqxSchedulerComponent;
+export class RoomCalendarComponent extends AbstractCalendarComponent implements OnInit, AfterViewInit {
 
     constructor(
-        private bookingService: BookingService,
-        private roomService: RoomService
-
-    ) { }
+        protected bookingService: BookingService,
+        protected roomService: RoomService
+    )
+    {
+        super(bookingService, roomService);
+     }
 
     ngOnInit() {
-
-        if (this.showViews.includes('weekView')) {
-            this.views.push({ 
-                type: 'weekView',
-                showWeekends: false,
-                timeRuler: { scaleStartHour: this.scaleStartHour, scaleEndHour: this.scaleEndHour },
-                allDayRowHeight: 24,
-                rowHeight: (this.height - 160) / 20,
-                showWorkTime : false,
-            });
-        }
-        if (this.showViews.includes('dayView')) {
-            this.views.push({ 
-                type: 'dayView',
-                showWeekends: false,
-                timeRuler: { scaleStartHour: this.scaleStartHour, scaleEndHour: this.scaleEndHour },
-                allDayRowHeight: 24,
-                rowHeight: (this.height - 160) / 20,
-                showWorkTime : false,
-            });
-        }
+        this.createViews();    
     }
-    getBookings() {
+
+    getBookingFilter() {
         let nextHour = new Date();
         nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
         console.log("RoomCalendarComponent::getBookings() compute next half hour : ", nextHour);
-        this.bookingService.getBookings({ roomId: this.room.id, endAfter: nextHour }).subscribe(
-            bookings => {
-                this.myScheduler.beginAppointmentsUpdate();
-                this.myScheduler.getAppointments().forEach(
-                    appointment => {this.myScheduler.deleteAppointment(appointment.id as string);}
-                );
-                bookings.forEach(booking => {
-                    let a = new Date(booking.startDate).valueOf();
-                    let b= nextHour.valueOf();
-                    if (new Date(booking.startDate).valueOf() < nextHour.valueOf()) {
-                        console.log("RoomCalendarComponent::getBookings() trunk booking startDate ", nextHour);
-                        booking.startDate = nextHour;
-                    }
-                    if (new Date(booking.startDate).valueOf() < new Date(booking.endDate).valueOf()) {
-                        let appointment = this.booking2event(booking, this.room.name);
-                        this.myScheduler.addAppointment(appointment);
-                    }
-                });
-
-                // ADD a fake appointment for the past 7 days (useful in week view)
-                for (let hour = this.scaleStartHour; hour < nextHour.getHours(); hour++) {
-                    this.myScheduler.addAppointment(this.getFakeEvent(0, hour));
-                }
-                for (let pastDay = 1; pastDay < 8; pastDay++) {
-                    for (let hour = this.scaleStartHour; hour <= this.scaleEndHour; hour++) {
-                        this.myScheduler.addAppointment(this.getFakeEvent(pastDay, hour));
-                    }
-                }
-
-                // ADD preview event if defined
-                if (this.lastPreviewEvent) {
-                    this.previewEvent(this.lastPreviewEvent.title, this.lastPreviewEvent.startDate, this.lastPreviewEvent.endDate);
-                }
-
-                this.myScheduler.endAppointmentsUpdate();
-            }
-        );
+        return { roomId: this.room.id, endAfter: nextHour };
     }
 
+    processBooking(booking): Booking {
+        let nextHour = new Date();
+        nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
+        let a = new Date(booking.startDate).valueOf();
+        let b= nextHour.valueOf();
+        if (new Date(booking.startDate).valueOf() < nextHour.valueOf()) {
+            console.log("RoomCalendarComponent::getBookings() trunk booking startDate ", nextHour);
+            booking.startDate = nextHour;
+        }
+        return booking;
+    }
 
-    booking2event(booking: Booking, roomName: string) {
-        let privateDatas: EventPrivateData = {
-            id: booking.ref,
-            title: booking.title,
-            organization: booking.organization,
-            roomId: booking.roomId,
-            tag: 'unavailable',
-            description: booking.details
-        };
-        return {
-        id: booking.ref,
-        subject: booking.startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
-                    + "-" + booking.endDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}),
-        privateDatas: JSON.stringify(privateDatas),
-        room: roomName,
-        start: booking.startDate, // convert to local time
-        end: booking.endDate, // convert to local time
-        organization: booking.organization,
+    booking2event(booking: Booking) {
+        let appointment = super.booking2event(booking);
+        appointment.subject = booking.startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
+                  + "-" + booking.endDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
+        return appointment;
+    }
+
+    afterBookingFetched() {
+        let nextHour = new Date();
+        nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
+        // ADD a fake appointment for the past 7 days (useful in week view)
+        for (let hour = this.scaleStartHour; hour < nextHour.getHours(); hour++) {
+            this.myScheduler.addAppointment(this.getFakeEvent(0, hour));
+        }
+        for (let pastDay = 1; pastDay < 8; pastDay++) {
+            for (let hour = this.scaleStartHour; hour <= this.scaleEndHour; hour++) {
+                this.myScheduler.addAppointment(this.getFakeEvent(pastDay, hour));
+            }
+        }
+        // ADD preview event if defined
+        if (this.lastPreviewEvent) {
+            this.previewEvent(this.lastPreviewEvent.title, this.lastPreviewEvent.startDate, this.lastPreviewEvent.endDate);
         }
     }
 
@@ -196,24 +155,17 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         );
     }
 
-    // setSelection(date: Date, startTime: number, endTime: number) {
-    //     console.log("RoomCalendar::setSelection() date=", date, "startTime=", startTime, "endTime=", endTime);
-    //     this.myScheduler.clearSelection();
-    //     for (let hour = startTime; hour < endTime; hour += this.increment) {
-    //         let jqxdate = new jqx.date(
-    //             date.getFullYear(),
-    //             date.getMonth() + 1, // getMonth(January) => 0
-    //             date.getDate(),
-    //             Math.floor(hour),
-    //             60*(hour - Math.floor(hour))
-    //         );
-    //         console.log("jqxdate=", jqxdate.toDate());
-    //         this.myScheduler.selectCell(jqxdate, false, '-1');
-    //     }
-    // }
+    onAppointmentAdd(appointment, privateDatas: EventPrivateData) {
+        if (privateDatas.tag === 'preview') {
+            this._previewEventId = appointment.id;
+        } else {
+            super.onAppointmentAdd(appointment, privateDatas);
+        }
+      }
 
-    ngAfterViewInit() {
+    configureScheduler() {
         this.myScheduler.beginAppointmentsUpdate();
+        super.configureScheduler(false);
 
         this.myScheduler.renderAppointment(data => {
             let privateDatas: EventPrivateData = JSON.parse(data.appointment.originalData.privateDatas);
@@ -232,35 +184,6 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
             } else {
             }
             return data;
-        });
-        this.myScheduler.onAppointmentAdd.subscribe((event: any) => {
-            let args = event.args;
-            let appointment = args.appointment;
-            let privateDatas: EventPrivateData = JSON.parse(appointment.originalData.privateDatas);
-            if (privateDatas.tag === 'preview') {
-                this._previewEventId = appointment.id;
-            } else {
-                this.myScheduler.setAppointmentProperty(appointment.id, 'resizable', !this.readOnly);
-                this.myScheduler.setAppointmentProperty(appointment.id, 'draggable', !this.readOnly);
-                this.myScheduler.setAppointmentProperty(appointment.id, 'readOnly', !this.readOnly);
-                this.myScheduler.setAppointmentProperty(appointment.id, 'tooltip', '');
-            }
-        });
-        this.myScheduler.onCellClick.subscribe((event: any) => {
-            console.log("RoomCalendar::onCellClick() date=", event.args.date.toDate());
-            let selection = this.myScheduler.getSelection();
-            console.log("RoomCalendar::onCellClick() selection from=", selection.from.toDate(), "to=", selection.to.toDate(), "resource=", selection.ResourceId);
-        });
-        this.myScheduler.rendering(() => {
-            console.log("RoomCalendar::rendering()");
-        });
-        this.myScheduler.rendered(() => {
-            console.log("RoomCalendar::rendered()");
-        });
-        this.myScheduler.onContextMenuCreate.subscribe((event) => {
-            console.log("RoomCalendar::onContextMenuCreate(), event=", event);
-            event.args.menu.empty();
-            return event;
         });
         this.myScheduler.onContextMenuOpen.subscribe((event) => {
             console.log("RoomCalendar::onContextMenuOpen(), event=", event);
@@ -281,8 +204,13 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
             }
         });
         this.myScheduler.endAppointmentsUpdate();
-
     }
+
+    ngAfterViewInit() {
+        this.configureScheduler();
+    }
+
+    // selectionValidated : raised when a selection is 'validated', ie the user right-click after selecting several cells
     @Output() selectionValidated = new EventEmitter();
     validateSelection() {
         let selection = this.myScheduler.getSelection();
@@ -291,71 +219,75 @@ export class RoomCalendarComponent implements OnInit, AfterViewInit {
         }
     }
 
+    // previewUpdated is raised after the user changes the preview event (drag or resize)
     @Output() previewUpdated = new EventEmitter();
 
-   _room: Room;
-  set room(value: Room) {
-      console.log("room calendar select room:", value.name);
-    this._room = value;
-    this.getBookings();
-  }
-  @Input()
-  get room():Room {
-    return this._room;
-  }
+    // the room to which the calendar is referring to 
+    _room: Room;
+    set room(value: Room) {
+        console.log("room calendar select room:", value.name);
+        this._room = value;
+        this.getRooms(this._room);
+        this.getBookings();
+    }
+    
+    @Input()
+    get room():Room {
+        return this._room;
+    }
 
-  @Input()
-  scaleStartHour = 7;
-  @Input()
-  scaleEndHour = 21;
-  @Input()
-  disabled = false;
-  @Input()
-  readOnly = false;
-  @Input()
-  showViews = [];
-  @Input()
-  height = 400;
-  @Input()
-  width = 500;
+//   @Input()
+//   scaleStartHour = 7;
+//   @Input()
+//   scaleEndHour = 21;
+//   @Input()
+//   disabled = false;
+//   @Input()
+//   readOnly = false;
+//   @Input()
+//   showViews = [];
+//   @Input()
+//   height = 400;
+//   @Input()
+//   width = 500;
 //   @Input()
 //   increment = 0.5;
 
-  minDate = new jqx.date('todayDate'); // default is today
+    minDate = new jqx.date('todayDate'); // default is today
 
   
-    source: any = 
-    {
-        dataType: "array",
-        dataFields: [
-            { name: 'id', type: 'string' },
-            { name: 'organization', type: 'string' },
-            { name: 'subject', type: 'string' },
-            { name: 'privateDatas', type: 'string' },
-            { name: 'room', type: 'string' },
-            { name: 'start', type: 'date' },
-            { name: 'end', type: 'date' },
-        ],
-        id: 'id',
-        localData: [],
-    };
-    dataAdapter: any = new jqx.dataAdapter(this.source);
-    date: any = new jqx.date('todayDate');
-    appointmentDataFields: any  = {
-        from: "start",
-        to: "end",
-        id: "id",
-        description: "privateDatas",
-        location: "organization",
-        subject: "subject",
-        resourceId: "room",
-    };
-    resources: any =
-    {
-        colorScheme: "scheme05",
-        dataField: "room",
-        orientation: "horizontal",
-        source: new jqx.dataAdapter(this.source)
-    };
-    views: any[] = [];
+    // source: any = 
+    // {
+    //     dataType: "array",
+    //     dataFields: [
+    //         { name: 'id', type: 'string' },
+    //         { name: 'organization', type: 'string' },
+    //         { name: 'subject', type: 'string' },
+    //         { name: 'privateDatas', type: 'string' },
+    //         { name: 'room', type: 'string' },
+    //         { name: 'start', type: 'date' },
+    //         { name: 'end', type: 'date' },
+    //     ],
+    //     id: 'id',
+    //     localData: [],
+    // };
+    // dataAdapter: any = new jqx.dataAdapter(this.source);
+    // date: any = new jqx.date('todayDate');
+    // appointmentDataFields: any  = {
+    //     from: "start",
+    //     to: "end",
+    //     id: "id",
+    //     description: "privateDatas",
+    //     location: "organization",
+    //     subject: "subject",
+    //     resourceId: "room",
+    // };
+    // resources: any =
+    // {
+    //     colorScheme: "scheme05",
+    //     dataField: "room",
+    //     orientation: "horizontal",
+    //     source: new jqx.dataAdapter(this.source)
+    // };
+    // views: any[] = [];
 }

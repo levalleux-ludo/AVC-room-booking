@@ -68,6 +68,7 @@ import { ConfigureGenericComponent, ItemPanelDirective } from './configure-gener
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
+import { GlobalCalendarComponent } from './global-calendar/global-calendar.component';
 
 @NgModule({
   declarations: [
@@ -98,7 +99,8 @@ import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
     ConfigureGenericComponent,
     ConfirmDialogComponent,
     EditDialogComponent,
-    ItemPanelDirective
+    ItemPanelDirective,
+    GlobalCalendarComponent
   ],
   imports: [
     CommonModule,

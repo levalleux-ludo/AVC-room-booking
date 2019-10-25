@@ -1,20 +1,23 @@
 import * as moment from 'moment';
+import { Extra } from './extra';
 
-export class BookingExtra {
-    extra: string;
-    rate: number;
-    quantity: number;
-    comments: string;
-}
+// export class BookingExtra {
+//     extra: string;
+//     rate: number;
+//     quantity: number;
+//     comments: string;
+// }
 export class Booking {
+    id: any;
     ref: string;
     title: string;
     details: string;
-    organization: string;
+    organizationId: any;
     startDate: Date;
     endDate: Date;
     roomId: any;
-    extras: BookingExtra[];
+    extras: Extra[];
+    totalPrice: number;
 }
 
 export function duration(booking: Booking) {

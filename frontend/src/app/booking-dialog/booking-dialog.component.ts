@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject, ViewChild } from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
+import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from "@angular/material";
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Room } from '../model';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -8,6 +8,10 @@ import { BookingService } from '../_services/booking.service';
 import { Booking } from '../model/booking';
 import { TimePickerComponent } from '../time-picker/time-picker.component';
 import { PriceDisplayComponent } from '../price-display/price-display.component';
+import { ExtraService } from '../_services/extra.service';
+import { Extra } from '../model/extra';
+import { Observable, Subscription } from 'rxjs';
+import { Organization } from '../model/organization';
 
 
 @Component({
@@ -24,12 +28,7 @@ export class BookingDialogComponent implements OnInit {
   @ViewChild('price', {static: false}) priceDisplay: PriceDisplayComponent;
 
   _selectedRoom: Room;
-  availableExtras = [
-    // {extra: 'flipchart_paper_pens', defaultRate: 5.5 },
-    // {extra: 'projector_screen', defaultRate: 5.5},
-    // {extra: 'refreshment_fullDay', defaultRate: 15.5},
-    // {extra: 'refreshment_halfDay', defaultRate: 10}
-  ];
+  availableExtras = [];
   actualBookings: Booking[] = [];
   unavailableStartHours: number[] = [];
   unavailableEndHours: number[] = [];
@@ -42,17 +41,32 @@ export class BookingDialogComponent implements OnInit {
   set selectedExtras(value: any[]) {
     console.log("BookingDialogCOmponent::selectedExtras() ", value);
     this._selectedExtras = value;
-    if (this.priceDisplay) {
-      this.priceDisplay.extras = {};
-    }
-    for (let extra of this._selectedExtras) {
-      this.priceDisplay.extras[extra.name] = extra.defaultRate;
-    }
+    this.updatePrice();
   }
   get selectedExtras() {
     return this._selectedExtras;
   }
 
+  updatePrice() {
+    if (this.priceDisplay) {
+      this.priceDisplay.roomRatePerHour = this.selectedRoom.rentRateHour;
+
+      let durationMS = this.endDate.valueOf() - this.startDate.valueOf();
+      let durationHour = durationMS/(1000*60*60);
+      this.priceDisplay.hourQuantity = durationHour;
+
+      this.priceDisplay.extras = {};
+      for (let extraId of this._selectedExtras) {
+        let extra = this.getExtraFromId(extraId);
+        this.priceDisplay.extras[extra.name] = extra.defaultRate;
+      }
+    }
+
+  }
+
+  getExtraFromId(extraId): Extra {
+    return this.extraService.getExtraFromId(extraId);
+  }
 
   get selectedRoom(): Room {
     return this._selectedRoom;
@@ -70,6 +84,7 @@ export class BookingDialogComponent implements OnInit {
               this.unsetTimePickers();
             }
             this.updateCalendar();
+            this.updatePrice();
           }
         }
       )
@@ -85,6 +100,7 @@ export class BookingDialogComponent implements OnInit {
       this.startTimePicker.setHourWithoutNotification(undefined);
       this._endTime = undefined;
       this.form.patchValue({endDate: undefined});
+      this.updatePrice();
     } catch (e) {
       console.error(e);
     }
@@ -100,8 +116,6 @@ export class BookingDialogComponent implements OnInit {
         console.log("BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities");
         this.unsetTimePickers();
     }
-    // this.startTime = this.validateStartTime(this._startTime, this._startTime);
-    // this.endTime = this.validateEndTime(this._endTime, this._endTime);
     this.updateCalendar();
   }
 
@@ -134,7 +148,7 @@ export class BookingDialogComponent implements OnInit {
     this.unavailableEndHours = [];
     let now = new Date();
     if (this.compareDateSameDay(this.selectedDate, now)) {
-      let currentTime = this.getTimeFromDate(now);
+      let currentTime = BookingDialogComponent.getTimeFromDate(now);
       // if Today is selected, disable all hours before current time
       for (let time = this.minTime; time <= currentTime; time += this.increment) {
         this.unavailableStartHours.push(time);
@@ -142,8 +156,8 @@ export class BookingDialogComponent implements OnInit {
       }
     }
     for (let booking of actualDateBookings) {
-      let startTime = this.getTimeFromDate(booking.startDate);
-      let endTime = this.getTimeFromDate(booking.endDate);
+      let startTime = BookingDialogComponent.getTimeFromDate(booking.startDate);
+      let endTime = BookingDialogComponent.getTimeFromDate(booking.endDate);
       this.unavailableStartHours.push(startTime);
       this.unavailableEndHours.push(endTime);
       for (let time = startTime + this.increment; time < endTime; time += this.increment) {
@@ -187,6 +201,7 @@ export class BookingDialogComponent implements OnInit {
     }
     this.form.patchValue({startDate: this.startDate});
     this.updateCalendar();
+    this.updatePrice();
   }
   endTimeChanged(event: any) { // this event is raised when the user select another time in time-picker
     console.log("BookingDialogComponent::endTimeChanged()", event);
@@ -201,6 +216,7 @@ export class BookingDialogComponent implements OnInit {
     }
     this.form.patchValue({endDate: this.endDate});
     this.updateCalendar();
+    this.updatePrice();
   }
 
   _startTime: number = this.minTime;
@@ -211,7 +227,7 @@ export class BookingDialogComponent implements OnInit {
     if (this._startTime !== value) {
       console.log("BookingDialogComponent::set startTime()", value);
       let oldStartTime = this._startTime;
-      this._startTime = this.validateStartTime(value, oldStartTime);
+      this._startTime = value;
       let oldEndTime = this._endTime;
       if (this._endTime <= this._startTime) {
         this._endTime = this._startTime + (oldEndTime - oldStartTime);
@@ -225,69 +241,20 @@ export class BookingDialogComponent implements OnInit {
       }
     }
   }
-  validateStartTime(newValue: number, oldValue: number): number {
-    // if (!newValue) return undefined;
-    // if (newValue >= this.maxTime) {
-    //   newValue = this.maxTime - this.increment;
-    // }
-    // if (newValue < this.minTime) {
-    //   newValue = this.minTime;
-    // }
-    // if (this.unavailableStartHours.includes(newValue)) {
-    //   for (let hour = this.minTime; hour < this.maxTime; hour += this.increment) {
-    //     if (!this.unavailableStartHours.includes(hour)) {
-    //       console.log("BookingDialogComponent::validateStartTime() new startTime", newValue, "is not allowed. Return ", hour);
-    //       return hour;
-    //     }
-    //   }
-    //   return undefined;
-    // }
-    // console.log("BookingDialogComponent::validateStartTime() old startTime=", oldValue, ", new startTime=", newValue);
-    return newValue;
-  }
 
-  _endTime: number = this.minTime + this.increment;
+  _endTime: number = this.minTime;
   get endTime() {
     return this._endTime;
   }
   set endTime(value: number) {
     if (this._endTime !== value) {
       let oldEndTime = this._endTime;
-      this._endTime = this.validateEndTime(value, oldEndTime);
-      // if (this._startTime >= this._endTime) {
-      //   this._startTime = this._endTime - this.increment;
-      // }
-      // this._startTime = this.validateStartTime(this._startTime, this._startTime);
+      this._endTime = value;
       this.updateCalendar();
       if (this.endTimePicker) {
         this.endTimePicker.hour = this._endTime;
       }
     }
-  }
-  validateEndTime(newValue: number, oldValue: number): number {
-    // if (!newValue) return undefined;
-    // if (newValue > this.maxTime) {
-    //   newValue = this.maxTime;
-    // }
-    // if (newValue <= this.minTime) {
-    //   newValue = this.minTime + this.increment;
-    // }
-    // if (this.unavailableEndHours.includes(newValue)) {
-    //   for (let hour = this.minTime + this.increment; hour < this.maxTime; hour += this.increment) {
-    //     if (!this.unavailableEndHours.includes(hour)) {
-    //       console.log("BookingDialogComponent::validateEndTime() new endTime", newValue, "is not allowed. Return ", hour);
-    //       return hour;
-    //     }
-    //   }
-    //   return undefined;
-    // }
-    // console.log("BookingDialogComponent::validateEndTime() old endTime=", oldValue, ", new endTime=", newValue);
-    return newValue;
-
-  }
-
-  getTimeFromDate(date: Date): number {
-    return date.getHours() + (date.getMinutes() / 60);
   }
 
   checkConflicts(startDate: Date, endDate: Date): boolean {
@@ -302,12 +269,6 @@ export class BookingDialogComponent implements OnInit {
   }
 
   validateHours(startTime: number, endTime: number): {valid: boolean, startTime: number, endTime: number} {
-    // if (this.unavailableStartHours.includes(startTime)) {
-    //   return {valid: false, startTime: 0, endTime: 0};
-    // }
-    // if (this.unavailableEndHours.includes(endTime)) {
-    //   return {valid: false, startTime: 0, endTime: 0};
-    // }
     if (startTime < this.minTime) {
       startTime = this.minTime;
     }
@@ -320,17 +281,16 @@ export class BookingDialogComponent implements OnInit {
     console.log("BookingDialogComponent::OnCalendarPreviewUpdated, event", event);
     let date: number = new Date(event.startDate).setHours(0,0,0,0);
     if (!this.checkConflicts(event.startDate, event.endDate)) {
-      let {valid, startTime, endTime} = this.validateHours(this.getTimeFromDate(event.startDate), this.getTimeFromDate(event.endDate));
+      let {valid, startTime, endTime} = this.validateHours(BookingDialogComponent.getTimeFromDate(event.startDate), BookingDialogComponent.getTimeFromDate(event.endDate));
       if (valid) {
         this.shallUpdateCalendar = false;
         this.form.patchValue({date: new Date(date)});
         this.onSelectedDateChanged();
-        // this.startTime = this.validateStartTime(startTime, this._startTime);
         this.startTime = startTime;
-        // this.endTime = this.validateEndTime(endTime, this._endTime);
         this.endTime = endTime;
         this.form.patchValue({startDate: this.startDate});
         this.form.patchValue({endDate: this.endDate});
+        this.updatePrice();
         this.shallUpdateCalendar = true;  
       }
     }
@@ -345,27 +305,33 @@ export class BookingDialogComponent implements OnInit {
       private fb: FormBuilder,
       private dialogRef: MatDialogRef<BookingDialogComponent>,
       private bookingService: BookingService,
+      private extraService: ExtraService,
       @Inject(MAT_DIALOG_DATA) public data: any) {
-        this.selectedRoom = this.data.room;
       }
 
   ngOnInit() {
-      this.form = this.fb.group({
-          title: '',
-          organization: '',
-          description: '',
+    this.selectedRoom = this.data.room;
+    this.selectedExtras = this.data.extras;
+    this.form = this.fb.group({
+          title: this.data.title,
+          organization: this.data.organization,
+          description: this.data.description,
           room: this.selectedRoom,
-          extras: new FormControl(),
+          extras: new FormControl(this.data.extras),
           date: new FormControl(),
-          startDate: new FormControl('', [Validators.required]),
-          endDate: new FormControl('', [Validators.required])
+          startDate: new FormControl(this.data.startDate, [Validators.required]),
+          endDate: new FormControl(this.data.endDate, [Validators.required]),
+          totalPrice: 0
        });
-       this.onSelectedDateChanged();
+       // this.onSelectedDateChanged();
+       this.OnCalendarPreviewUpdated({startDate: this.data.startDate, endDate: this.data.endDate});
+       this.extraService.refreshExtras();
   }
 
   submit(form) {
       form.patchValue({startDate: this.startDate});
       form.patchValue({endDate: this.endDate});
+      form.patchValue({totalPrice: this.priceDisplay.totalPrice});
       this.dialogRef.close(form.value);
   }
 
@@ -381,6 +347,60 @@ export class BookingDialogComponent implements OnInit {
     const day = d.getDay();
     // Prevent Saturday and Sunday from being selected.
     return day !== 0 && day !== 6;
+  }
+
+  static editBooking(
+    dialog: MatDialog,
+     service: (booking: Booking) => Observable<Booking>,
+     then:(Booking) => void,
+     organizations: Organization[],
+      rooms: Room[],
+      booking: Booking,
+       room?: Room): Subscription {
+
+        if (!room && booking.roomId) {
+          room = rooms.find(room => room.id === booking.roomId);
+        }
+        let organization = organizations.find(org => org.id === booking.organizationId);
+    const dialogConfig = new MatDialogConfig();
+
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      title: booking.title,
+      organization: organization,
+      description: booking.details,
+      // room: this.room.name,
+      room: room,
+      extras: booking.extras,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      organizations: organizations,
+      rooms: rooms,
+      // rooms: this.rooms.map(room => room.name),
+    }
+
+    const dialogRef = dialog.open(BookingDialogComponent, dialogConfig);
+    return dialogRef.afterClosed().subscribe(
+      data => {
+        console.log("Dialog output:", data);
+        booking.title = data.title;
+        booking.details = data.description;
+        booking.organizationId = data.organization.id;
+        booking.roomId = data.room.id;
+        booking.startDate = data.startDate;
+        booking.endDate = data.endDate;
+        booking.extras = data.extras;
+        booking.totalPrice = data.totalPrice;
+        service(booking).subscribe(
+          newBooking => then(newBooking)
+        );
+      }
+    );
+  }
+
+  static getTimeFromDate(date: Date): number {
+    return date.getHours() + (date.getMinutes() / 60);
   }
 
 }
