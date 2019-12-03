@@ -1,4 +1,4 @@
-describe('Testing the Rooms page', function() {
+describe('Testing the Configure page', function() {
 
     let rooms;
     beforeEach(function setUser() {
