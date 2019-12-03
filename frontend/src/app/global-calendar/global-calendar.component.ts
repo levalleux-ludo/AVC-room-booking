@@ -140,12 +140,7 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
 }
 
   ngOnInit() {
-    // this.createViews();
-    this.views = [
-      { type: 'dayView', showWeekends: false, timeRuler: { hidden: false } },
-      { type: 'weekView', showWeekends: false, timeRuler: { hidden: false } },
-      { type: 'monthView', showWeekends: false }
-  ];
+    this.createViews();
 }
 
   ngAfterViewInit(): void {

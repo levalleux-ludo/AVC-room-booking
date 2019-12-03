@@ -188,7 +188,7 @@ event2booking(appointment) {
 onAppointmentAdd(appointment, privateDatas: EventPrivateData) {
     this.myScheduler.setAppointmentProperty(appointment.id, 'resizable', !this.readOnly);
     this.myScheduler.setAppointmentProperty(appointment.id, 'draggable', !this.readOnly);
-    this.myScheduler.setAppointmentProperty(appointment.id, 'readOnly', true);
+    this.myScheduler.setAppointmentProperty(appointment.id, 'readOnly', this.readOnly);
     this.myScheduler.setAppointmentProperty(appointment.id, 'tooltip', '');
 }
 
