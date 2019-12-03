@@ -1,0 +1,35 @@
+[{
+        "name": "Conference",
+        "descriptionHTML": "This is a wonderfull room",
+        "capacity": 20,
+        "rentRateDay": 40,
+        "rentRateHour": 9,
+        "availableExtras": [{
+                "name": "Coffee",
+                "defaultRate": 10
+            },
+            {
+                "name": "Tea",
+                "defaultRate": 8
+            }
+        ],
+        "pictures": []
+    },
+    {
+        "name": "Thurston",
+        "descriptionHTML": "This is a very tiny room",
+        "capacity": 2,
+        "rentRateDay": 12,
+        "rentRateHour": 3,
+        "availableExtras": [{
+                "name": "Coffee",
+                "defaultRate": 10
+            },
+            {
+                "name": "Tea",
+                "defaultRate": 8
+            }
+        ],
+        "pictures": []
+    }
+]
