@@ -1,0 +1,22 @@
+{
+    "name": "AVC-room-booking-api",
+    "version": 2,
+    "builds": [
+        { "src": "/api/users.js", "use": "@now/node" }
+    ],
+    "env": {
+        "MONGODB_URI": "@my-mongodb-uri"
+    },
+    "routes": [
+        {
+            "src": "/users",
+            "dest": "/api/users.js",
+            "methods": ["GET"]
+        },
+        {
+            "src": "/users/register",
+            "dest": "/api/users.js",
+            "methods": ["POST"]
+        }
+    ]
+}
