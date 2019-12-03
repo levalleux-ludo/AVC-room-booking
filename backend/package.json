@@ -8,6 +8,8 @@
         "start": "node ./server.js",
         "start-dev": "nodemon ./server.js",
         "start:env-now": "node  --require dotenv/config ./server.js dotenv_config_path=./env/.env.now",
+        "start:env-prod": "node  --require dotenv/config ./server.js dotenv_config_path=./env/.env.prod",
+        "start:env-preprod": "node  --require dotenv/config ./server.js dotenv_config_path=./env/.env.preprod",
         "test-debug": "MONGODB_URI='mongodb://localhost/AVC-room-booking-system-test' mocha --inspect-brk",
         "deploy:now": "now -n avc-room-booking",
         "build": "npm build"
