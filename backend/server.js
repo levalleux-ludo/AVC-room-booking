@@ -19,6 +19,7 @@ app.use('/room', require('./rooms/room.controller'));
 app.use('/booking', require('./bookings/booking.controller'));
 app.use('/extra', require('./extras/extras.controller'));
 app.use('/organization', require('./organizations/organization.controller'));
+app.get('/', require('./home/home.controller'));
 
 // global error handler
 app.use(errorHandler);

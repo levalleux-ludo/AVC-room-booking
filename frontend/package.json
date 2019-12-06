@@ -8,7 +8,9 @@
         "test": "ng test",
         "lint": "ng lint",
         "e2e": "ng e2e",
-        "cypress:open": "cypress open"
+        "docker:build": "docker build --rm -f Dockerfile -t local/avc/frontend:latest .",
+        "docker:run": "docker run -p 80:80 local/avc/frontend",
+        "docker:aws:push": "docker tag local/avc/frontend:latest 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-frontend:latest && docker push 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-frontend:latest"
     },
     "private": true,
     "dependencies": {
@@ -41,6 +43,7 @@
         "hammerjs": "^2.0.8",
         "jquery": "^3.4.1",
         "jqwidgets-ng": "^8.1.4",
+        "jqwidgets-scripts": "^8.3.2",
         "material-kit": "^2.0.4",
         "moment": "^2.24.0",
         "ng-chartist": "^4.1.0",

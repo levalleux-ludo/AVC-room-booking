@@ -12,7 +12,12 @@
         "start:env-preprod": "node  --require dotenv/config ./server.js dotenv_config_path=./env/.env.preprod",
         "test-debug": "MONGODB_URI='mongodb://localhost/AVC-room-booking-system-test' mocha --inspect-brk",
         "deploy:now": "now -n avc-room-booking",
-        "build": "npm build"
+        "build": "npm build",
+        "docker:build": "docker build --rm -f Dockerfile -t local/avc/backend:latest .",
+        "docker:create-network": "docker network create -d bridge --subnet 10.0.75.0/24 --gateway 10.0.75.1 avcnet",
+        "docker:run": "docker run -p 4000:4000 --env MONGODB_URI=mongodb://host.docker.internal/AVC-room-booking-system local/avc/backend",
+        "docker:aws:renew-token": "aws ecr get-login --no-include-email>%TEMP%\\aws-token && cmd /C<%TEMP%\\aws-token & del /Q /F %TEMP%\\aws-token",
+        "docker:aws:push": "docker tag local/avc/backend:latest 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-backend:latest && docker push 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-backend:latest"
     },
     "author": "",
     "license": "ISC",
