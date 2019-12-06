@@ -2,7 +2,8 @@
     "baseUrl": "http://localhost:6178",
     "env": {
         "username": "test",
-        "password": "test"
+        "password": "test",
+        "api_server": "http://localhost:4000"
     }
 
 }
