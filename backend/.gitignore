@@ -3,3 +3,4 @@ package-lock.json
 
 env/*
 !env/.put-here-env-files-with-credentials
+uploads

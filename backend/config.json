@@ -1,4 +1,6 @@
 {
     "connectionString": "mongodb://localhost/AVC-room-booking-system",
-    "secret": "DEhyYHzwX3vFt7Bu44T2kr76wLuwqhZNoLAB9I8TXfc7DzLQK8FzCYymenSLXuQPzpL4JDGcDPWNKItiad6Phk6xXjB5QLczVRCigJBIe5TZQ8mG8FcJtzwz5wQSQphb"
+    "secret": "DEhyYHzwX3vFt7Bu44T2kr76wLuwqhZNoLAB9I8TXfc7DzLQK8FzCYymenSLXuQPzpL4JDGcDPWNKItiad6Phk6xXjB5QLczVRCigJBIe5TZQ8mG8FcJtzwz5wQSQphb",
+    "uploadsFolder": "./uploads",
+    "testUploadsFolder": "./uploads"
 }

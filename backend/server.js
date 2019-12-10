@@ -20,6 +20,8 @@ app.use('/booking', require('./bookings/booking.controller'));
 app.use('/extra', require('./extras/extras.controller'));
 app.use('/organization', require('./organizations/organization.controller'));
 app.get('/', require('./home/home.controller'));
+app.use('/images', require('./images/images.controller'));
+
 
 // global error handler
 app.use(errorHandler);

@@ -1,71 +1,98 @@
-const assert = require('assert');
+const fs = require('fs-extra'); // use of fs-extra instead of fs to get remove not empty directory 
+const path = require('path');
+const chai = require('chai');
+const should = chai.should();
+const jwt = require('jsonwebtoken');
+const config = require('../config.json');
+const jwt_helper = require('../_helpers/jwt');
+chai.use(require('chai-http'));
+chai.use(require('chai-fs'));
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
     return require(module)
 }
 
-function common_tests(provider, get_image_manager, assert_imageId, assert_imageUrl) {
-
-    let imageId;
-    let imageUrl;
-
-    it('storeImage [' + provider + ']', (done) => {
-        imageId = get_image_manager().storeImage('image.txt', 'some data');
-        assert_imageId(imageId);
-        done();
-    });
-
-    it('getImage [' + provider + ']', (done) => {
-        imageUrl = get_image_manager().getImage(imageId);
-        assert_imageUrl(imageUrl);
-        done();
-    });
-
-    it('deleteImage [' + provider + ']', (done) => {
-        get_image_manager().deleteImage(imageId);
-        done();
-    });
-
-}
-
 describe('image manager local', () => {
-
-    let image_manager;
-
-    before(function() {
-        image_manager = requireUncached('../image-manager');
-    })
-
-    common_tests(
-        'local',
-        () => image_manager,
-        (imageId) => assert(imageId == 'a local id', 'the imageId is a local id'),
-        (imageUrl) => assert(imageUrl == 'a local url', 'the imageUrl is a local url')
-    );
-
-});
-
-describe('image manager aws_s3', () => {
-
-    let env_save;
-    let image_manager;
+    let server;
+    let imageId;
+    let imageService;
+    let url;
+    const id = require('mongoose').Types.ObjectId();
+    const token = jwt.sign({ sub: id }, config.secret);
 
     before(function() {
-        env_save = process.env;
-        process.env.USE_AWS_S3 = "true";
-        image_manager = requireUncached('../image-manager');
+        jwt_helper.deactivateForTest(true);
+        imageService = requireUncached('../images/images.service');
+        const uploadsFolder = config.testUploadsFolder;
+        if (fs.existsSync(uploadsFolder)) {
+            fs.removeSync(uploadsFolder);
+        }
+        imageService.setUploadsFolder(uploadsFolder);
+        server = requireUncached('../server');
     })
 
-    common_tests(
-        'aws_s3',
-        () => image_manager,
-        (imageId) => assert(imageId === 'an aws id', 'the imageId is an aws id'),
-        (imageUrl) => assert(imageUrl === 'an aws url', 'the imageUrl is an aws url')
-    );
+    it('upload image (http request)', (done) => {
+        chai.request(server)
+            .post('/images/upload?filename=hello-world.txt')
+            .set("Authorization", "Bearer " + token)
+            .field('Content-Type', 'multipart/form-data')
+            .attach('image', path.join(__dirname, 'image.txt'))
+            .end((err, res) => {
+                res.should.have.status(200);
+                imageId = res.text;
+                done();
+            });
+    }).timeout(15000);
 
-    after(function() {
-        process.env = env_save;
-    })
+    it('get image from id (direct call)', (done) => {
+        url = imageService.getImage(imageId);
+        console.log(url);
+        chai.request(url.url).get('').end((err, res) => {
+            if (err) {
+                console.error(err);
+                false.should.be.true;
+            }
+            res.should.have.status(200);
+            done();
+        });
+    }).timeout(15000);
 
+
+    it('get image from id (http request)', (done) => {
+        chai.request(server)
+            .get('/images/' + imageId)
+            .set("Authorization", "Bearer " + token)
+            .end((err, res) => {
+                res.should.have.status(200);
+                let url_bis = JSON.parse(res.text);
+                // console.log(url_bis.url + ' and ' + url.url + ' should be equal');
+                (url_bis.url === url.url).should.be.true;
+                chai.request(url_bis.url).get('').end((err, res) => {
+                    if (err) {
+                        console.error(err);
+                        false.should.be.true;
+                    }
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+    }).timeout(15000);
+
+    it('delete image from id (direct call)', (done) => {
+        let url_bis = imageService.getImage(imageId);
+        imageService.deleteImage(imageId, () => {
+            chai.request(url_bis.url).get('').end((err, res) => {
+                if (err) {
+                    console.error(err);
+                    false.should.be.true;
+                }
+                res.should.have.status(404);
+                done();
+            });
+        }, (err) => {
+            console.error(err);
+            false.should.be.true;
+        });
+    }).timeout(15000);
 });

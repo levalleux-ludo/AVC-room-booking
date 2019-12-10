@@ -32,6 +32,21 @@
         {
             "type": "node",
             "request": "launch",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "env": [
+            ],         
+            "args": [
+                "./test/test.image-manager.js"
+            ],    
+            "cwd":"${workspaceFolder}",
+            "name": "Debug Mocha test image-loader",
+            // "address": "localhost",
+            // "port": 9229,
+            "sourceMaps": false
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "args": [
                 "./server.js"
             ],    
