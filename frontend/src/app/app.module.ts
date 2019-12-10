@@ -29,7 +29,9 @@ import {
   MatTooltipModule,
   MatExpansionModule,
   MatListModule,
-  MatTabsModule
+  MatTabsModule,
+  MatIconModule,
+  MatProgressBarModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './_components/time-picker/time-picker.component';
@@ -69,8 +71,7 @@ import { ConfirmDialogComponent } from './_components/confirm-dialog/confirm-dia
 import { AngularEditorModule } from '@kolkov/angular-editor';
 import { EditDialogComponent } from './_components/edit-dialog/edit-dialog.component';
 import { GlobalCalendarComponent } from './_components/global-calendar/global-calendar.component';
-import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
-import { GlobalCalendarComponent } from './global-calendar/global-calendar.component';
+import { MaterialFileUploadComponent } from './_components/material-file-upload/material-file-upload.component';
 
 @NgModule({
   declarations: [
@@ -102,7 +103,8 @@ import { GlobalCalendarComponent } from './global-calendar/global-calendar.compo
     ConfirmDialogComponent,
     EditDialogComponent,
     ItemPanelDirective,
-    GlobalCalendarComponent
+    GlobalCalendarComponent,
+    MaterialFileUploadComponent
   ],
   imports: [
     CommonModule,
@@ -120,6 +122,8 @@ import { GlobalCalendarComponent } from './global-calendar/global-calendar.compo
     MatTooltipModule,
     MatExpansionModule,
     MatTabsModule,
+    MatIconModule,
+    MatProgressBarModule,
     FormsModule,
     NgbModalModule,
     FlatpickrModule.forRoot(),

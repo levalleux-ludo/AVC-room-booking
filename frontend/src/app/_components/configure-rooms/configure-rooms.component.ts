@@ -8,6 +8,8 @@ import { Extra } from '../../_model/extra';
 import { ExtraService } from '../../_services/extra.service';
 import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { FileUploadAction } from '../material-file-upload/material-file-upload.component';
+import { ImagesService } from 'src/app/_services/images.service';
 
 var allAvailableExtras: Extra[];
 
@@ -224,6 +226,7 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
   constructor(
     private roomService: RoomService,
     private extraService: ExtraService,
+    private imagesService: ImagesService
   ) {
     super();
   }
@@ -241,6 +244,24 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
     });
   }
 
+  onImageUploaded(data: any) {
+    console.log(`onImageUploaded(${data})`);
+  }
+
+  uploadFile(data: FileUploadAction) {
+    const file = data.fileModel;
+    console.log(`uploadFile(${file})`);
+    file.inProgress = true;
+    file.sub = this.imagesService.uploadImage(file.data)
+      .subscribe((event: any) => {
+        if (typeof event === 'object') {
+          data.onSuccess(event);
+        }
+      }, (error: any) => {
+        data.onFailure(error);
+      });
+
+  }
   // editedItem;
 
   // room2Context(room: Room) {

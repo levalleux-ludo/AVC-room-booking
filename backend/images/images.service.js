@@ -42,11 +42,13 @@ function after_upload(req, res) {
     if (req.fileValidationError) {
         res.send(req.fileValidationError);
         // return next(req.fileValidationError);
+        return;
     } else if (!req.file) {
         const error = new Error('Please upload a file')
         error.httpStatusCode = 400
         res.send(error);
         // return next(error);
+        return;
     }
     console.log("successfully uploaded file", req.file.path);
     let imageId = uuid();
