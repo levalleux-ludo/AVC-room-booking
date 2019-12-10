@@ -17,9 +17,10 @@ export class ImagesService extends FetchService {
    }
 
   private apiImages = `${environment.apiRoomBooking}/images`;
+  imagesUrl = new Map();
 
   httpOptions = {
-    // headers: new HttpHeaders({'Content-Type': 'multipart/form-data'}),
+    headers: new HttpHeaders({}),
     reportProgress: true
   };
 
@@ -32,11 +33,25 @@ export class ImagesService extends FetchService {
     // });
 
     return this.http.post<string>(`${this.apiImages}/upload?filename=hello-world.txt`, fd, this.httpOptions).pipe(
-        tap((imageId) => this.log(`uploaded image ${imageId}`)),
-        catchError(this.handleError<string>('uploadImage'))
+        tap((imageId) => this.log(`uploaded image ${imageId}`))
       );
 
   }
 
+  getImageUrl(imageId: string): Observable<string> {
+    if (this.imagesUrl.has(imageId)) {
+      return of(this.imagesUrl.get(imageId));
+    }
+    const url = `${this.apiImages}/${imageId}`;
+    return this.http.get<any>(url)
+      .pipe(
+        tap(_ => this.log(`fetch imageUrl from Id "${imageId}"`)),
+        catchError(this.handleError<any>(`getImageUrl(${imageId})`)),
+        map((imgData) => {
+          this.imagesUrl.set(imageId, imgData.url);
+          return imgData.url;
+        })
+      );
+  }
 
 }

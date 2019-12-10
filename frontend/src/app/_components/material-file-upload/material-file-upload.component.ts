@@ -105,7 +105,7 @@ export class MaterialFileUploadComponent implements OnInit {
       fileModel: file,
       onSuccess: (event: any) => {
         this.removeFileFromArray(file);
-        this.complete.emit(event.body);
+        this.complete.emit(event);
       },
       onFailure: (event: any) => {
         file.inProgress = false;

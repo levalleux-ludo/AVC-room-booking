@@ -82,12 +82,14 @@
                     <h3><i class="fa fa-coffee" aria-hidden="true"></i>Pictures</h3>
                 </mat-card-header>
                 <mat-card-content style="padding: 2em;">
-                    <div *ngIf="editable">
-                        <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onImageUploaded($event)"></app-material-file-upload>
-                    </div>
                     <div fxFlex fxLayout="column" fxLayoutAlign="top">
                         <div *ngFor="let picture of pictures" class="picture">
-                            <img src="picture">
+                            <!-- <label>toto image {{picture}}</label> -->
+                            <img src="{{getImageUrlFromId(picture) | async}}">
+                            <button class="btn btn-delete-image" *ngIf="editable" mat-raised-button color="primary" title="delete image" (click)="onDeleteImage(picture)"><i class="fa fa-trash"></i>Delete</button>
+                        </div>
+                        <div *ngIf="editable">
+                            <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onImageUploaded($event)"></app-material-file-upload>
                         </div>
                     </div>
                 </mat-card-content>

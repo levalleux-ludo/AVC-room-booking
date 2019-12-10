@@ -62,7 +62,7 @@ function after_upload(req, res) {
         } catch (err) {
             console.error(err)
         }
-        res.send(imageId);
+        res.send({ imageId: imageId });
     }, (err) => {
         res.send(err);
     });
@@ -79,8 +79,8 @@ function deleteImage(imageId, then, catch_err) {
     });
 }
 
-function getImage(imageId) {
-    return { url: imagesMap.get(imageId) };
+async function getImage(imageId) {
+    return await aws_s3.getImage(imageId);
 }
 
 function setUploadsFolder(path) {

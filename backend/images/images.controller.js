@@ -9,10 +9,11 @@ router.get('/:id', getById);
 router.get('/', getAll);
 
 module.exports = router;
-module.exports.getImage = getImage;
 
 function getById(req, res, next) {
-    res.json(imageService.getImage(req.params.id));
+    imageService.getImage(req.params.id)
+        .then(extra => extra ? res.json(extra) : res.sendStatus(404))
+        .catch(err => next(err));
 }
 
 function getAll(req, res, next) {
@@ -24,8 +25,4 @@ function getAll(req, res, next) {
 function _delete(req, res, next) {
     imageService.deleteImage(req.params.id);
     res.json({});
-}
-
-function getImage(imageId) {
-    return { url: imagesMap.get(imageId) };
 }

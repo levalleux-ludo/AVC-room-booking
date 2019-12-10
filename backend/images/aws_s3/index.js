@@ -9,6 +9,11 @@ var s3 = new AWS.S3({
 });
 var bucketName = 'avc-room-booking-pictures';
 
+function getTomorrow() {
+    let today = Date.now();
+    return new Date(today + 1);
+}
+
 function storeImage(imageId, file, then, catch_err) {
     console.log('[aws_s3 image manager] storeImage({}) ', file);
 
@@ -26,7 +31,7 @@ function storeImage(imageId, file, then, catch_err) {
     uploadPromise.then(
         function(data) {
             console.log("Successfully uploaded data to " + bucketName + "/" + imageId);
-            var params = { Bucket: bucketName, Key: imageId };
+            var params = { Bucket: bucketName, Key: imageId, Expires: 3600 * 24 }; /// expires after 1 day
             var promise = s3.getSignedUrlPromise('getObject', params);
             promise.then(
                 function(url) {
@@ -47,7 +52,7 @@ function storeImage(imageId, file, then, catch_err) {
 
 function getImage(imageId) {
     console.log('[aws_s3 image manager] getImage({}) ', imageId);
-    var params = { Bucket: bucketName, Key: imageId };
+    var params = { Bucket: bucketName, Key: imageId, Expires: 3600 * 24 }; /// expires after 1 day
     return { url: s3.getSignedUrl('getObject', params) };
 }
 

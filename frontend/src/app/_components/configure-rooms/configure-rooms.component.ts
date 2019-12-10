@@ -10,6 +10,7 @@ import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/c
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { FileUploadAction } from '../material-file-upload/material-file-upload.component';
 import { ImagesService } from 'src/app/_services/images.service';
+import { Observable } from 'rxjs';
 
 var allAvailableExtras: Extra[];
 
@@ -126,6 +127,7 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
 };
 
 
+
   //////////////////////////////////////////////////////
   /// ConfigureAbstractComponent implementation
   get items(): IItemContext[] {
@@ -150,14 +152,23 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
     this._editedItem = item as RoomContext;
   }
   get submitEnabled(): boolean {
-    if (!this._editedItem)
+    let room = this.getEditedRoom();
+    if (!room) {
       return false;
-    let room = (this.editedItem as RoomContext).room;
+    }
     // return room.name !== '' && room.capacity !== 0 && room.descriptionHTML !== '' && room.rentRateHour !== 0 && room.pictures.length > 0;
     return room.name !== '' && room.capacity !== 0 && room.descriptionHTML !== '' && room.rentRateHour !== 0;
   }
   itemToString(item: IItemContext): string {
     return (item as RoomContext).room.name;
+  }
+
+  getEditedRoom(): Room {
+    if (this.editedItem instanceof RoomContext) {
+      return (this.editedItem as RoomContext).room;
+    } else {
+      return null;
+    }
   }
 
   //////////////////////////////////////////////////////
@@ -245,7 +256,19 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
   }
 
   onImageUploaded(data: any) {
-    console.log(`onImageUploaded(${data})`);
+    console.log(`onImageUploaded(${JSON.stringify(data)})`);
+    const imageId = data.imageId;
+    this.imagesService.getImageUrl(imageId).subscribe((url) => {
+      const room = this.getEditedRoom();
+      if (room && !room.pictures.includes(imageId)) {
+        room.pictures.push(imageId);
+      }
+    });
+  }
+
+  getImageUrlFromId(imageId: string): Observable<string> {
+    let url = this.imagesService.getImageUrl(imageId);
+    return url;
   }
 
   uploadFile(data: FileUploadAction) {
@@ -260,6 +283,14 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
       }, (error: any) => {
         data.onFailure(error);
       });
+
+  }
+
+  onDeleteImage(imageId: string) {
+    const room = this.getEditedRoom();
+    if (room && room.pictures.includes(imageId)) {
+      room.pictures.splice(room.pictures.indexOf(imageId), 1);
+    }
 
   }
   // editedItem;

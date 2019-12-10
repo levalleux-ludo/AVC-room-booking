@@ -17,7 +17,6 @@ describe('image manager local', () => {
     let server;
     let imageId;
     let imageService;
-    let url;
     const id = require('mongoose').Types.ObjectId();
     const token = jwt.sign({ sub: id }, config.secret);
 
@@ -40,21 +39,23 @@ describe('image manager local', () => {
             .attach('image', path.join(__dirname, 'image.txt'))
             .end((err, res) => {
                 res.should.have.status(200);
-                imageId = res.text;
+                console.log(res.body);
+                imageId = res.body.imageId;
                 done();
             });
     }).timeout(15000);
 
     it('get image from id (direct call)', (done) => {
-        url = imageService.getImage(imageId);
-        console.log(url);
-        chai.request(url.url).get('').end((err, res) => {
-            if (err) {
-                console.error(err);
-                false.should.be.true;
-            }
-            res.should.have.status(200);
-            done();
+        imageService.getImage(imageId).then((url) => {
+            console.log(url);
+            chai.request(url.url).get('').end((err, res) => {
+                if (err) {
+                    console.error(err);
+                    false.should.be.true;
+                }
+                res.should.have.status(200);
+                done();
+            });
         });
     }).timeout(15000);
 
@@ -66,8 +67,6 @@ describe('image manager local', () => {
             .end((err, res) => {
                 res.should.have.status(200);
                 let url_bis = JSON.parse(res.text);
-                // console.log(url_bis.url + ' and ' + url.url + ' should be equal');
-                (url_bis.url === url.url).should.be.true;
                 chai.request(url_bis.url).get('').end((err, res) => {
                     if (err) {
                         console.error(err);
@@ -80,19 +79,20 @@ describe('image manager local', () => {
     }).timeout(15000);
 
     it('delete image from id (direct call)', (done) => {
-        let url_bis = imageService.getImage(imageId);
-        imageService.deleteImage(imageId, () => {
-            chai.request(url_bis.url).get('').end((err, res) => {
-                if (err) {
-                    console.error(err);
-                    false.should.be.true;
-                }
-                res.should.have.status(404);
-                done();
+        imageService.getImage(imageId).then((url_bis) => {
+            imageService.deleteImage(imageId, () => {
+                chai.request(url_bis.url).get('').end((err, res) => {
+                    if (err) {
+                        console.error(err);
+                        false.should.be.true;
+                    }
+                    res.should.have.status(404);
+                    done();
+                });
+            }, (err) => {
+                console.error(err);
+                false.should.be.true;
             });
-        }, (err) => {
-            console.error(err);
-            false.should.be.true;
-        });
+        })
     }).timeout(15000);
 });
