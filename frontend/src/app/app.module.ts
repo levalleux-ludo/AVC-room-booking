@@ -4,19 +4,19 @@ import { CommonModule } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { RoomsComponent } from './rooms/rooms.component';
-import { RoomDetailComponent } from './room-detail/room-detail.component';
-import { NavBarComponent } from './nav-bar/nav-bar.component';
-import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login/login.component';
+import { RoomsComponent } from './_components/rooms/rooms.component';
+import { RoomDetailComponent } from './_components/room-detail/room-detail.component';
+import { NavBarComponent } from './_components/nav-bar/nav-bar.component';
+import { HomeComponent } from './_components/home/home.component';
+import { LoginComponent } from './_components/login/login.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './_helpers';
-import { BookingOverviewComponent } from './booking-overview/booking-overview.component';
-import { BookingDetailComponent } from './booking-detail/booking-detail.component';
+import { BookingOverviewComponent } from './_components/booking-overview/booking-overview.component';
+import { BookingDetailComponent } from './_components/booking-detail/booking-detail.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { 
-  MatNativeDateModule, 
+import {
+  MatNativeDateModule,
   MatDatepickerModule,
   MatFormFieldModule,
   MatInputModule,
@@ -32,10 +32,10 @@ import {
   MatTabsModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { TimePickerComponent } from './time-picker/time-picker.component';
-import { InitDBComponent } from './init-db/init-db.component';
-import { TestCalendarComponent } from './test-calendar/test-calendar.component';
-import { 
+import { TimePickerComponent } from './_components/time-picker/time-picker.component';
+import { InitDBComponent } from './_components/init-db/init-db.component';
+import { TestCalendarComponent } from './_components/test-calendar/test-calendar.component';
+import {
   NgbModalModule,
   NgbCarouselModule,
   NgbTimepickerModule,
@@ -44,29 +44,31 @@ import {
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-import { TestFullCalendarComponent } from './test-full-calendar/test-full-calendar.component';
+import { TestFullCalendarComponent } from './_components/test-full-calendar/test-full-calendar.component';
 import { FullCalendarModule } from '@fullcalendar/angular'; // for FullCalendar!
 // import { jqxBarGaugeModule }    from 'jqwidgets-ng/jqxbargauge';
 import { jqxSchedulerModule }    from 'jqwidgets-ng/jqxscheduler';
-import { TestJqxSchedulerComponent } from './test-jqx-scheduler/test-jqx-scheduler.component';
+import { TestJqxSchedulerComponent } from './_components/test-jqx-scheduler/test-jqx-scheduler.component';
 import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar';
 import { ChartistModule } from 'ng-chartist';
-import { BarChartComponent } from './bar-chart/bar-chart.component';
-import { FooterComponent } from './footer/footer.component';
+import { BarChartComponent } from './_components/bar-chart/bar-chart.component';
+import { FooterComponent } from './_components/footer/footer.component';
 import { NgxScrollTopModule } from 'ngx-scrolltop';
-import { RoomCardComponent } from './room-card/room-card.component';
-import { RoomCalendarComponent } from './room-calendar/room-calendar.component';
-import { BookingFormComponent } from './booking-form/booking-form.component';
+import { RoomCardComponent } from './_components/room-card/room-card.component';
+import { RoomCalendarComponent } from './_components/room-calendar/room-calendar.component';
+import { BookingFormComponent } from './_components/booking-form/booking-form.component';
 import { MatCarouselModule } from '@ngmodule/material-carousel';
-import { BookingDialogComponent } from './booking-dialog/booking-dialog.component';
-import { PriceDisplayComponent } from './price-display/price-display.component';
-import { ConfigureComponent } from './configure/configure.component';
-import { ConfigureOrganizationsComponent } from './configure-organizations/configure-organizations.component';
-import { ConfigureRoomsComponent } from './configure-rooms/configure-rooms.component';
-import { ConfigureExtrasComponent } from './configure-extras/configure-extras.component';
-import { ConfigureGenericComponent, ItemPanelDirective } from './configure-generic/configure-generic.component';
-import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
+import { BookingDialogComponent } from './_components/booking-dialog/booking-dialog.component';
+import { PriceDisplayComponent } from './_components/price-display/price-display.component';
+import { ConfigureComponent } from './_components/configure/configure.component';
+import { ConfigureOrganizationsComponent } from './_components/configure-organizations/configure-organizations.component';
+import { ConfigureRoomsComponent } from './_components/configure-rooms/configure-rooms.component';
+import { ConfigureExtrasComponent } from './_components/configure-extras/configure-extras.component';
+import { ConfigureGenericComponent, ItemPanelDirective } from './_components/configure-generic/configure-generic.component';
+import { ConfirmDialogComponent } from './_components/confirm-dialog/confirm-dialog.component';
 import { AngularEditorModule } from '@kolkov/angular-editor';
+import { EditDialogComponent } from './_components/edit-dialog/edit-dialog.component';
+import { GlobalCalendarComponent } from './_components/global-calendar/global-calendar.component';
 import { EditDialogComponent } from './edit-dialog/edit-dialog.component';
 import { GlobalCalendarComponent } from './global-calendar/global-calendar.component';
 

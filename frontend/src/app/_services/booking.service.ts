@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
-import { Booking } from '../model/booking';
+import { Booking } from '../_model/booking';
 import { FetchService } from '../_helpers';
 import { tap, catchError } from 'rxjs/operators';
 

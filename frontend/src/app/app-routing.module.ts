@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { RoomsComponent } from './rooms/rooms.component';
-import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login/login.component';
+import { RoomsComponent } from './_components/rooms/rooms.component';
+import { HomeComponent } from './_components/home/home.component';
+import { LoginComponent } from './_components/login/login.component';
 import { AuthGuard } from './_helpers';
-import { RoomDetailComponent } from './room-detail/room-detail.component';
-import { BookingOverviewComponent } from './booking-overview/booking-overview.component';
-import { BookingDetailComponent } from './booking-detail/booking-detail.component';
-import { InitDBComponent } from './init-db/init-db.component';
-import { TestCalendarComponent } from './test-calendar/test-calendar.component';
-import { TestFullCalendarComponent } from './test-full-calendar/test-full-calendar.component';
-import { TestJqxSchedulerComponent } from './test-jqx-scheduler/test-jqx-scheduler.component';
-import { ConfigureComponent } from './configure/configure.component';
+import { RoomDetailComponent } from './_components/room-detail/room-detail.component';
+import { BookingOverviewComponent } from './_components/booking-overview/booking-overview.component';
+import { BookingDetailComponent } from './_components/booking-detail/booking-detail.component';
+import { InitDBComponent } from './_components/init-db/init-db.component';
+import { TestCalendarComponent } from './_components/test-calendar/test-calendar.component';
+import { TestFullCalendarComponent } from './_components/test-full-calendar/test-full-calendar.component';
+import { TestJqxSchedulerComponent } from './_components/test-jqx-scheduler/test-jqx-scheduler.component';
+import { ConfigureComponent } from './_components/configure/configure.component';
 
 
 const routes: Routes = [

@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, tap, map } from 'rxjs/operators';
 
-import { Extra } from '../model/extra';
+import { Extra } from '../_model/extra';
 import { environment } from 'src/environments/environment';
 import { FetchService } from '../_helpers';
 
