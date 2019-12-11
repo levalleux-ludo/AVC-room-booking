@@ -1,18 +1,70 @@
-<div class="card">
-    <div class="produit conteneur">
+<div>
+    <div>
         <div class="produit_infos wow" style="visibility: visible;">
-            <div>
-                <img class="card_img" src='{{image}}' />
+            <table>
+                <tr>
+                    <th style="width:10em;"></th>
+                    <th style="width:15em;"></th>
+                </tr>
+                <tr>
+                    <td>
+                        <section class="card__image" [style.backgroundImage]="image"></section>
+                        <header>title</header>
+                        <main>description</main>
+                        <!-- <img class="card_img" src='{{image}}' style="height:10em;" /> -->
+                        <!-- <div style="background-image:image;"></div> -->
+                    </td>
+                    <td>
+                        <h2 class="produit_designation"><a routerLink="/rooms/room/{{room.name}}" data-cy="room-link">{{room.name}}</a></h2>
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Rate:</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{room.rentRateHour | currency:'GBP':'symbol-narrow'}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Capacity:</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{room.capacity}}</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <!-- <div>
             </div>
             <div class="produit_resume">
-                <h2 class="produit_designation"><a routerLink="/rooms/room/{{room.name}}" data-cy="room-link">{{room.name}}</a></h2>
-                <div>
-                    <p><span style="font-size:16px;">Spacious and comfortable, the classic rooms of the Hotel Juana are the right start to a chic and uptown stay on the Riviera.&nbsp;</span></p>
-                    <p><span style="font-size:16px;">All the rooms are designed in a modern Art Deco style, with periwinkle blue or strawberry fuchsia tones, and offer a bathroom with a shower and a separate bath-tub.</span></p>
-                </div>
-            </div>
-            <p class="produit_lien"><a routerLink="/rooms/room/{{room.name}}">Discover</a>
-            </p>
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Rate:</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{room.rentRateHour | currency:'GBP':'symbol-narrow'}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Capacity:</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{room.capacity}}</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </div> -->
         </div>
         <div class="card-footer">
         </div>

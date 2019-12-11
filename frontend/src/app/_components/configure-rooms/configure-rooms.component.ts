@@ -12,7 +12,7 @@ import { FileUploadAction } from '../material-file-upload/material-file-upload.c
 import { ImagesService } from 'src/app/_services/images.service';
 import { Observable } from 'rxjs';
 
-var allAvailableExtras: Extra[];
+var allAvailableExtras: Extra[] = [];
 
 function getExtraFromId(extraId): Extra {
   let extra = allAvailableExtras.find(extra => (extra.id === extraId));

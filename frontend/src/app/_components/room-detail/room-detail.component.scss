@@ -32,3 +32,7 @@ mat-card {
 .editable:hover>.edit-button {
     display: block;
 }
+
+.carousel-slide {
+    background-size: contain !important;
+}

@@ -66,3 +66,13 @@ body {
     height: auto !important;
     overflow: overlay !important;
 }
+
+// I prefer the carousel to display images without cropping or stretching
+// (default style is set to 'cover' that crops if the original proportion does not match
+.carousel-slide {
+    background-size: contain !important;
+}
+
+// .carousel-inner {
+//     height: 25em !important;
+// }

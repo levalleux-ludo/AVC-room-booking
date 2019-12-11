@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Directive, AfterViewChecked, Input, ElementRef, Renderer2 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../../_services/room.service';
 import { Location } from '@angular/common';
@@ -13,6 +13,87 @@ import { Extra } from '../../_model/extra';
 import { OrganizationService } from '../../_services/organization.service';
 import { Organization } from '../../_model/organization';
 import { Observable } from 'rxjs';
+import { ImagesService } from 'src/app/_services/images.service';
+
+@Directive({
+  selector: '[appSetImageToCenter]'
+})
+export class SetImageToCenterDirective implements AfterViewChecked {
+
+  constructor( private img: ElementRef, private _renderer: Renderer2, ) { }
+
+  ngAfterViewChecked(): void {
+    const px: number = parseInt(this.img.nativeElement.parentNode.style.width.replace("px", ""), 10);
+    const py: number = parseInt(this.img.nativeElement.parentNode.style.height.replace("px", ""), 10);
+    const ix: number = this.img.nativeElement.naturalWidth;
+    const iy: number = this.img.nativeElement.naturalHeight;
+    const style: any = {};
+
+    if (ix / iy == 1) {
+      if (px / py == 1) {
+        style.width = "100%";
+        style.height = "100%";
+      } else if (px / py > 1) {
+        style.width = (py + "px").toString();
+        style.height = (py + "px").toString();
+        style["margin-left"] = (((px - py) / 2) + "px").toString();
+      } else {
+        style.width = (px + "px").toString();
+        style.height = (px + "px").toString();
+        style["margin-top"] = (((py - px) / 2) + "px").toString();
+      }
+    } else if (ix / iy > 1) {
+      if (px / py == 1) {
+        style.width = (px + "px").toString();
+        style.height = ((px / ix * iy) + "px").toString();
+        style["margin-top"] = (((py - (px / ix * iy)) / 2) + "px").toString();
+      } else if (px / py > 1) {
+        if (py/px < iy/ix) {
+          // height = 100%
+          style.height = (py + "px").toString();
+          style.width = ((py / iy * ix) + "px").toString();
+          style["margin-left"] = (((px - (py / iy * ix)) / 2) + "px").toString();
+        } else {
+          // width = 100%;
+          style.width = (px + "px").toString();
+          style.height = ((px / ix * iy) + "px").toString();
+          style["margin-top"] = (((py - (px / ix * iy)) / 2) + "px").toString();
+        }
+      } else {
+        style.width = (px + "px").toString();
+        style.height = ((px / ix * iy) + "px").toString();
+        style["margin-top"] = (((py - (px / ix * iy)) / 2) + "px").toString();
+      }
+    } else {
+      if (px / py == 1) {
+        style.height = (py + "px").toString();
+        style.width = ((py / iy * ix) + "px").toString();
+        style["margin-left"] = (((px - (py / iy * ix)) / 2) + "px").toString();
+      } else if (px / py > 1) {
+        style.height = (py + "px").toString();
+        style.width = ((py / iy * ix) + "px").toString();
+        style["margin-left"] = (((px - (py / iy * ix)) / 2) + "px").toString();
+      } else {
+        if (py/px > iy/ix) {
+          // height = 100%
+          style.height = (py + "px").toString();
+          style.width = ((py / iy * ix) + "px").toString();
+          style["margin-left"] = (((px - (py / iy * ix)) / 2) + "px").toString();
+        } else {
+          // width = 100%;
+          style.width = (px + "px").toString();
+          style.height = ((px / ix * iy) + "px").toString();
+          style["margin-top"] = (((py - (px / ix * iy)) / 2) + "px").toString();
+        }
+      }
+    }
+
+    for (let key in style) {
+      this._renderer.setStyle(this.img.nativeElement, key, style[key]);
+    }
+  }
+
+}
 
 @Component({
   selector: 'app-room-detail',
@@ -31,7 +112,7 @@ export class RoomDetailComponent implements OnInit {
     return `<div></div>`;
   }
 
-  images: string[];
+  images: string[] = [];
 
   pastBookings: Booking[];
   nextBookings: Booking[];
@@ -55,6 +136,7 @@ export class RoomDetailComponent implements OnInit {
     private bookingService: BookingService,
     private extraService: ExtraService,
     private organizationService: OrganizationService,
+    private imagesService: ImagesService,
     private location: Location, // required to get back in navigation history
     private dialog: MatDialog // required to open a dialog
   ) { }
@@ -83,7 +165,7 @@ export class RoomDetailComponent implements OnInit {
       room => {
         this.room = new Room(room);
         this.getBookings(this.room.id);
-        this.images = [this.roomService.getRoomImage(room.name)];
+        this.getImages(this.room);
       });
   }
 
@@ -106,6 +188,13 @@ export class RoomDetailComponent implements OnInit {
       bookings => this.nextBookings = bookings
     );
 
+  }
+
+  getImages(room: Room): void {
+    this.images.splice(0, this.images.length);
+    room.pictures.forEach((imageId) => {
+      this.imagesService.getImageUrl(imageId).subscribe((imageUrl) => this.images.push(imageUrl));
+    });
   }
 
   goBack() {

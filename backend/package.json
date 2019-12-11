@@ -16,7 +16,8 @@
         "build": "npm build",
         "docker:build": "docker build --rm -f Dockerfile -t local/avc/backend:latest .",
         "docker:create-network": "docker network create -d bridge --subnet 10.0.75.0/24 --gateway 10.0.75.1 avcnet",
-        "docker:run": "docker run -p 4000:4000 --env MONGODB_URI=mongodb://host.docker.internal/AVC-room-booking-system local/avc/backend",
+        "test-env": "call env/setAWSCredentials.bat & cmd /C echo %aws_access_key_id% && echo $aws_access_key_id",
+        "docker:run": "call env/setAWSCredentials.bat && cmd /C docker run -p 4000:4000 --env AWS_S3_AVC_ACCESS_KEY_ID=%aws_access_key_id% --env AWS_S3_AVC_SECRET_ACCESS_KEY=%aws_secret_access_key% --env MONGODB_URI=mongodb://host.docker.internal/AVC-room-booking-system local/avc/backend",
         "docker:aws:renew-token": "aws ecr get-login --no-include-email>%TEMP%\\aws-token && cmd /C<%TEMP%\\aws-token & del /Q /F %TEMP%\\aws-token",
         "docker:aws:push": "docker tag local/avc/backend:latest 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-backend:latest && docker push 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-backend:latest"
     },

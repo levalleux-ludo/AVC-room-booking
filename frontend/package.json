@@ -13,6 +13,7 @@
         "cypress:open:aws": "set CYPRESS_baseUrl=http://3.11.6.164:80&& cypress open",
         "docker:build": "docker build --rm -f Dockerfile -t local/avc/frontend:latest .",
         "docker:run": "docker run -p 80:80 local/avc/frontend",
+        "docker:aws:renew-token": "aws ecr get-login --no-include-email>%TEMP%\\aws-token && cmd /C<%TEMP%\\aws-token & del /Q /F %TEMP%\\aws-token",
         "docker:aws:push": "docker tag local/avc/frontend:latest 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-frontend:latest && docker push 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-frontend:latest"
     },
     "private": true,

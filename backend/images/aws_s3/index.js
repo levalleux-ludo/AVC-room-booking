@@ -1,13 +1,20 @@
 const AWS = require('aws-sdk');
 const fs = require('fs');
+const config = require('../../config.json');
 
-var s3 = new AWS.S3({
+const s3_config = {
     apiVersion: '2006-03-01',
     signatureVersion: 'v4',
     accessKeyId: process.env.AWS_S3_AVC_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_S3_AVC_SECRET_ACCESS_KEY
-});
-var bucketName = 'avc-room-booking-pictures';
+    secretAccessKey: process.env.AWS_S3_AVC_SECRET_ACCESS_KEY,
+    region: config.awsS3Region
+};
+var s3 = new AWS.S3(s3_config);
+var bucketName = config.awsS3BucketName;
+
+function getEnv() {
+    return s3_config;
+}
 
 function getTomorrow() {
     let today = Date.now();
@@ -19,41 +26,41 @@ function storeImage(imageId, file, then, catch_err) {
 
     const fileContent = fs.readFileSync(file);
 
-    let upload = new AWS.S3.ManagedUpload({
-        params: {
-            Bucket: bucketName,
-            Key: imageId,
-            Body: fileContent,
-            ACL: "public-read"
-        }
-    });
-    let uploadPromise = upload.promise();
-    uploadPromise.then(
-        function(data) {
-            console.log("Successfully uploaded data to " + bucketName + "/" + imageId);
-            var params = { Bucket: bucketName, Key: imageId, Expires: 3600 * 24 }; /// expires after 1 day
-            var promise = s3.getSignedUrlPromise('getObject', params);
-            promise.then(
-                function(url) {
-                    console.log('The URL is', url);
-                    then(url);
-                },
-                function(err) {
-                    console.error(err, err.stack)
-                    catch_err(err);
-                });
-        }).catch(
-        function(err) {
+    // let upload = new AWS.S3.ManagedUpload({
+    const params = {
+        Bucket: bucketName,
+        Key: imageId,
+        Body: fileContent,
+        ACL: "public-read"
+    };
+    s3.upload(params, function(err, data) {
+        if (err) {
             console.error(err, err.stack);
             catch_err(err);
-        });
-
+            return;
+        }
+        console.log("Successfully uploaded data to " + bucketName + "/" + imageId);
+        var params = { Bucket: bucketName, Key: imageId, Expires: 3600 * 24 }; /// expires after 1 day
+        var promise = s3.getSignedUrlPromise('getObject', params);
+        promise.then(
+            function(url) {
+                console.log('The URL is', url);
+                then(url);
+            },
+            function(err) {
+                console.error(err, err.stack)
+                catch_err(err);
+            }
+        );
+    });
 }
 
 function getImage(imageId) {
     console.log('[aws_s3 image manager] getImage({}) ', imageId);
     var params = { Bucket: bucketName, Key: imageId, Expires: 3600 * 24 }; /// expires after 1 day
-    return { url: s3.getSignedUrl('getObject', params) };
+    var url = s3.getSignedUrl('getObject', params);
+    console.log(url);
+    return { url: url };
 }
 
 function deleteImage(imageId, then, catch_err) {
@@ -70,5 +77,6 @@ function deleteImage(imageId, then, catch_err) {
 module.exports = {
     storeImage,
     getImage,
-    deleteImage
+    deleteImage,
+    getEnv
 };

@@ -4,7 +4,7 @@
             <div class="row">
                 <div class="col-md-8 mr-auto ml-auto">
                     <h2 class="title">Let's talk about our rooms</h2>
-                    <h5 class="description">We offer 5 different rooms, all located in our building ...</h5>
+                    <h5 class="description">We offer {{rooms.length}} different rooms, all located in our building ...</h5>
                     <br>
                     <a routerLink="/rooms" class="btn btn-danger btn-round">See Rooms</a>
                     <br>
@@ -13,18 +13,26 @@
             <div class="row">
                 <div class="col-md-8 mr-auto ml-auto">
                     <div class="card page-carousel">
-                        <ngb-carousel>
+                        <ngb-carousel [interval]=120000>
                             <ng-template ngbSlide *ngFor="let room of rooms">
-                                <img src="{{room.img}}" alt="{{room.name}}">
-                                <div class="carousel-caption">
-                                    <p>{{room.name}}</p>
+                                <div class="row">
+                                    <app-room-card [room]="room"></app-room-card>
                                 </div>
+                                <!-- <div class="carousel-slide" [style.background-image]="getImage(room.img)">
+                                    <div class="carousel-slide-content">
+                                        <ng-content></ng-content>
+                                    </div>
+                                    <div class="carousel-caption">
+                                        <p>{{room.name}}</p>
+                                    </div>
+                                    <div [style.background-color]='00000040'></div>
+                                </div> -->
                             </ng-template>
                         </ngb-carousel>
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col-md-8 mr-auto ml-auto">
                     <div class="card page-carousel">
                         <ngb-carousel>
@@ -121,7 +129,7 @@
                         </ngb-carousel>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <div class="row">
                 <div class="col-md-8 mr-auto ml-auto">
                     <h2 class="title">Booking Indicators</h2>
@@ -195,4 +203,3 @@
 <p></p>
 <p></p>
 <p></p>
-
