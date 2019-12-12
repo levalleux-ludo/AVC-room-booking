@@ -135,7 +135,7 @@ export class MaterialFileUploadComponent implements OnInit {
     }
   }
 
-  private dropHandler(ev: DragEvent) {
+  dropHandler(ev: DragEvent) {
     // console.log('File(s) dropped');
 
     // Prevent default behavior (Prevent file from being opened)
@@ -178,7 +178,7 @@ export class MaterialFileUploadComponent implements OnInit {
     this.uploadFiles();
   }
 
-  private dragOverHandler(ev: DragEvent) {
+  dragOverHandler(ev: DragEvent) {
     // console.log('File(s) in drop zone');
 
     // Prevent default behavior (Prevent file from being opened)

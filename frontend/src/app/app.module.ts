@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { RoomsComponent } from './_components/rooms/rooms.component';
-import { RoomDetailComponent } from './_components/room-detail/room-detail.component';
+import { RoomDetailComponent, SetImageToCenterDirective } from './_components/room-detail/room-detail.component';
 import { NavBarComponent } from './_components/nav-bar/nav-bar.component';
 import { HomeComponent } from './_components/home/home.component';
 import { LoginComponent } from './_components/login/login.component';
@@ -104,7 +104,8 @@ import { MaterialFileUploadComponent } from './_components/material-file-upload/
     EditDialogComponent,
     ItemPanelDirective,
     GlobalCalendarComponent,
-    MaterialFileUploadComponent
+    MaterialFileUploadComponent,
+    SetImageToCenterDirective
   ],
   imports: [
     CommonModule,

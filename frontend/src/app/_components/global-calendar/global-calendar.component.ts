@@ -40,6 +40,8 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
       this.getOrganizations();
   }
 
+  minDate = new jqx.date('todayDate'); // default is today
+
   organizations: Organization[];
   getOrganizations() {
     this.organizationService.getOrganizations().subscribe(

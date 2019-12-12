@@ -36,9 +36,9 @@
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field style="width: 18em;">
-                        <input required #dateInput matInput [min]="today" (input)="picker.value = dateInput.value" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()" [matDatepickerFilter]="datePickerFilter">
+                        <input required #dateInput matInput [min]="today" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()" [matDatepickerFilter]="datePickerFilter">
                         <mat-datepicker-toggle matSuffix [for]="picker "></mat-datepicker-toggle>
-                        <mat-datepicker #picker (input)="dateInput.value=picker.value "></mat-datepicker>
+                        <mat-datepicker #picker></mat-datepicker>
                     </mat-form-field>
                     <div fxLayout="row" fxLayoutAlign="top center">
                         <div fxLayout="column" style="width: 10em;">

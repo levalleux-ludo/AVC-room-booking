@@ -20,7 +20,7 @@ COPY . /app
 RUN ls -ld /app/node_modules/jq*
 
 # generate build
-RUN ng build --output-path=dist
+RUN ng build --output-path=dist --prod
 
 ############
 ### prod ###

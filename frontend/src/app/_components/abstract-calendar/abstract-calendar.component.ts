@@ -18,11 +18,11 @@ class EventPrivateData {
   description: string;
 }
 
-@Component({
-  selector: 'app-abstract-calendar',
-  templateUrl: './abstract-calendar.component.html',
-  styleUrls: ['./abstract-calendar.component.scss']
-})
+// @Component({
+//   selector: 'app-abstract-calendar',
+//   templateUrl: './abstract-calendar.component.html',
+//   styleUrls: ['./abstract-calendar.component.scss']
+// })
 export abstract class AbstractCalendarComponent {
   @ViewChild('schedulerReference', {static: false})
   myScheduler: jqxSchedulerComponent;
