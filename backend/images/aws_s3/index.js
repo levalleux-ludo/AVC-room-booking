@@ -74,9 +74,21 @@ function deleteImage(imageId, then, catch_err) {
 
 }
 
+function getImages(then, catch_err) {
+    console.log('[aws_s3 image manager] getImages()');
+    s3.listObjects({ Bucket: bucketName }, function(err, data) {
+        if (err) {
+            catch_err("There was an error when listing objects: ", err.message);
+            return;
+        }
+        then(data);
+    });
+}
+
 module.exports = {
     storeImage,
     getImage,
     deleteImage,
-    getEnv
+    getEnv,
+    getImages
 };

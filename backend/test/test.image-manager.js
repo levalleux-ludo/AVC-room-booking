@@ -95,4 +95,58 @@ describe('image manager local', () => {
             });
         })
     }).timeout(15000);
+
+    it('get all images', (done) => {
+        imageService.getAllImages((list) => {
+            list.forEach((imageId) => console.log("image:", imageId));
+            done();
+        }, (err) => {
+            console.error(err);
+        });
+    });
+
+    const roomService = require('../rooms/room.service');
+
+    it('get all images in DB', (done) => {
+        roomService.getImages((list) => {
+            list.forEach((imageId) => console.log("image:", imageId));
+            done();
+        }, (err) => {
+            console.error(err);
+        });
+    });
+
+    it('remove unused images', (done) => {
+        roomService.getImages((listFromDb) => {
+            imageService.getAllImages((listFromS3) => {
+                let nbToKeep = 0;
+                let nbToDelete = 0;
+                listFromS3.forEach((imageId) => {
+                    if (listFromDb.includes(imageId)) {
+                        console.log("image to keep:", imageId)
+                        nbToKeep++;
+                    } else {
+                        imageService.deleteImage(
+                            imageId,
+                            () => {
+                                console.log("image deleted:", imageId)
+                            },
+                            (err) => {
+                                console.error("Error while trying to delete image", imageId, err);
+                            }
+                        )
+                        nbToDelete++;
+                    }
+                });
+                console.log("Nb images to keep:", nbToKeep);
+                console.log("Nb images to delete:", nbToDelete);
+                done();
+            }, (err) => {
+                console.error(err);
+            });
+        }, (err) => {
+            console.error(err);
+        });
+    });
+
 });

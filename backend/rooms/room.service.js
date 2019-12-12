@@ -11,7 +11,8 @@ module.exports = {
     getAll,
     getById,
     getByName,
-    getName
+    getName,
+    getImages
 };
 
 async function getAll() {
@@ -29,7 +30,7 @@ async function getByName(name) {
 async function getName(roomId) {
     // await Room.findById(roomId).then((room) => { console.log("getName " + roomId + " -> " + room.name ); return room.name; } );
     room = await Room.findById(roomId);
-    console.log("getName " + roomId + " -> " + room.name );
+    console.log("getName " + roomId + " -> " + room.name);
     return room.name;
 }
 
@@ -52,7 +53,7 @@ async function update(id, roomParam) {
 
     // validate
     if (!room) throw 'Room not found';
-  
+
     // copy userParam properties to user
     Object.assign(room, roomParam);
 
@@ -61,4 +62,23 @@ async function update(id, roomParam) {
 
 async function _delete(id) {
     await Room.findByIdAndRemove(id);
+}
+
+async function getImages(then, catch_err) {
+    await Room.find({}, 'pictures', function(err, rooms) {
+        if (err) {
+            catch_err(err);
+            return;
+        }
+        let list = new Array();
+        rooms.forEach((room) => {
+            room.pictures.forEach((picture) => {
+                const imageId = picture.toString();
+                if (!list.includes(imageId)) {
+                    list.push(imageId);
+                }
+            });
+        });
+        then(list);
+    });
 }

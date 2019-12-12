@@ -11,12 +11,31 @@ module.exports = {
     after_upload,
     deleteImage,
     getImage,
-    setUploadsFolder
+    setUploadsFolder,
+    getAllImages
 }
 
 const imagesMap = new Map();
 
 var uploadsFolder = config.uploadsFolder;
+
+async function getAllImages(then, catch_err) {
+    await aws_s3.getImages((data) => {
+        // console.info(data);
+        if (data.Contents) {
+            let list = new Array();
+            data.Contents.forEach((content) => {
+                // console.log(content);
+                list.push(content.Key);
+            });
+            then(list);
+        } else {
+            catch_err("Wrong data format received", data);
+        }
+    }, (err) => {
+        catch_err(err);
+    });
+}
 
 function multer_upload() {
     var storage = multer.diskStorage({
