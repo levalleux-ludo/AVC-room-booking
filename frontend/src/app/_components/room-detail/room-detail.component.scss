@@ -36,3 +36,41 @@ mat-card {
 .carousel-slide {
     background-size: contain !important;
 }
+
+.close.mat-button {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    right: 0;
+    align-content: flex-end;
+    padding: 5px;
+    line-height: 14px;
+    min-width: auto;
+    z-index: 9999;
+}
+
+.zoom {
+    position: relative !important;
+    // top: 20;
+    // right: 0 !important;
+    // padding: 5px;
+    // line-height: 14px;
+    // min-width: auto;
+    float: right;
+    z-index: 0;
+}
+
+.doctor {
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 1rem;
+    // align-self: flex-end;
+    // top: 0;
+    // right: 0;
+    // align-content: flex-end;
+    float: right;
+    padding: 5px;
+    line-height: 14px;
+    min-width: auto;
+    z-index: 9999;
+}

@@ -1,14 +1,21 @@
 <div *ngIf="room">
+    <button mat-button class="close" (click)="bottomSheetRef.dismiss()">X</button>
     <div fxLayout="column" fxLayoutWrap fxLayoutAlign="center center">
         <div fxFlex>
             <h1 style="text-align: center;">{{room.name}}</h1>
         </div>
-        <div fxFlex style="width: 80%;">
-            <mat-carousel timings="250ms ease-in" [autoplay]="true" interval="5000" color="accent" maxWidth="100%" proportion="40" [loop]="true" [hideArrows]="false" [hideIndicators]="false" [useKeyboard]="true" [useMouseWheel]="false">
-                <mat-carousel-slide #matCarouselSlide *ngFor="let img of images" [image]="img" overlayColor="#00000040" [hideOverlay]="false"></mat-carousel-slide>
+        <div fxFlex style="width: -webkit-fill-available;">
+            <mat-carousel timings="250ms ease-in" [autoplay]="true" interval="5000" color="accent" maxWidth="100%" proportion="30" [loop]="true" [hideArrows]="false" [hideIndicators]="false" [useKeyboard]="true" [useMouseWheel]="false">
+                <mat-carousel-slide #matCarouselSlide *ngFor="let img of images" [image]="img" overlayColor="#00000040" [hideOverlay]="false">
+                    <button mat-button tabindex="-1" class="zoom" (click)="magnify(img)">
+                  <mat-icon>zoom_out_map</mat-icon>
+                </button>
+                    <!-- <button mat-button tabindex="-1" class="zoom" (click)="magnify(img)">Zoom Out</button> -->
+                </mat-carousel-slide>
             </mat-carousel>
         </div>
-        <div fxFlex fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
+        <div fxFlex fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top" style="width: -webkit-fill-available;">
+
             <div fxFlex>
                 <mat-card>
                     <mat-card-header>
@@ -57,28 +64,25 @@
                 </mat-card>
             </div>
             <div fxFlex fxLayout="column" fxLayoutAlign="top">
+                <!-- <mat-card>
+                    <mat-card-content>
+                        <div style="width: 10em;">
+
+                        </div>
+                    </mat-card-content>
+                </mat-card> -->
                 <mat-card>
                     <mat-card-header>
                         <h3><i class="fa fa-calendar" aria-hidden="true"></i> Availabilities</h3>
                     </mat-card-header>
                     <mat-card-content>
-                        <app-room-calendar #calendar [room]="room" [scaleStartHour]="8" [height]="350" [width]="400" [scaleEndHour]="19" [readOnly]="true" [showViews]="['weekView']"></app-room-calendar>
+                        <app-room-calendar #calendar [room]="room" [scaleStartHour]="8" [height]="350" [width]="350" [scaleEndHour]="19" [readOnly]="true" [showViews]="['weekView']"></app-room-calendar>
                     </mat-card-content>
                 </mat-card>
-                <mat-card>
-                    <mat-card-content>
-                        <div style="width: 10em;">
-                            <button fxFlex mat-flat-button color="primary" (click)='bookNow()' style="height: 3em; width: 10em;">
-                        <i class="fa fa-calendar-check-o"></i> Book Now
-                </button>
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-
             </div>
         </div>
     </div>
-
+    <!--
     <div><span>Next bookings:</span></div>
     <ul class="bookings">
         <li *ngFor="let booking of nextBookings">
@@ -96,7 +100,10 @@
                 <div>{{booking.startDate | date : 'mediumDate'}} [ {{booking.startDate | date : 'shortTime'}} - {{booking.endDate | date : 'shortTime'}} ] (duration: {{duration(booking)}} hours)</div>
             </a>
         </li>
-    </ul>
+    </ul> -->
+    <button class="doctor" mat-button mat-flat-button color="primary" (click)='bookNow()' style="height: 3em; width: 10em;">
+      <i class="fa fa-calendar-check-o"></i> Book Now
+    </button>
 </div>
-<button (click)='bookNow()'>book now</button>
-<button (click)='goBack()'>go back</button>
+<!-- <button (click)='bookNow()'>book now</button> -->
+<!-- <button (click)='goBack()'>go back</button> -->

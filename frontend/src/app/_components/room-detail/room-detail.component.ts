@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild, Directive, AfterViewChecked, Input, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnInit, ViewChild, Directive, AfterViewChecked, Input, ElementRef, Renderer2, Output, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../../_services/room.service';
 import { Location } from '@angular/common';
 import { Room } from '../../_model';
 import { Booking, duration } from '../../_model/booking';
 import { BookingService } from '../../_services/booking.service';
-import { MatDialog, MatDialogConfig } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material';
 import { BookingDialogComponent } from '../booking-dialog/booking-dialog.component';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
 import { ExtraService } from '../../_services/extra.service';
@@ -14,13 +14,18 @@ import { OrganizationService } from '../../_services/organization.service';
 import { Organization } from '../../_model/organization';
 import { Observable } from 'rxjs';
 import { ImagesService } from 'src/app/_services/images.service';
+import { inject } from '@angular/core/testing';
+import { DialogCarouselComponent } from '../dialog-carousel/dialog-carousel.component';
 
 @Directive({
   selector: '[appSetImageToCenter]'
 })
 export class SetImageToCenterDirective implements AfterViewChecked {
 
-  constructor( private img: ElementRef, private _renderer: Renderer2, ) { }
+  constructor(
+    private img: ElementRef,
+    private _renderer: Renderer2
+  ) { }
 
   ngAfterViewChecked(): void {
     const px: number = parseInt(this.img.nativeElement.parentNode.style.width.replace("px", ""), 10);
@@ -104,11 +109,23 @@ export class RoomDetailComponent implements OnInit {
 
   @ViewChild('calendar', {static: false}) calendar: RoomCalendarComponent;
 
-  room: Room;
+  _room: Room;
+  @Input()
+  set room(value: Room) {
+    this._room = value;
+    if (this._room) {
+      this.getBookings(this._room.id);
+      this.getImages(this._room);
+    }
+  }
+  get room(): Room {
+    return this._room;
+  }
 
   get roomDescription(): string {
-    if (this.room)
+    if (this.room) {
       return atob(this.room.descriptionHTML);
+    }
     return `<div></div>`;
   }
 
@@ -138,11 +155,18 @@ export class RoomDetailComponent implements OnInit {
     private organizationService: OrganizationService,
     private imagesService: ImagesService,
     private location: Location, // required to get back in navigation history
-    private dialog: MatDialog // required to open a dialog
-  ) { }
+    private dialog: MatDialog, // required to open a dialog
+    public bottomSheetRef: MatBottomSheetRef<RoomDetailComponent>, // required to integrate the component in the 'bottomSheet'
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data?: any
+  ) {
+    if (this.data && this.data.room) {
+      console.log('injected room', this.data.room.name);
+      this.room = this.data.room;
+    }
+   }
 
   ngOnInit() {
-    this.getRoom();
+    // this.getRoom();
     this.getAllRooms();
     this.extraService.refreshExtras();
     this.organizationService.getOrganizations().subscribe(
@@ -158,36 +182,40 @@ export class RoomDetailComponent implements OnInit {
   )
  }
 
-  getRoom(): void {
-    const name = this.route.snapshot.paramMap.get('name');
-    console.log("RoomDetailComponent get room name from URL :", name);
-    this.roomService.getRoom(name).subscribe(
-      room => {
-        this.room = new Room(room);
-        this.getBookings(this.room.id);
-        this.getImages(this.room);
-      });
-  }
+  // getRoom(): void {
+  //   const name = this.route.snapshot.paramMap.get('name');
+  //   console.log("RoomDetailComponent get room name from URL :", name);
+  //   this.roomService.getRoom(name).subscribe(
+  //     room => {
+  //       this.room = new Room(room);
+  //       this.getBookings(this.room.id);
+  //       this.getImages(this.room);
+  //     });
+  // }
 
-  getBookings(roomId): void {
+  getBookings(room: Room): void {
+    this.pastBookings = [];
+    this.nextBookings = [];
+    if (!room) {
+      return;
+    }
     let now = new Date();
     let yesterday = new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate()-1);
     this.bookingService.getBookings({
-      roomId: roomId,
+      roomId: room.id,
       endBefore: now
     }).subscribe(
       bookings => this.pastBookings = bookings
     );
     this.bookingService.getBookings({
-      roomId: roomId,
+      roomId: room.id,
       endAfter: now
     }).subscribe(
       bookings => this.nextBookings = bookings
     );
-
   }
 
   getImages(room: Room): void {
@@ -287,6 +315,17 @@ export class RoomDetailComponent implements OnInit {
 
   duration (booking: Booking) {
     duration(booking);
+  }
+
+  magnify(img: any) {
+    console.log('magnify img=', img);
+    this.dialog.open(DialogCarouselComponent, {
+      data: {
+        image: img,
+        images: this.images
+      },
+      width: '100vw'
+    });
   }
 
 

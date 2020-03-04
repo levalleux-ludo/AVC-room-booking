@@ -31,7 +31,9 @@ import {
   MatListModule,
   MatTabsModule,
   MatIconModule,
-  MatProgressBarModule
+  MatProgressBarModule,
+  MatBottomSheetModule,
+  MatSidenavModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './_components/time-picker/time-picker.component';
@@ -72,6 +74,7 @@ import { AngularEditorModule } from '@kolkov/angular-editor';
 import { EditDialogComponent } from './_components/edit-dialog/edit-dialog.component';
 import { GlobalCalendarComponent } from './_components/global-calendar/global-calendar.component';
 import { MaterialFileUploadComponent } from './_components/material-file-upload/material-file-upload.component';
+import { DialogCarouselComponent } from './_components/dialog-carousel/dialog-carousel.component';
 
 @NgModule({
   declarations: [
@@ -105,7 +108,8 @@ import { MaterialFileUploadComponent } from './_components/material-file-upload/
     ItemPanelDirective,
     GlobalCalendarComponent,
     MaterialFileUploadComponent,
-    SetImageToCenterDirective
+    SetImageToCenterDirective,
+    DialogCarouselComponent
   ],
   imports: [
     CommonModule,
@@ -125,6 +129,7 @@ import { MaterialFileUploadComponent } from './_components/material-file-upload/
     MatTabsModule,
     MatIconModule,
     MatProgressBarModule,
+    MatSidenavModule,
     FormsModule,
     NgbModalModule,
     FlatpickrModule.forRoot(),
@@ -152,7 +157,8 @@ import { MaterialFileUploadComponent } from './_components/material-file-upload/
   exports: [
     MatNativeDateModule,
     MatSelectModule,
-    MatOptionModule
+    MatOptionModule,
+    MatBottomSheetModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
@@ -161,7 +167,8 @@ import { MaterialFileUploadComponent } from './_components/material-file-upload/
   entryComponents: [
     BookingDialogComponent, // required to use the component as a dialog body
     ConfirmDialogComponent,
-    EditDialogComponent
+    EditDialogComponent,
+    DialogCarouselComponent
   ]
 })
 export class AppModule { }
