@@ -75,6 +75,7 @@ import { EditDialogComponent } from './_components/edit-dialog/edit-dialog.compo
 import { GlobalCalendarComponent } from './_components/global-calendar/global-calendar.component';
 import { MaterialFileUploadComponent } from './_components/material-file-upload/material-file-upload.component';
 import { DialogCarouselComponent } from './_components/dialog-carousel/dialog-carousel.component';
+import { ConfigureUsersComponent } from './_components/configure-users/configure-users.component';
 
 @NgModule({
   declarations: [
@@ -109,7 +110,8 @@ import { DialogCarouselComponent } from './_components/dialog-carousel/dialog-ca
     GlobalCalendarComponent,
     MaterialFileUploadComponent,
     SetImageToCenterDirective,
-    DialogCarouselComponent
+    DialogCarouselComponent,
+    ConfigureUsersComponent
   ],
   imports: [
     CommonModule,

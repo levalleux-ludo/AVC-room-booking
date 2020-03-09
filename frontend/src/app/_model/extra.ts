@@ -23,7 +23,7 @@ export class Extra {
         this.defaultRate = original.defaultRate;
     }
 
-    get id () {
+    get id() {
         return this._id;
     }
 

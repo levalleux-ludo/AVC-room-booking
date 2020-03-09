@@ -5,12 +5,6 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { catchError, tap } from 'rxjs/operators';
 
-export interface User {
-  username: string;
-  firstName: string;
-
-}
-
 @Injectable({
   providedIn: 'root'
 })

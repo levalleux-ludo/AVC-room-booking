@@ -1,0 +1,27 @@
+<ng-template #tableHeadersTemplate>
+    <th>User</th>
+    <th>FirstName</th>
+    <th>LastName</th>
+    <th>Role</th>
+    <th>Member of</th>
+</ng-template>
+<ng-template #itemRowTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-role="role" let-memberOf="memberOf">
+    <td>
+        <div class="username">{{username}}</div>
+    </td>
+    <td>
+        <div class="firstName">{{firstName}}</div>
+    </td>
+    <td>
+        <div class="lastName">{{lastName}}</div>
+    </td>
+    <td>
+        <div class="role">{{role}}</div>
+    </td>
+    <td>
+        <div class="memberOf">{{memberOf}}</div>
+    </td>
+</ng-template>
+<ng-template #itemEditTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-role="role" let-memberOf="memberOf">
+</ng-template>
+<app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>
