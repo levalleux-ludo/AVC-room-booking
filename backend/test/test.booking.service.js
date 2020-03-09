@@ -5,9 +5,11 @@ const bookingService = require('../bookings/booking.service');
 const test_helper = require('./test_helper')
 const roomService = require('../rooms/room.service');
 const date_helper = require('../_helpers/date_helper');
+const organizationService = require('../organizations/organization.service');
 
 var roomOne;
 var roomTwo;
+var organization1;
 var endOfBooking1;
 var idBooking1;
 
@@ -26,6 +28,7 @@ function addToTime(startTime, offsetHours) {
 booking1 = () => {
     return {
         ref: "RH1234",
+        organizationId: organization1._id,
         startDate: '1978-06-11T08:00:00.000Z',
         endDate: '1978-06-11T11:30:00.000Z',
         roomId: roomOne._id,
@@ -34,6 +37,7 @@ booking1 = () => {
 booking2 = () => {
     return {
         ref: booking1().ref,
+        organizationId: organization1._id,
         startDate: '1978-06-11T08:00:00.000Z',
         endDate: '1978-06-11T11:30:00.000Z',
         roomId: roomTwo._id,
@@ -42,6 +46,7 @@ booking2 = () => {
 booking3 = () => {
     return {
         ref: "RH3456",
+        organizationId: organization1._id,
         // start just after booking1,
         startDate: booking1().endDate,
         endDate: addToTime(booking1().endDate, 1.5),
@@ -51,6 +56,7 @@ booking3 = () => {
 booking4 = () => {
     return {
         ref: "RH4567",
+        organizationId: organization1._id,
         // start during booking1 and end after
         startDate: addToTime(booking1().startDate, 1),
         endDate: addToTime(booking1().endDate, 1),
@@ -60,6 +66,7 @@ booking4 = () => {
 booking5 = () => {
     return {
         ref: "RH5678",
+        organizationId: organization1._id,
         date: booking1().date,
         // start 1h before booking1 but overlap booking1
         startDate: addToTime(booking1().startDate, -1),
@@ -70,6 +77,7 @@ booking5 = () => {
 booking6 = () => {
     return {
         ref: "RH6789",
+        organizationId: organization1._id,
         date: booking3().date,
         // start during booking3 and end before
         startDate: addToTime(booking3().startDate, date_helper.duration(booking3().startDate, booking3().endDate) / 2),
@@ -79,8 +87,32 @@ booking6 = () => {
 };
 
 before((done) => {
-    test_helper.drop_bookings(done);
+    test_helper.drop_bookings(done).then(() => {
+        CreateOrganizationIfNotExist("ShowTrust", (organization) => {
+            organization1 = organization;
+        })
+    });
 });
+
+async function CreateOrganizationIfNotExist(organizationName, next) {
+    await organizationService.getByName(organizationName)
+        .then(async(organization) => {
+            if (organization) {
+                console.log('Organization ' + organizationName + ' already exists');
+                next(organization);
+            } else {
+                console.log('Create Organization ' + organizationName + ' in DB');
+                await organizationService.create({
+                    name: organizationName
+                }).then(organization => {
+                    next(organization)
+                });
+            }
+        }).catch(async(err) => {
+            console.error(err);
+            throw (err);
+        });
+}
 
 async function createRoomIfNotExist(roomName, next) {
     await roomService.getByName(roomName)

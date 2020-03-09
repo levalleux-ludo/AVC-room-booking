@@ -4,8 +4,8 @@
     "description": "",
     "main": "server.js",
     "scripts": {
-        "test": "set \"MONGODB_URI=mongodb://localhost/AVC-room-booking-system-test\" && nodemon --exec \"mocha --timeout 5s -R min \"",
-        "test-single": "mocha $1",
+        "test": "set \"MONGODB_URI=mongodb://localhost/AVC-room-booking-system-test\" && nodemon --exec \"mocha --timeout 10s -R min \"",
+        "test-single": "mocha --timeout 10s ",
         "start": "set NODE_ENV=dev&& node ./server.js",
         "start-dev": "set NODE_ENV=dev&& nodemon ./server.js",
         "start:env-now": "node  --require dotenv/config ./server.js dotenv_config_path=./env/.env.now",

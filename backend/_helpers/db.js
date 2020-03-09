@@ -5,6 +5,7 @@ connect();
 
 module.exports = {
     User: require('../users/user.model').model,
+    Roles: require('../users/user.model').roles,
     Room: require('../rooms/room.model').model,
     Booking: require('../bookings/booking.model').model,
     Extra: require('../extras/extras.model').model,

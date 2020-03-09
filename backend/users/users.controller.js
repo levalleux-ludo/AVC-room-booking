@@ -1,10 +1,16 @@
 ﻿const express = require('express');
 const router = express.Router();
 const userService = require('./user.service');
+const authorize = require('_helpers/authorize');
+const Roles = require('./user.model').roles;
 
 // routes
 router.post('/authenticate', authenticate);
 router.post('/register', register);
+router.post('/customer', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), setCustomer);
+router.post('/staff', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcStaff);
+router.post('/admin', authorize([Roles.SysAdmin]), setAvcAdmin);
+router.post('/sysAdmin', authorize([Roles.SysAdmin]), setSysAdmin);
 router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
@@ -22,6 +28,33 @@ function authenticate(req, res, next) {
 function register(req, res, next) {
     userService.create(req.body)
         .then(() => res.json({}))
+        .catch(err => next(err));
+}
+
+function setCustomer(req, res, next) {
+    setRole(Roles.Customer, req, res, next);
+}
+
+function setAvcStaff(req, res, next) {
+    setRole(Roles.AvcStaff, req, res, next);
+}
+
+function setSysAdmin(req, res, next) {
+    setRole(Roles.SysAdmin, req, res, next);
+}
+
+function setAvcAdmin(req, res, next) {
+    setRole(Roles.AvcAdmin, req, res, next);
+}
+
+function setRole(role, req, res, next) {
+    console.log('check user is not himself', req.user.sub, req.body.userId)
+    if (req.user.sub == req.body.userId) {
+        res.status(404).json({ message: 'Changing its own role is not allowed' });
+        return;
+    }
+    userService.setRole(req.body, role)
+        .then(user => user ? res.json(user) : res.status(400).json({ message: 'Changing role of user failed' }))
         .catch(err => next(err));
 }
 

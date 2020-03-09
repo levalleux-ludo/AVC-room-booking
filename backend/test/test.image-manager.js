@@ -28,7 +28,8 @@ describe('image manager local', () => {
             fs.removeSync(uploadsFolder);
         }
         imageService.setUploadsFolder(uploadsFolder);
-        server = requireUncached('../server');
+        server = require('../server');
+        // server = requireUncached('../server');
     })
 
     it('upload image (http request)', (done) => {
