@@ -42,7 +42,7 @@ async function update(id, extraParam) {
     // validate
     if (!extra) throw 'Extra not found';
 
-    // copy userParam properties to user
+    // copy extraParam properties to extra
     Object.assign(extra, extraParam);
 
     await extra.save();

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
-import { User } from 'src/app/_model/user';
+import { User, eUserRole } from 'src/app/_model/user';
 import { UserService } from 'src/app/_services/user.service';
+import { AuthenticationService } from 'src/app/_services';
 
 class UserContext implements IItemContext {
   user: User;
@@ -21,7 +22,9 @@ class UserContext implements IItemContext {
       user: this.user,
       username: this.user.username,
       firstName: this.user.firstName,
-      lastName: this.user.lastName
+      lastName: this.user.lastName,
+      role: this.user.role,
+      setRole: (value) => { this.user.role = value; }
     };
   }
 }
@@ -38,7 +41,9 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
   // tslint:disable-next-line: variable-name
   _editedItem: UserContext;
 
-  constructor(private userService: UserService) {
+  allAvailableRoles = Object.values(eUserRole);
+
+  constructor(private userService: UserService, private authenticationService: AuthenticationService) {
     super();
    }
 
@@ -53,6 +58,20 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
 
   }
 
+  isEditable(item) {
+    let currentUser = this.authenticationService.currentUserValue;
+    return currentUser && ((item as UserContext).user.id !== currentUser._id);
+  }
+
+  canDelete(item) {
+    return false;
+  }
+
+  canAdd() {
+    return false;
+  }
+
+
   get items(): IItemContext[] {
     return this.users;
   }
@@ -63,7 +82,7 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
     console.error('create user is not implemented');
   }
   updateItem = (item: IItemContext) => {
-    console.error('create user is not implemented');
+    this.userService.changeRole((item as UserContext).user).subscribe(() => this.refreshList());
   }
   getNewItem(): IItemContext {
     return new UserContext(new User({}));

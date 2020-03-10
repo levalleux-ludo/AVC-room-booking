@@ -30,13 +30,15 @@ async function authenticate({ username, password }) {
 
 async function setRole({ userId }, role) {
     const user = await User.findById(userId);
-    if (user) {
-        console.log("Changing role of user", user.username, ' into ', role);
-        user.role = role;
-        return user.toObject();
-    } else {
+    if (!user) {
         console.error('could not find user with id', userId)
+        return;
     }
+    console.log("Changing role of user", user.username, ' into ', role);
+    user.role = role;
+
+    // save user
+    return await user.save();
 }
 
 async function getAll() {

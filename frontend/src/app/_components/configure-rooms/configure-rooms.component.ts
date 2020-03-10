@@ -170,6 +170,17 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
       return null;
     }
   }
+  isEditable(item) {
+    return true;
+  }
+
+  canDelete(item) {
+    return true;
+  }
+
+  canAdd() {
+    return true;
+  }
 
   //////////////////////////////////////////////////////
 

@@ -1,5 +1,13 @@
 import { v4 as uuid } from 'uuid';
 
+export enum eUserRole {
+  GUEST = 'Guest',
+  CUSTOMER = 'Customer',
+  AVC_STAFF = 'AvcStaff',
+  AVC_ADMIN = 'AvcAdmin',
+  SYS_ADMIN = 'SysAdmin'
+}
+
 export class User {
   // tslint:disable-next-line: variable-name
   private _id;
@@ -9,6 +17,8 @@ export class User {
   private _firstName: string;
   // tslint:disable-next-line: variable-name
   private _lastName: string;
+  // tslint:disable-next-line: variable-name
+  private _role: eUserRole;
 
   // tslint:disable-next-line: variable-name
   constructor(fetched_data: any) {
@@ -16,6 +26,7 @@ export class User {
     this._username = (fetched_data.username) ? fetched_data.username : '';
     this._firstName = (fetched_data.firstName) ? fetched_data.firstName : '';
     this._lastName = (fetched_data.lastName) ? fetched_data.lastName : '';
+    this._role = (fetched_data.role) ? fetched_data.role : undefined;
   }
 
   equals(user: User): boolean {
@@ -23,7 +34,7 @@ export class User {
 }
 
  clone(): User {
-    return new User({username: this.username, firstName: this.firstName, lastName: this.lastName});
+    return new User({id: this.id, username: this.username, firstName: this.firstName, lastName: this.lastName, role: this.role});
   }
 
   get id() {
@@ -42,12 +53,20 @@ get username() {
     return this._lastName;
   }
 
+  get role() {
+    return this._role;
+  }
+
+  set role(value: eUserRole) {
+    this._role = value;
+  }
 
   getData() {
     return {
         username: this.username,
         firstName: this.firstName,
-        lastName: this.lastName
+        lastName: this.lastName,
+        role: this.role
     };
 }
 

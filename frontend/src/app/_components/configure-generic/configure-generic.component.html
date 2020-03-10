@@ -26,10 +26,10 @@
             <tr *ngFor="let item of configureComponent.items">
                 <ng-container *ngTemplateOutlet="itemRowTemplate;context:item.context()"></ng-container>
                 <td style="vertical-align: top; text-align: center;">
-                    <button mat-raised-button color="primary" title="edit '{{configureComponent.itemToString(item)}}'" (click)="onClickEdit(item)"><i class="fa fa-edit"></i>Edit</button>
+                    <button [disabled]="!configureComponent.isEditable(item)" mat-raised-button color="primary" title="edit '{{configureComponent.itemToString(item)}}'" (click)="onClickEdit(item)"><i class="fa fa-edit"></i>Edit</button>
                 </td>
                 <td style="vertical-align: top; text-align: center;">
-                    <button mat-raised-button color="primary" title="delete '{{configureComponent.itemToString(item)}}'" (click)="onClickDelete(item)"><i class="fa fa-trash"></i>Delete</button>
+                    <button [disabled]="!configureComponent.canDelete(item)" mat-raised-button color="primary" title="delete '{{configureComponent.itemToString(item)}}'" (click)="onClickDelete(item)"><i class="fa fa-trash"></i>Delete</button>
                 </td>
             </tr>
         </table>
@@ -51,7 +51,7 @@
             </mat-expansion-panel>
         </mat-accordion>
         <div style=" width: 10em;">
-            <button mat-raised-button color="primary" [disabled]="editItem" (click)="onClickAdd()"><i class="fa fa-plus-square"></i>Add</button>
+            <button mat-raised-button color="primary" [disabled]="editItem || !configureComponent.canAdd()" (click)="onClickAdd()"><i class="fa fa-plus-square"></i>Add</button>
         </div>
     </div>
 

@@ -71,6 +71,17 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
   itemToString(item: IItemContext): string {
     return (item as OrganizationContext).organization.name;
   }
+  isEditable(item) {
+    return true;
+  }
+
+  canDelete(item) {
+    return true;
+  }
+
+  canAdd() {
+    return true;
+  }
 
   //////////////////////////////////////////////////////
 

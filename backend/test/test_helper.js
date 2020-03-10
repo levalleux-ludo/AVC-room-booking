@@ -20,15 +20,22 @@ module.exports = {
     drop_bookings
 };
 
-before(async (done) => {
+before(async(done) => {
     // await db.connect();
     done();
 });
 
+let users_dropped = false;
+
 async function drop_users(done) {
+    if (users_dropped) {
+        done();
+        return;
+    }
     console.log("Dropping Users ...");
     await db.User.deleteMany({});
     console.log("Users dropped");
+    users_dropped = true;
     done();
     // if (db.users) {
     //     await db.users.drop(

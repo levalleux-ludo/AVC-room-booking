@@ -37,15 +37,15 @@ let avcStaff = {
     lastName: "avcStaff"
 };
 
-async function createAdmin() {
+async function createAdmin(done) {
+    console.log("Create admin user")
     await userService.createWithRole(admin, Roles.SysAdmin)
+    done();
 }
 
 before((done) => {
     test_helper.drop_users(() => {
-        createAdmin().then(() => {
-            done();
-        })
+        createAdmin(done)
     });
 });
 

@@ -4,7 +4,7 @@ import { MatDialog, MatExpansionPanel, MatExpansionModule } from '@angular/mater
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
 import { isThisSecond } from 'date-fns';
- 
+
 
 export interface IItemContext {
   clone();
@@ -21,6 +21,9 @@ export abstract class ConfigureAbstractComponent {
   abstract set editedItem(item: IItemContext);
   abstract get submitEnabled(): boolean;
   abstract itemToString(item: IItemContext): string;
+  abstract isEditable(item: IItemContext): boolean;
+  abstract canDelete(item: IItemContext): boolean;
+  abstract canAdd(): boolean;
 }
 
 @Directive({
@@ -51,7 +54,7 @@ export class ConfigureGenericComponent implements AfterViewInit {
     }
     return null;
   }
-  
+
   @Input()
   configureComponent: ConfigureAbstractComponent;
 
@@ -88,6 +91,20 @@ export class ConfigureGenericComponent implements AfterViewInit {
   }
 
   editItem: boolean = false;
+
+  isEditable(item) {
+    return true;
+  }
+
+  canDelete(item) {
+    return true;
+  }
+
+  canAdd() {
+    return true;
+  }
+
+
 
   submitAction: (item) => void;
 

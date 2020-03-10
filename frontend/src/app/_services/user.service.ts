@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { User } from '../_model/user';
+import { User, eUserRole } from '../_model/user';
 import { Observable } from 'rxjs';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { FetchService } from '../_helpers';
@@ -12,6 +12,19 @@ import { tap, catchError } from 'rxjs/operators';
 export class UserService extends FetchService {
 
   private apiUsers = `${environment.apiRoomBooking}/users`;
+
+  // private apiRoles = {
+  //   Customer: 'customer',
+  //   AvcStaff: 'staff',
+  //   AvcAdmin: 'admin',
+  //   SysAdmin: 'sysAdmin'
+  // };
+  private apiRoles = new Map<string, string>([
+    [eUserRole.CUSTOMER, 'customer'],
+    [eUserRole.AVC_STAFF, 'staff'],
+    [eUserRole.AVC_ADMIN, 'admin'],
+    [eUserRole.SYS_ADMIN, 'sysAdmin']
+  ]);
 
   httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json' })
@@ -31,12 +44,21 @@ export class UserService extends FetchService {
       );
   }
 
-  updateUser(user: User): Observable<any> {
-    const url = `${this.apiUsers}/${user.id}`;
-    return this.http.put(url, user.getData(), this.httpOptions).pipe(
-      tap(_ => this.log(`updated user ${user.username}`)),
-      catchError(this.handleError<any>('updateExtra'))
-    );
-  }
+  // updateUser(user: User): Observable<any> {
+  //   const url = `${this.apiUsers}/${user.id}`;
+  //   return this.http.put(url, user.getData(), this.httpOptions).pipe(
+  //     tap(_ => this.log(`updated user ${user.username}`)),
+  //     catchError(this.handleError<any>('updateUser'))
+  //   );
+  // }
 
+  changeRole(user: User): Observable<any> {
+      const url = `${this.apiUsers}/${this.apiRoles.get(user.role)}`;
+      console.log('apiRoles', this.apiRoles);
+      console.log('Update user role @API:', url, 'role', user.role);
+      return this.http.post<User>(url, {userId: user.id}, this.httpOptions).pipe(
+        tap((updatedUser) => this.log(`change role of user ${updatedUser.username} into ${updatedUser.role}`)),
+        catchError(this.handleError<User>('changeRole'))
+      );
+    }
 }

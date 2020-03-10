@@ -79,6 +79,17 @@ export class ConfigureExtrasComponent extends ConfigureAbstractComponent impleme
   itemToString(item: IItemContext): string {
     return (item as ExtraContext).extra.name;
   }
+  isEditable(item) {
+    return true;
+  }
+
+  canDelete(item) {
+    return true;
+  }
+
+  canAdd() {
+    return true;
+  }
 
   //////////////////////////////////////////////////////
 

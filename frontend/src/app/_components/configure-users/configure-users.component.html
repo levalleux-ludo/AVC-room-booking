@@ -22,6 +22,13 @@
         <div class="memberOf">{{memberOf}}</div>
     </td>
 </ng-template>
-<ng-template #itemEditTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-role="role" let-memberOf="memberOf">
+<ng-template #itemEditTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-role="role" let-memberOf="memberOf" let-setRole="setRole">
+    <h3 class="role">current role : {{role}}</h3>
+    <mat-form-field>
+        <mat-label>Role</mat-label>
+        <mat-select [value]="role" (selectionChange)="setRole($event.value)">
+            <mat-option *ngFor="let role of allAvailableRoles" [value]="role">{{role}}</mat-option>
+        </mat-select>
+    </mat-form-field>
 </ng-template>
 <app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>
