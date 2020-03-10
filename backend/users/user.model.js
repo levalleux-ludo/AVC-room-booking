@@ -43,7 +43,8 @@ const schema = new Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     createdDate: { type: Date, default: Date.now },
-    role: { type: String, enum: Object.values(Roles), default: Roles.Guest }
+    role: { type: String, enum: Object.values(Roles), default: Roles.Guest },
+    memberOf: { type: [Schema.Types.ObjectId], default: [] }
 });
 
 Object.assign(schema.statics, { Roles, });

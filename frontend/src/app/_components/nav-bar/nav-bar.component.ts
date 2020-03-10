@@ -15,6 +15,9 @@ export class NavBarComponent implements OnInit {
     },
     BOOKINGS: () => {
       return this.currentUser && AuthorizationRules.BOOKINGS.includes(this.currentUser.role);
+    },
+    MYBOOKINGS: () => {
+      return this.currentUser && AuthorizationRules.MYBOOKINGS.includes(this.currentUser.role);
     }
   }
 

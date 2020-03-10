@@ -33,7 +33,7 @@
         <app-configure-extras></app-configure-extras>
     </mat-expansion-panel>
 </mat-accordion> -->
-<mat-tab-group dynamicHeight>
+<mat-tab-group dynamicHeight (selectedTabChange)="onTabChange($event)">
     <mat-tab label="Organizations">
         <div class="mat-elevation-z4">
             <app-configure-organizations></app-configure-organizations>
@@ -55,7 +55,7 @@
     </mat-tab>
     <mat-tab label="Users">
         <div class="mat-elevation-z4">
-            <app-configure-users></app-configure-users>
+            <app-configure-users [refresh]="refreshUsers"></app-configure-users>
         </div>
     </mat-tab>
 

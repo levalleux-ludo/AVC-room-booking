@@ -49,5 +49,7 @@ async function update(id, organizationParam) {
 }
 
 async function _delete(id) {
+    // TODO: remove all references to this organization in other objects: User, Bookings
+    
     await Organization.findByIdAndRemove(id);
 }

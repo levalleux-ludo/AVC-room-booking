@@ -13,7 +13,8 @@ module.exports = {
     createWithRole,
     update,
     delete: _delete,
-    setRole
+    setRole,
+    setMemberOf
 };
 
 async function authenticate({ username, password }) {
@@ -46,6 +47,20 @@ async function setRole({ userId }, role, requesterRole) {
 
     // save user
     return await user.save();
+}
+
+async function setMemberOf(userId, memberOf) {
+    const user = await User.findById(userId);
+    if (!user) {
+        console.error('could not find user with id', userId)
+        throw 'could not find user with id' + userId;
+    }
+    console.log("Changing memberOf of user", user.username, ' into ', memberOf);
+    user.memberOf = memberOf;
+
+    // save user
+    return await user.save();
+
 }
 
 async function getAll() {

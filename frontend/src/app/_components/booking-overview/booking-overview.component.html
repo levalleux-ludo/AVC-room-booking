@@ -1,4 +1,12 @@
-<app-global-calendar [width]="800" [height]="600" [readOnly]="true" [showViews]="['monthView', 'weekView', 'dayView']"></app-global-calendar>
+<div>
+    <mat-form-field appearance="outline">
+        <mat-label>Organizations</mat-label>
+        <mat-select multiple [value]="selectedOrganizations" (selectionChange)="selectOrganizations($event.value)">
+            <mat-option *ngFor="let organization of organizations" [value]="organization">{{organization.name}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+<app-global-calendar #calendar [bookingFilter]="bookingFilter" [width]="800" [height]="600" [readOnly]="true" [showViews]="['monthView', 'weekView', 'dayView']"></app-global-calendar>
 <!-- <ul class="bookings">
     <li *ngFor="let booking of bookings">
         <a routerLink="/bookings/booking/{{booking.ref}}">

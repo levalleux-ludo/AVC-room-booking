@@ -15,6 +15,7 @@ router.get('/', getAll);
 router.get('/current', getCurrent);
 router.get('/:id', getById);
 router.put('/:id', update);
+router.put('/:id/memberOf', setMemberOf);
 router.delete('/:id', _delete);
 
 module.exports = router;
@@ -55,6 +56,12 @@ function setRole(role, req, res, next) {
     }
     userService.setRole(req.body, role, req.user.role)
         .then(user => user ? res.json(user) : res.status(400).json({ message: 'Changing role of user failed' }))
+        .catch(err => next(err));
+}
+
+function setMemberOf(req, res, next) {
+    userService.setMemberOf(req.params.id, req.body)
+        .then(() => res.json({}))
         .catch(err => next(err));
 }
 

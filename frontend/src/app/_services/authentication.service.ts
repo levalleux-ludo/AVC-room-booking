@@ -8,7 +8,8 @@ import { environment } from '../../environments/environment';
 import { eUserRole } from '../_model/user';
 
 export const AuthorizationRules = {
-  BOOKINGS: [eUserRole.AVC_STAFF, eUserRole.AVC_ADMIN, eUserRole.SYS_ADMIN, eUserRole.CUSTOMER],
+  MYBOOKINGS: [eUserRole.CUSTOMER],
+  BOOKINGS: [eUserRole.AVC_STAFF, eUserRole.AVC_ADMIN, eUserRole.SYS_ADMIN],
   CONFIGURE: [eUserRole.AVC_STAFF, eUserRole.AVC_ADMIN, eUserRole.SYS_ADMIN]
 };
 

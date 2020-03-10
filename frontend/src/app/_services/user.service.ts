@@ -61,4 +61,13 @@ export class UserService extends FetchService {
         catchError(this.handleError<User>('changeRole'))
       );
     }
+
+  changeMemberOf(user: User): Observable<any> {
+    const url = `${this.apiUsers}/${user.id}/memberOf`;
+    console.log('Update user memberOf @API:', url, 'memberOf', user.memberOf);
+    return this.http.put<User>(url, user.memberOf, this.httpOptions).pipe(
+      tap((updatedUser) => this.log(`change memberOf of user ${updatedUser.username} into ${updatedUser.memberOf}`)),
+      catchError(this.handleError<User>('changeMemberOf'))
+    );
+  }
 }

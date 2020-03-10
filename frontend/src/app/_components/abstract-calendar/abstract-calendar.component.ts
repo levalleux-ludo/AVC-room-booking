@@ -41,6 +41,13 @@ export abstract class AbstractCalendarComponent {
   height = 400;
   @Input()
   width = 500;
+  @Input()
+  set bookingFilter(value: (booking) => boolean) {
+    this._bookingFilter = value;
+    this.getBookings();
+  }
+
+  _bookingFilter: (booking) => boolean = (booking) => true;
 
   source: any =
   {
@@ -131,12 +138,12 @@ async getRooms(room?: Room) {
 getBookings() {
   this.bookingService.getBookings(this.getBookingFilter()).subscribe(
         bookings => {
-            this.bookings = bookings;
+            this.bookings = bookings.filter(this._bookingFilter);
             this.myScheduler.beginAppointmentsUpdate();
             this.myScheduler.getAppointments().forEach(
                 appointment => {this.myScheduler.deleteAppointment(appointment.id as string);}
             );
-            bookings.forEach(fetchBooking => {
+            this.bookings.forEach(fetchBooking => {
                 let booking = this.processBooking(fetchBooking);
                 if (new Date(booking.startDate).valueOf() < new Date(booking.endDate).valueOf()) {
                   try {

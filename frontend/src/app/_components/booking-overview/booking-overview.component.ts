@@ -2,6 +2,10 @@ import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { BookingService } from '../../_services/booking.service';
 import { Booking, duration } from '../../_model/booking';
 import { jqxSchedulerComponent } from 'jqwidgets-ng/jqxscheduler/public_api';
+import { ActivatedRoute } from '@angular/router';
+import { AuthenticationService } from 'src/app/_services';
+import { OrganizationService } from 'src/app/_services/organization.service';
+import { GlobalCalendarComponent } from '../global-calendar/global-calendar.component';
 
 @Component({
   selector: 'app-booking-overview',
@@ -10,10 +14,31 @@ import { jqxSchedulerComponent } from 'jqwidgets-ng/jqxscheduler/public_api';
 })
 export class BookingOverviewComponent implements OnInit {
 
-  // @ViewChild('schedulerReference', {static: false})
+  @ViewChild('calendar', {static: false})
+  calendar: GlobalCalendarComponent;
   // myScheduler: jqxSchedulerComponent;
 
   bookings: Booking[];
+
+  organizations: any[] = [];
+
+  // tslint:disable-next-line: variable-name
+  _selectedOrganizations: any[] = [];
+
+  get selectedOrganizations() {
+    return this._selectedOrganizations;
+  }
+
+  selectOrganizations(value) {
+    this.selectedOrganizations = value;
+  }
+
+  set selectedOrganizations(value) {
+    this._selectedOrganizations = value;
+    if (this.calendar) { this.calendar.bookingFilter = this.bookingFilter; }
+  }
+
+
   // source: any =
   // {
   //     dataType: "array",
@@ -57,11 +82,29 @@ export class BookingOverviewComponent implements OnInit {
   // @Input()
   // width = 800;
   constructor(
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private authenticationService: AuthenticationService,
+    private organizationService: OrganizationService,
+    private route: ActivatedRoute // required to parse th current URL and find the room's name
   ) { }
 
   ngOnInit() {
-    this.getBookings();
+    console.log("Bookings: route", this.route);
+    const path = this.route.snapshot.routeConfig.path;
+    console.log("path", path);
+    const filterPerUser = path.endsWith('mybookings');
+    this.organizationService.getOrganizations().subscribe((organizations) => {
+      if (filterPerUser) {
+        const memberOf = this.authenticationService.currentUserValue.memberOf;
+        console.log("Filter per user", memberOf);
+        this.organizations = organizations.filter(orga => memberOf.includes(orga.id));
+      } else {
+        this.organizations = organizations;
+      }
+      this.selectedOrganizations = Array.from(this.organizations);
+      this.getBookings();
+    });
+  }
   //   this.views.push({
   //     type: 'weekView',
   //     showWeekends: false,
@@ -86,16 +129,24 @@ export class BookingOverviewComponent implements OnInit {
   //   // rowHeight: (this.height - 160) / 20,
   //   showWorkTime : false,
 // });
-}
 
   getBookings() {
     this.bookingService.getBookings().subscribe(
-      bookings => this.bookings = bookings
-    );
+      bookings => {
+        const orgaIds = this.selectedOrganizations.map(orga => orga.id);
+        this.bookings = bookings.filter(
+          booking => orgaIds.includes(booking.organizationId)
+        );
+      });
   }
 
-  duration (booking: Booking) {
+  duration(booking: Booking) {
     duration(booking);
+  }
+
+  bookingFilter = (booking) => {
+    const orgaIds = this.selectedOrganizations.map(orga => orga.id);
+    return orgaIds.includes(booking.organizationId);
   }
 
 

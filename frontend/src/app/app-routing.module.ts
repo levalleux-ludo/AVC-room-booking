@@ -36,6 +36,14 @@ const routes: Routes = [
     }
   },
   {
+    path: 'mybookings',
+    component: BookingOverviewComponent,
+    canActivate: [AuthGuard],
+    data: {
+      roles: AuthorizationRules.MYBOOKINGS
+    }
+  },
+  {
     path: 'bookings/booking/:ref',
     component: BookingDetailComponent,
     canActivate: [AuthGuard],

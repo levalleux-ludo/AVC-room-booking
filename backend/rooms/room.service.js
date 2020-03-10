@@ -61,6 +61,8 @@ async function update(id, roomParam) {
 }
 
 async function _delete(id) {
+    // TODO: remove all references to this room in other objects: Bookings
+    
     await Room.findByIdAndRemove(id);
 }
 
