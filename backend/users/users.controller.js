@@ -9,7 +9,7 @@ router.post('/authenticate', authenticate);
 router.post('/register', register);
 router.post('/customer', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), setCustomer);
 router.post('/staff', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcStaff);
-router.post('/admin', authorize([Roles.SysAdmin]), setAvcAdmin);
+router.post('/admin', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcAdmin);
 router.post('/sysAdmin', authorize([Roles.SysAdmin]), setSysAdmin);
 router.get('/', getAll);
 router.get('/current', getCurrent);
@@ -53,7 +53,7 @@ function setRole(role, req, res, next) {
         res.status(404).json({ message: 'Changing its own role is not allowed' });
         return;
     }
-    userService.setRole(req.body, role)
+    userService.setRole(req.body, role, req.user.role)
         .then(user => user ? res.json(user) : res.status(400).json({ message: 'Changing role of user failed' }))
         .catch(err => next(err));
 }

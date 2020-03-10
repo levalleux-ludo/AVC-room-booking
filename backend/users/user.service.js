@@ -28,12 +28,19 @@ async function authenticate({ username, password }) {
     }
 }
 
-async function setRole({ userId }, role) {
+async function setRole({ userId }, role, requesterRole) {
     const user = await User.findById(userId);
     if (!user) {
         console.error('could not find user with id', userId)
-        return;
+        throw 'could not find user with id' + userId;
     }
+    console.log('check user can not downgrade a user that have higher grade user.role', user.role, 'requesterRole', requesterRole)
+    let currentRole = user.role;
+    if (Roles.compare(currentRole, requesterRole) > 0) {
+        console.error('could not downgrade a user with role', currentRole);
+        throw 'could not downgrade a user with role' + currentRole;
+    }
+
     console.log("Changing role of user", user.username, ' into ', role);
     user.role = role;
 

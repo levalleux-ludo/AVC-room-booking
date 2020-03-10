@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthenticationService } from '../../_services';
+import { AuthenticationService, AuthorizationRules } from '../../_services';
 
 @Component({
   selector: 'app-nav-bar',
@@ -8,6 +8,15 @@ import { AuthenticationService } from '../../_services';
 })
 export class NavBarComponent implements OnInit {
   currentUser: any;
+
+  isAuthorized = {
+    CONFIGURE: () => {
+      return this.currentUser && AuthorizationRules.CONFIGURE.includes(this.currentUser.role);
+    },
+    BOOKINGS: () => {
+      return this.currentUser && AuthorizationRules.BOOKINGS.includes(this.currentUser.role);
+    }
+  }
 
   constructor(
     private authenticationService: AuthenticationService

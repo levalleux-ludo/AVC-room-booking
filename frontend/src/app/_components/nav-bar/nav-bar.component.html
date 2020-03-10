@@ -10,10 +10,10 @@
                 <a class="nav-item nav-link" routerLink="/rooms" *ngIf="currentUser">Rooms</a>
             </li>
             <li class="nav-item">
-                <a class="nav-item nav-link" routerLink="/bookings" *ngIf="currentUser">Bookings</a>
+                <a class="nav-item nav-link" routerLink="/bookings" *ngIf="isAuthorized.BOOKINGS()">Bookings</a>
             </li>
             <li class="nav-item">
-                <a class="nav-item nav-link" routerLink="/configure" *ngIf="currentUser">Configure</a>
+                <a class="nav-item nav-link" routerLink="/configure" *ngIf="isAuthorized.CONFIGURE()">Configure</a>
             </li>
             <li class="nav-item">
                 <a class="nav-item nav-link" routerLink="/logout" *ngIf="currentUser">Logout</a>

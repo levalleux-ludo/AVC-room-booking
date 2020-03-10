@@ -6,7 +6,36 @@ const Roles = Object.freeze({
     AvcAdmin: 'AvcAdmin',
     AvcStaff: 'AvcStaff',
     Customer: 'Customer',
-    Guest: 'Guest'
+    Guest: 'Guest',
+    compare: (role1, role2) => {
+        console.log('compare ', role1, 'with ', role2);
+        switch (role1) {
+            case Roles.SysAdmin:
+                {
+                    return (role2 === Roles.SysAdmin) ? 0 : 1;
+                }
+            case Roles.AvcAdmin:
+                {
+                    return (role2 === Roles.SysAdmin) ? -1 : (role2 === Roles.AvcAdmin) ? 0 : 1;
+                }
+            case Roles.AvcStaff:
+                {
+                    return ((role2 === Roles.SysAdmin) || (role2 === Roles.AvcAdmin)) ? -1 : (role2 === Roles.AvcStaff) ? 0 : 1;
+                }
+            case Roles.Customer:
+                {
+                    return (role2 === Roles.Guest) ? 1 : (role2 === Roles.Customer) ? 0 : -1;
+                }
+            case Roles.Guest:
+                {
+                    return (role2 === Roles.Guest) ? 0 : -1;
+                }
+            default:
+                {
+                    console.error('Not expected default case');
+                }
+        }
+    }
 });
 const schema = new Schema({
     username: { type: String, unique: true, required: true },

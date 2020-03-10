@@ -5,6 +5,12 @@ import { map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 
+import { eUserRole } from '../_model/user';
+
+export const AuthorizationRules = {
+  BOOKINGS: [eUserRole.AVC_STAFF, eUserRole.AVC_ADMIN, eUserRole.SYS_ADMIN, eUserRole.CUSTOMER],
+  CONFIGURE: [eUserRole.AVC_STAFF, eUserRole.AVC_ADMIN, eUserRole.SYS_ADMIN]
+};
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {

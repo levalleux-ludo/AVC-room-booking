@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
-import { User, eUserRole } from 'src/app/_model/user';
+import { User, eUserRole, compareRoles } from 'src/app/_model/user';
 import { UserService } from 'src/app/_services/user.service';
 import { AuthenticationService } from 'src/app/_services';
 
@@ -43,6 +43,28 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
 
   allAvailableRoles = Object.values(eUserRole);
 
+  availableRoles() {
+    const currentUser = this.authenticationService.currentUserValue;
+    if (!currentUser) {
+      return [];
+    }
+    switch (currentUser.role) {
+      case eUserRole.GUEST:
+      case eUserRole.CUSTOMER: {
+        return [];
+      }
+      case eUserRole.AVC_STAFF: {
+        return [eUserRole.CUSTOMER];
+      }
+      case eUserRole.AVC_ADMIN: {
+        return [eUserRole.CUSTOMER, eUserRole.AVC_STAFF, eUserRole.AVC_ADMIN];
+      }
+      case eUserRole.SYS_ADMIN: {
+        return [eUserRole.CUSTOMER, eUserRole.AVC_STAFF, eUserRole.AVC_ADMIN, eUserRole.SYS_ADMIN];
+      }
+    }
+  }
+
   constructor(private userService: UserService, private authenticationService: AuthenticationService) {
     super();
    }
@@ -59,8 +81,11 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
   }
 
   isEditable(item) {
-    let currentUser = this.authenticationService.currentUserValue;
-    return currentUser && ((item as UserContext).user.id !== currentUser._id);
+    const currentUser = this.authenticationService.currentUserValue;
+    return currentUser &&
+     this.availableRoles().length > 1 &&
+     ((item as UserContext).user.id !== currentUser._id) &&
+     ( compareRoles(currentUser.role, (item as UserContext).user.role) >= 0 );
   }
 
   canDelete(item) {

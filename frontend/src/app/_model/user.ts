@@ -8,6 +8,32 @@ export enum eUserRole {
   SYS_ADMIN = 'SysAdmin'
 }
 
+export function compareRoles(role1: eUserRole, role2: eUserRole) {
+  if (role1 === role2) {
+    return 0;
+  }
+  switch (role1) {
+    case eUserRole.SYS_ADMIN: {
+            return 1;
+        }
+    case eUserRole.AVC_ADMIN: {
+            return (role2 === eUserRole.SYS_ADMIN) ? -1 : 1;
+        }
+    case eUserRole.AVC_STAFF: {
+            return ((role2 === eUserRole.SYS_ADMIN) || (role2 === eUserRole.AVC_ADMIN)) ? -1 : 1;
+        }
+    case eUserRole.CUSTOMER: {
+            return (role2 === eUserRole.GUEST) ? 1 : -1;
+        }
+    case eUserRole.GUEST: {
+            return -1;
+        }
+    default: {
+            console.error('Not expected default case');
+        }
+}
+}
+
 export class User {
   // tslint:disable-next-line: variable-name
   private _id;
