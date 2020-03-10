@@ -181,20 +181,6 @@ describe('Users', () => {
 
 
     });
-    describe('/GET users', () => {
-        it('it shall list all users', (done) => {
-            chai.request(server)
-                .get('/users')
-                .set('Authorization', `Bearer ${totoToken}`)
-                .send()
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    console.log(res.body);
-                    done();
-                });
-        });
-    });
     describe('/POST users/role', () => {
         it('a not identified user can not change the role of any users', (done) => {
             chai.request(server)
@@ -283,6 +269,38 @@ describe('Users', () => {
                     console.log(res.body);
                     res.should.have.status(404);
                     res.body.should.have.property('message').eql('Changing its own role is not allowed');
+                    done();
+                });
+        });
+    });
+    describe('/GET users', () => {
+        it('reauthenticate user "avcStaff" to renew token with the new role', (done) => {
+            chai.request(server)
+                .post('/users/authenticate')
+                .send({
+                    username: avcStaff.username,
+                    password: avcStaff.password
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('username').eql(avcStaff.username);
+                    res.body.should.have.property('role').eql(Roles.AvcStaff);
+                    res.body.should.have.property('token');
+                    avcStaffToken = res.body.token;
+                    avcStaffId = res.body._id;
+                    done();
+                });
+        });
+        it('it shall list all users', (done) => {
+            chai.request(server)
+                .get('/users')
+                .set('Authorization', `Bearer ${avcStaffToken}`)
+                .send()
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    console.log(res.body);
                     done();
                 });
         });

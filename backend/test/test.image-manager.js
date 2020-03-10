@@ -18,7 +18,7 @@ describe('image manager local', () => {
     let imageId;
     let imageService;
     const id = require('mongoose').Types.ObjectId();
-    const token = jwt.sign({ sub: id }, config.secret);
+    const token = jwt.sign({ sub: id, role: 'AvcAdmin' }, config.secret);
 
     before(function() {
         jwt_helper.deactivateForTest(true);

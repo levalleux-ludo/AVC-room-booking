@@ -11,12 +11,12 @@ router.post('/customer', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcSta
 router.post('/staff', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcStaff);
 router.post('/admin', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcAdmin);
 router.post('/sysAdmin', authorize([Roles.SysAdmin]), setSysAdmin);
-router.get('/', getAll);
-router.get('/current', getCurrent);
-router.get('/:id', getById);
-router.put('/:id', update);
-router.put('/:id/memberOf', setMemberOf);
-router.delete('/:id', _delete);
+router.get('/', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), getAll);
+router.get('/current', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), getCurrent);
+router.get('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), getById);
+// router.put('/:id', update);
+router.put('/:id/memberOf', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), setMemberOf);
+// router.delete('/:id', _delete);
 
 module.exports = router;
 

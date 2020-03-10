@@ -1,10 +1,12 @@
 ﻿const express = require('express');
 const router = express.Router();
 const bookingService = require('./booking.service');
+const authorize = require('_helpers/authorize');
+const Roles = require('../users/user.model').roles;
 
 // routes
-router.post('/create', create);
-router.put('/:id', update);
+router.post('/create', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), create);
+router.put('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), update);
 // TODO : router.put('/cancel/:id', cancel);
 router.get('/:id', getById);
 router.get('/', function(req, res, next) {
@@ -17,7 +19,7 @@ router.get('/', function(req, res, next) {
     return getAll(req, res, next);
 });
 // TODO : router.get('/:company', getAllForCompany);
-router.delete('/:id', _delete);
+router.delete('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), _delete);
 
 module.exports = router;
 
