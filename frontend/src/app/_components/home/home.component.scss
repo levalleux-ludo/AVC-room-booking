@@ -24,15 +24,16 @@
     // padding-top: 160px;
     display: flex;
     justify-content: center;
-    min-height: 50%;
+    min-height: 32%;
     position: relative;
     overflow: hidden; //added for pseudo-element
     //fixed-position background image
     &::before {
         background-image: url('../../../assets/img/room-booking.png');
         background-repeat: no-repeat;
-        background-position: center center;
+        background-position: center top;
         background-size: cover;
+        background-position-y: -270px;
         content: '';
         left: 0;
         position: fixed;
