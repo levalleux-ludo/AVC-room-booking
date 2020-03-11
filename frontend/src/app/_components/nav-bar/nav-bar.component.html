@@ -1,13 +1,21 @@
 <nav class="navbar navbar-transparent navbar-color-on-scroll fixed-top navbar-expand-lg" color-on-scroll="100" id="sectionsNav">
     <div class="container">
         <div class="navbar-translate">
-            <a class="nav-item nav-link" routerLink="/" *ngIf="currentUser"><img src='../assets/img/AVC_logo.png'></a>
+            <a class="nav-item nav-link" href="https://ashfordvc.org.uk" *ngIf="currentUser"><img src='../assets/img/ashford-volunteer-centre-logo.svg' style='width: 20vw;'></a>
+        </div>
+    </div>
+    <div #serviceDiv class="container">
+        <div class="text-center over-background nav-link" style="color: #51bcda;">
+            <h3>Room Booking Service</h3>
         </div>
     </div>
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-item nav-link" routerLink="/rooms" *ngIf="currentUser">Rooms</a>
+                <a class="nav-item nav-link" routerLink="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" routerLink="/rooms">Rooms</a>
             </li>
             <li class="nav-item">
                 <a class="nav-item nav-link" routerLink="/bookings" *ngIf="isAuthorized.BOOKINGS()">Bookings</a>
@@ -21,6 +29,14 @@
             <li class="nav-item">
                 <a class="nav-item nav-link" routerLink="/logout" *ngIf="currentUser">Logout</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" routerLink="/login" *ngIf="!currentUser">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" routerLink="/register" *ngIf="!currentUser">Register</a>
+            </li>
         </ul>
     </div>
 </nav>
+<div class="fixed-background" style="height: 200px;">
+</div>

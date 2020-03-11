@@ -19,3 +19,33 @@
         z-index: auto;
     }
 }
+
+.fixed-background {
+    // padding-top: 160px;
+    display: flex;
+    justify-content: center;
+    min-height: 50%;
+    position: relative;
+    overflow: hidden; //added for pseudo-element
+    //fixed-position background image
+    &::before {
+        background-image: url('../../../assets/img/room-booking.png');
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+        content: '';
+        left: 0;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 50%;
+        will-change: transform;
+        z-index: -1;
+    }
+}
+
+.over-background {
+    background-color: white;
+    opacity: 0.75;
+    border-radius: 14px;
+}
