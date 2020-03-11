@@ -76,6 +76,7 @@ import { GlobalCalendarComponent } from './_components/global-calendar/global-ca
 import { MaterialFileUploadComponent } from './_components/material-file-upload/material-file-upload.component';
 import { DialogCarouselComponent } from './_components/dialog-carousel/dialog-carousel.component';
 import { ConfigureUsersComponent } from './_components/configure-users/configure-users.component';
+import { ConfigureWebsiteComponent } from './_components/configure-website/configure-website.component';
 
 @NgModule({
   declarations: [
@@ -111,7 +112,8 @@ import { ConfigureUsersComponent } from './_components/configure-users/configure
     MaterialFileUploadComponent,
     SetImageToCenterDirective,
     DialogCarouselComponent,
-    ConfigureUsersComponent
+    ConfigureUsersComponent,
+    ConfigureWebsiteComponent
   ],
   imports: [
     CommonModule,
