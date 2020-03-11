@@ -17,8 +17,8 @@ import { AuthorizationRules } from './_services';
 
 
 const routes: Routes = [
-  { path: '', component: HomeComponent, canActivate: [AuthGuard] },
-  { path: 'rooms', component: RoomsComponent, canActivate: [AuthGuard] },
+  { path: '', component: HomeComponent },
+  { path: 'rooms', component: RoomsComponent },
   {
     path: 'configure',
     component: ConfigureComponent,
