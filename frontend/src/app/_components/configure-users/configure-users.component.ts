@@ -63,8 +63,14 @@ class UserContext implements IItemContext {
 })
 export class ConfigureUsersComponent extends ConfigureAbstractComponent implements OnInit {
 
+  /**
+   * refresh is a method used to register the current component on some events it would have to refresh some of its data
+   * In the current case, the organizations list needs to be refreshed because it may have changed since the component has been instanciated
+   *
+   * @memberof ConfigureUsersComponent
+   */
   @Input()
-  refresh: ( refreshComponent: () => void ) => void;
+  refresh: { index: number, register: (index: number,  refreshComponent: () => void ) => void };
 
   users: UserContext[] = [];
   // tslint:disable-next-line: variable-name
@@ -113,8 +119,8 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
     this.refreshList();
     this.refreshOrganizations();
     if (this.refresh) {
-      this.refresh(() => {
-        console.log("refresh requested !");
+      // if refresh handler is set, call it to register on events that would require the component to refresh some data
+      this.refresh.register(this.refresh.index, () => {
         this.refreshOrganizations();
       });
     }

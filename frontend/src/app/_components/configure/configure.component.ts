@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatListOption } from '@angular/material';
 
+
+var _refreshHandlers: {[key: number]: (() => void)} = {};
 var _refreshUsers: () => void = undefined;
+var _refreshRooms: () => void = undefined;
 
 @Component({
   selector: 'app-configure',
@@ -17,14 +20,14 @@ export class ConfigureComponent implements OnInit {
 
   onTabChange(event) {
     console.log('onTabChange', event);
-    if (event.index == 4 && _refreshUsers) {
-      _refreshUsers();
+    if (_refreshHandlers[event.index]) {
+      _refreshHandlers[event.index]();
     }
   }
 
-  refreshUsers(refreshComponent: () => void) {
-    console.log("called refreshUsers", refreshComponent);
-    _refreshUsers = refreshComponent;
+  registerRefreshHandler(index, refreshComponent: () => void) {
+    console.log("called refresh", index, refreshComponent);
+    _refreshHandlers[index] = refreshComponent;
   }
 
 }

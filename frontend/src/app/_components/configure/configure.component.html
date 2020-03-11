@@ -46,7 +46,7 @@
     </mat-tab>
     <mat-tab label="Rooms">
         <div class="mat-elevation-z4">
-            <app-configure-rooms></app-configure-rooms>
+            <app-configure-rooms [refresh]="{index: 2, register:registerRefreshHandler}"></app-configure-rooms>
         </div>
     </mat-tab>
     <mat-tab label="Bookings">
@@ -55,6 +55,7 @@
     </mat-tab>
     <mat-tab label="Users">
         <div class="mat-elevation-z4">
+            <app-configure-users [refresh]="{index: 4, register:registerRefreshHandler}"></app-configure-users>
         </div>
     </mat-tab>
     <mat-tab label="Website">

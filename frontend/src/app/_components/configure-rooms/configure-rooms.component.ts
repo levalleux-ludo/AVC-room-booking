@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { v4 as uuid } from 'uuid';
 import { Room } from '../../_model';
 import { MatDialog } from '@angular/material';
@@ -127,6 +127,14 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
 };
 
 
+  /**
+   * refresh is a method used to register the current component on some events it would have to refresh some of its data
+   * In the current case, the organizations list needs to be refreshed because it may have changed since the component has been instanciated
+   *
+   * @memberof ConfigureUsersComponent
+   */
+  @Input()
+  refresh: { index: number, register: (index: number,  refreshComponent: () => void ) => void };
 
   //////////////////////////////////////////////////////
   /// ConfigureAbstractComponent implementation
@@ -254,13 +262,23 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
   }
 
   ngOnInit() {
+    this.refreshExtras();
     this.refreshList();
+    if (this.refresh) {
+      // if refresh handler is set, call it to register on events that would require the component to refresh some data
+      this.refresh.register(this.refresh.index, () => {
+        this.refreshExtras();
+      });
+    }
+  }
+
+  refreshExtras() {
+    this.extraService.getExtras().subscribe(extras => {
+      allAvailableExtras = extras.map(extra => new Extra(extra));
+    });
   }
 
   async refreshList() {
-    await this.extraService.getExtras().subscribe(extras => {
-      allAvailableExtras = extras.map(extra => new Extra(extra));
-    });
     this.roomService.getRooms().subscribe(rooms => {
       this.rooms = rooms.map(room => new RoomContext(new Room(room)));
     });
