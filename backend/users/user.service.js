@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const db = require('../_helpers/db');
 const User = db.User;
 const Roles = db.Roles;
+const Organization = db.Organization;
 
 module.exports = {
     authenticate,
@@ -14,7 +15,9 @@ module.exports = {
     update,
     delete: _delete,
     setRole,
-    setMemberOf
+    setMemberOf,
+    cleanUndefinedRefs,
+    onDeleteOrganization
 };
 
 async function authenticate({ username, password }) {
@@ -117,4 +120,56 @@ async function update(id, userParam) {
 
 async function _delete(id) {
     await User.findByIdAndRemove(id);
+}
+
+async function cleanUndefinedRefs() {
+    console.log('Scheduled task userService.cleanUndefinedRefs');
+    await User.find(async(err, users) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        let orgas = await Organization.find().select("_id");
+        // console.log("get all orgas:", orgas);
+        let orgaIds = orgas.map(entry => entry._id.toString());
+        // console.log("get all orgas:", orgaIds);
+        users.forEach((user) => {
+            // console.log("Look at user", user);
+            let changed = false;
+            const memberOf = Array.from(user.memberOf);
+            memberOf.forEach((orgaId) => {
+                if (orgaIds.indexOf(orgaId.toString()) == -1) {
+                    console.log("Found undef ref to orga", orgaId, "in user", user.username);
+                    user.memberOf.remove(orgaId);
+                    changed = true;
+                }
+            })
+            if (changed) {
+                user.save();
+            }
+        });
+        return;
+    });
+}
+
+async function onDeleteOrganization(removedOrgaId) {
+    console.log('update users after organization deleted', removedOrgaId)
+    await User.find(async(err, users) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        users.forEach((room) => {
+            let changed = false;
+            if (user.memberOf.includes(removedExtraId)) {
+                user.memberOf.remove(removedExtraId);
+                changed = true;
+            }
+            if (changed) {
+                console.log("user updated", user.username)
+                user.save();
+            }
+        })
+        return;
+    });
 }

@@ -1,5 +1,6 @@
 const db = require('../_helpers/db');
 const Extra = db.Extra;
+const roomService = require('../rooms/room.service');
 
 module.exports = {
     create,
@@ -50,6 +51,8 @@ async function update(id, extraParam) {
 
 async function _delete(id) {
     // TODO: remove all references to this extra in other objects: Room
-    
+
     await Extra.findByIdAndRemove(id);
+    await roomService.onDeleteExtra(id);
+
 }

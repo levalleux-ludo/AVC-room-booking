@@ -4,6 +4,8 @@ const multer = require('multer');
 const path = require('path');
 const uuid = require('uuid');
 const aws_s3 = require('./aws_s3');
+const db = require('../_helpers/db');
+const Room = db.Room;
 
 module.exports = {
     multer_upload,
@@ -12,7 +14,8 @@ module.exports = {
     deleteImage,
     getImage,
     setUploadsFolder,
-    getAllImages
+    getAllImages,
+    removeUnusedImages
 }
 
 const imagesMap = new Map();
@@ -107,4 +110,28 @@ function setUploadsFolder(path) {
     if (!fs.existsSync(path)) {
         fs.mkdirSync(path);
     }
+}
+
+async function removeUnusedImages() {
+    console.log('Scheduled task imageService.removeUnusedImages');
+    await getAllImages(async(list) => {
+        let usedPictures = {};
+        let rooms = await Room.find();
+        rooms.forEach(room => {
+            let newPictures = room.pictures.filter(pic => {
+                // console.log('image', pic, "is used for room", room.name)
+                // filter to avoid duplicates
+                return usedPictures.hasOwnProperty(pic) ? false : (usedPictures[pic] = true)
+            });
+        });
+        list.forEach(async(imageId) => {
+            // console.log('check image', imageId)
+            if (!usedPictures.hasOwnProperty(imageId)) {
+                console.log("this image is not used in Rooms:", imageId)
+                await deleteImage(imageId, () => {}, (err) => console.error(err));
+            }
+        });
+    }, (err) => {
+        console.error(err);
+    });
 }

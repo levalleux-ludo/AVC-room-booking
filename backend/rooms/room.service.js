@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const db = require('../_helpers/db');
 const Room = db.Room;
+const Extra = db.Extra;
 
 module.exports = {
     create,
@@ -12,7 +13,9 @@ module.exports = {
     getById,
     getByName,
     getName,
-    getImages
+    getImages,
+    cleanUndefinedRefs,
+    onDeleteExtra
 };
 
 async function getAll() {
@@ -62,7 +65,7 @@ async function update(id, roomParam) {
 
 async function _delete(id) {
     // TODO: remove all references to this room in other objects: Bookings
-    
+
     await Room.findByIdAndRemove(id);
 }
 
@@ -82,5 +85,57 @@ async function getImages(then, catch_err) {
             });
         });
         then(list);
+    });
+}
+
+async function cleanUndefinedRefs() {
+    console.log('Scheduled task roomService.cleanUndefinedRefs');
+    await Room.find(async(err, rooms) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        let extras = await Extra.find().select("_id");
+        // console.log("get all extras:", extras);
+        let extraIds = extras.map(entry => entry._id.toString());
+        // console.log("get all extraIds:", extraIds);
+        rooms.forEach((room) => {
+            // console.log("Look at room", room);
+            const extras = Array.from(room.availableExtras);
+            let changed = false;
+            extras.forEach((extraId) => {
+                if (extraIds.indexOf(extraId.toString()) == -1) {
+                    console.log("Found undef ref to extra", extraId, "in room", room.name);
+                    room.availableExtras.remove(extraId);
+                    changed = true;
+                }
+            })
+            if (changed) {
+                room.save();
+            }
+        })
+        return;
+    });
+}
+
+async function onDeleteExtra(removedExtraId) {
+    console.log('update rooms after extra deleted', removedExtraId)
+    await Room.find(async(err, rooms) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        rooms.forEach((room) => {
+            let changed = false;
+            if (room.availableExtras.includes(removedExtraId)) {
+                room.availableExtras.remove(removedExtraId);
+                changed = true;
+            }
+            if (changed) {
+                console.log("room updated", room.name)
+                room.save();
+            }
+        })
+        return;
     });
 }
