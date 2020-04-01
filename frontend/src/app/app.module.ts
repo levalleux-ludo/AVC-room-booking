@@ -33,7 +33,8 @@ import {
   MatIconModule,
   MatProgressBarModule,
   MatBottomSheetModule,
-  MatSidenavModule
+  MatSidenavModule,
+  MatProgressSpinnerModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './_components/time-picker/time-picker.component';
@@ -77,6 +78,7 @@ import { MaterialFileUploadComponent } from './_components/material-file-upload/
 import { DialogCarouselComponent } from './_components/dialog-carousel/dialog-carousel.component';
 import { ConfigureUsersComponent } from './_components/configure-users/configure-users.component';
 import { ConfigureWebsiteComponent } from './_components/configure-website/configure-website.component';
+import { WaiterComponent } from './_components/waiter/waiter.component';
 
 @NgModule({
   declarations: [
@@ -113,7 +115,8 @@ import { ConfigureWebsiteComponent } from './_components/configure-website/confi
     SetImageToCenterDirective,
     DialogCarouselComponent,
     ConfigureUsersComponent,
-    ConfigureWebsiteComponent
+    ConfigureWebsiteComponent,
+    WaiterComponent
   ],
   imports: [
     CommonModule,
@@ -156,7 +159,8 @@ import { ConfigureWebsiteComponent } from './_components/configure-website/confi
     MatDialogModule,
     NgbTimepickerModule,
     NgbToastModule,
-    AngularEditorModule
+    AngularEditorModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     MatNativeDateModule,

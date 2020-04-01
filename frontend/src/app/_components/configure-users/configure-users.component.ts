@@ -5,6 +5,7 @@ import { UserService } from 'src/app/_services/user.service';
 import { AuthenticationService } from 'src/app/_services';
 import { OrganizationService } from 'src/app/_services/organization.service';
 import { Organization } from 'src/app/_model/organization';
+import { WaiterService } from 'src/app/_services/waiter.service';
 
 var allOrganizations: Organization[] = [];
 
@@ -54,7 +55,6 @@ class UserContext implements IItemContext {
     };
   }
 }
-
 
 @Component({
   selector: 'app-configure-users',
@@ -110,9 +110,11 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
   constructor(
     private userService: UserService,
     private authenticationService: AuthenticationService,
-    private organizationService: OrganizationService
+    private organizationService: OrganizationService,
+    private waiter: WaiterService
     ) {
     super();
+    waiter.init();
   }
 
   ngOnInit() {
@@ -127,15 +129,25 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
   }
 
   refreshList() {
+    const waiterTask = this.waiter.addTask();
     this.userService.getUsers().subscribe(users => {
       this.users = users.map(user => new UserContext(new User(user)));
+      this.waiter.removeTask(waiterTask);
+    }, err => {
+      console.error(err);
+      this.waiter.removeTask(waiterTask);
     });
   }
 
   refreshOrganizations() {
+    const waiterTask = this.waiter.addTask();
     this.organizationService.getOrganizations().subscribe(organizations => {
       allOrganizations = organizations.map(orga => new Organization(orga));
+      this.waiter.removeTask(waiterTask);
       console.log('allOrganizations', allOrganizations);
+    }, err => {
+      console.error(err);
+      this.waiter.removeTask(waiterTask);
     });
   }
 

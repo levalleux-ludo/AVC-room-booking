@@ -1,0 +1,12 @@
+.waiter {}
+
+.background {
+    position: absolute;
+    top: 45%;
+    left: 45%;
+    background-color: white;
+    z-index: 99;
+    opacity: 75%;
+    border-radius: 60px;
+    padding: 10px;
+}
