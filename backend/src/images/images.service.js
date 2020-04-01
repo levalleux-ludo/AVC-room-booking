@@ -22,6 +22,20 @@ const imagesMap = new Map();
 
 var uploadsFolder = config.uploadsFolder;
 
+if (process.env.upload_folder) {
+    console.log("process.env.upload_folder", process.env.upload_folder);
+    try {
+        if (!fs.existsSync(process.env.upload_folder)) {
+            fs.mkdirSync(process.env.upload_folder);
+        }
+        uploadsFolder = process.env.upload_folder;
+    } catch (e) {}
+}
+
+if (!fs.existsSync(uploadsFolder)) {
+    fs.mkdirSync(uploadsFolder);
+}
+
 async function getAllImages(then, catch_err) {
     await aws_s3.getImages((data) => {
         // console.info(data);

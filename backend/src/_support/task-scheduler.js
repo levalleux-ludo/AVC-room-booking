@@ -3,6 +3,7 @@ const roomService = require('../rooms/room.service');
 const userService = require('../users/user.service');
 const imageService = require('../images/images.service');
 
+
 const schedulePattern = '0 */2 * * * *';
 
 // Every hour, look for undefined references in data model

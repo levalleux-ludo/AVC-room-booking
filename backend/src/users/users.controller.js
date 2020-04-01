@@ -1,12 +1,13 @@
 ﻿const express = require('express');
 const router = express.Router();
 const userService = require('./user.service');
-const authorize = require('_helpers/authorize');
+const authorize = require('../_helpers/authorize');
 const Roles = require('./user.model').roles;
 
 // routes
 router.post('/authenticate', authenticate);
 router.post('/register', register);
+router.get('/count', count);
 router.post('/customer', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), setCustomer);
 router.post('/staff', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcStaff);
 router.post('/admin', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcAdmin);
@@ -92,5 +93,11 @@ function update(req, res, next) {
 function _delete(req, res, next) {
     userService.delete(req.params.id)
         .then(() => res.json({}))
+        .catch(err => next(err));
+}
+
+function count(req, res, next) {
+    userService.count()
+        .then((count) => res.json({ count }))
         .catch(err => next(err));
 }

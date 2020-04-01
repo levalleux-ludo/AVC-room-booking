@@ -1,11 +1,11 @@
 const assert = require('assert');
 const moment = require('moment');
 
-const bookingService = require('../bookings/booking.service');
+const bookingService = require('../src/bookings/booking.service');
 const test_helper = require('./test_helper')
-const roomService = require('../rooms/room.service');
-const date_helper = require('../_helpers/date_helper');
-const organizationService = require('../organizations/organization.service');
+const roomService = require('../src/rooms/room.service');
+const date_helper = require('../src/_helpers/date_helper');
+const organizationService = require('../src/organizations/organization.service');
 
 var roomOne;
 var roomTwo;

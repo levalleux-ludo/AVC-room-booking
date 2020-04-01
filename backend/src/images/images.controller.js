@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const imageService = require('./images.service');
-const authorize = require('_helpers/authorize');
+const authorize = require('../_helpers/authorize');
 const Roles = require('../users/user.model').roles;
 
 // routes

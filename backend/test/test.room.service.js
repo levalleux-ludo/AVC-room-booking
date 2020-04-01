@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const roomService = require('../rooms/room.service');
+const roomService = require('../src/rooms/room.service');
 const test_helper = require('./test_helper')
 
 before((done) => {

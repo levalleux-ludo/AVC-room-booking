@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const userService = require('../users/user.service');
+const userService = require('../src/users/user.service');
 const test_helper = require('./test_helper')
 
 before((done) => {
@@ -23,18 +23,19 @@ describe('Creating user', () => {
     });
     it('creates a user with same id', (done) => {
         assert.rejects(
-            () => { return userService.create({
-                        username: 'lulu',
-                        password: 'autremotdepasse',
-                        firstName: 'Patrick',
-                        lastName: 'Chirac'
-                    });
-                },
-                /Username \"(.*)\" is already taken/);
+            () => {
+                return userService.create({
+                    username: 'lulu',
+                    password: 'autremotdepasse',
+                    firstName: 'Patrick',
+                    lastName: 'Chirac'
+                });
+            },
+            /Username \"(.*)\" is already taken/);
         done();
     });
     it('authenticate an existing user', (done) => {
-        userService.authenticate({username: 'lulu', password: 'motdepasse'})
+        userService.authenticate({ username: 'lulu', password: 'motdepasse' })
             .then((user) => {
                 console.log('user=', user);
                 assert(user);
@@ -42,7 +43,7 @@ describe('Creating user', () => {
             });
     });
     it('authenticate an unknown user', (done) => {
-        userService.authenticate({username: 'tata', password: 'motdepasse'})
+        userService.authenticate({ username: 'tata', password: 'motdepasse' })
             .then((user) => {
                 console.log('user=', user);
                 assert(!user);
@@ -50,7 +51,7 @@ describe('Creating user', () => {
             });
     });
     it('use wrong password', (done) => {
-        userService.authenticate({username: 'lulu', password: 'mauvaismotdepasse'})
+        userService.authenticate({ username: 'lulu', password: 'mauvaismotdepasse' })
             .then((user) => {
                 console.log('user=', user);
                 assert(!user);
@@ -63,7 +64,7 @@ describe('Creating user', () => {
             .then((users) => {
                 console.log('users=', users);
                 assert(users.length >= 1); // do not test strict equality to 1 because some other tests can create other users in parallel
-                lulu = users.find ((user) => {return user.username === 'lulu'});
+                lulu = users.find((user) => { return user.username === 'lulu' });
                 done();
             });
     });
@@ -87,8 +88,7 @@ describe('Creating user', () => {
                     assert(user.lastName === 'Mouse');
                     done();
                 });
-            });
+        });
     });
 
 });
-

@@ -1,10 +1,10 @@
 process.env.NODE_ENV = 'test';
 
-const Roles = require('../users/user.model').roles;
+const Roles = require('../src/users/user.model').roles;
 
 const test_helper = require('./test_helper')
 
-const userService = require('../users/user.service')
+const userService = require('../src/users/user.service')
 
 let mongoose = require("mongoose");
 

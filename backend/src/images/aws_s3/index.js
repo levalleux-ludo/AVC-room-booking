@@ -5,8 +5,8 @@ const config = require('../../config.json');
 const s3_config = {
     apiVersion: '2006-03-01',
     signatureVersion: 'v4',
-    accessKeyId: process.env.AWS_S3_AVC_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_S3_AVC_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.aws_s3_avc_access_key_id,
+    secretAccessKey: process.env.aws_s3_avc_secret_access_key,
     region: config.awsS3Region
 };
 var s3 = new AWS.S3(s3_config);

@@ -20,7 +20,7 @@ module.exports = {
 let isConnected = false;
 
 async function connect() {
-    const dbURI = process.env.MONGODB_URI || config.connectionString;
+    const dbURI = process.env.mongodb_uri || config.connectionString;
     const dbOptions = { server: { auto_reconnect: true }, useCreateIndex: true, useNewUrlParser: true };
     mongoose.connect(dbURI, dbOptions);
     mongoose.Promise = global.Promise;

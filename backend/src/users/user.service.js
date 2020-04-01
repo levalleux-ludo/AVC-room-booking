@@ -8,6 +8,7 @@ const Organization = db.Organization;
 
 module.exports = {
     authenticate,
+    count,
     getAll,
     getById,
     create,
@@ -74,7 +75,31 @@ async function getById(id) {
     return await User.findById(id).select('-hash');
 }
 
+async function count() {
+    let count = -1;
+    await User.countDocuments({} /* no filter */ , function(err, nbUsers) {
+        if (err) {
+            console.error(err);
+        } else {
+            count = nbUsers;
+        }
+    });
+    return count;
+}
+
 async function create(userParam) {
+
+    // Only if the first user in the DB is 'admin', then give him the role SysAdmin
+    if (userParam.username === 'admin') {
+        // User.countDocuments({} /* no filter */ , function(err, count) {
+        //     if (count == 0) {
+        //         return createWithRole(userParam, Roles.SysAdmin);
+        //     }
+        // })
+        if (await count() == 0) {
+            return createWithRole(userParam, Roles.SysAdmin);
+        }
+    }
     // never accept the role from this entry point: always set Guest
     // There is another entry point only callable by admin, to change the role of an existing user
     await createWithRole(userParam, Roles.Guest)

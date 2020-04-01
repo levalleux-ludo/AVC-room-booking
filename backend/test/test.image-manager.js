@@ -3,8 +3,8 @@ const path = require('path');
 const chai = require('chai');
 const should = chai.should();
 const jwt = require('jsonwebtoken');
-const config = require('../config.json');
-const jwt_helper = require('../_helpers/jwt');
+const config = require('../src/config.json');
+const jwt_helper = require('../src/_helpers/jwt');
 chai.use(require('chai-http'));
 chai.use(require('chai-fs'));
 
@@ -22,7 +22,7 @@ describe('image manager local', () => {
 
     before(function() {
         jwt_helper.deactivateForTest(true);
-        imageService = requireUncached('../images/images.service');
+        imageService = requireUncached('../src/images/images.service');
         const uploadsFolder = config.testUploadsFolder;
         if (fs.existsSync(uploadsFolder)) {
             fs.removeSync(uploadsFolder);
@@ -106,7 +106,7 @@ describe('image manager local', () => {
         });
     });
 
-    const roomService = require('../rooms/room.service');
+    const roomService = require('../src/rooms/room.service');
 
     it('get all images in DB', (done) => {
         roomService.getImages((list) => {
