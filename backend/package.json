@@ -39,7 +39,8 @@
         "mongoose": "^5.9.4",
         "multer": "github:emadalam/multer#cf67af6",
         "node-schedule": "^1.3.2",
-        "rootpath": "^0.1.2"
+        "rootpath": "^0.1.2",
+        "uuid": "^7.0.3"
     },
     "devDependencies": {
         "app-module-path": "^2.2.0",

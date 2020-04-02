@@ -2,7 +2,7 @@ const fs = require('fs');
 const config = require('../config.json');
 const multer = require('multer');
 const path = require('path');
-const uuid = require('uuid');
+const { v4: uuid } = require('uuid');
 const aws_s3 = require('./aws_s3');
 const db = require('../_helpers/db');
 const Room = db.Room;
@@ -91,6 +91,7 @@ function after_upload(req, res) {
         // return next(req.fileValidationError);
         return;
     } else if (!req.file) {
+        console.error("after_upload:" + req + " " + res);
         const error = new Error('Please upload a file')
         error.httpStatusCode = 400;
         error.uploadsFolder = uploadsFolder;
