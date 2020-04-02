@@ -37,7 +37,7 @@
         "module-alias": "^2.2.2",
         "moment": "^2.24.0",
         "mongoose": "^5.9.4",
-        "multer": "^1.4.2",
+        "multer": "github:emadalam/multer#cf67af6",
         "node-schedule": "^1.3.2",
         "rootpath": "^0.1.2"
     },

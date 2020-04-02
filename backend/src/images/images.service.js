@@ -64,7 +64,18 @@ function multer_upload() {
             cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
         }
     });
-    return multer({ storage: storage });
+    return multer({
+        storage: storage,
+        // Required to work on Firebase Cloud Functions
+        startProcessing(req, busboy) {
+            console.log('start processing');
+            if (req.rawBody) { // indicates the request was pre-processed
+                busboy.end(req.rawBody)
+            } else {
+                req.pipe(busboy)
+            }
+        }
+    });
 }
 
 
@@ -81,7 +92,10 @@ function after_upload(req, res) {
         return;
     } else if (!req.file) {
         const error = new Error('Please upload a file')
-        error.httpStatusCode = 400
+        error.httpStatusCode = 400;
+        error.uploadsFolder = uploadsFolder;
+        error.folderExists = fs.existsSync(uploadsFolder);
+        error.uploadFstat = fs.fstatSync(fs.openSync(uploadsFolder, fs.constants.O_RDONLY));
         res.send(error);
         // return next(error);
         return;
