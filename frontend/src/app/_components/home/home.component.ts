@@ -3,6 +3,8 @@ import { AuthenticationService } from '../../_services';
 import { RoomService } from '../../_services/room.service';
 import { ImagesService } from 'src/app/_services/images.service';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
+import { WebsiteService } from 'src/app/_services/website.service';
+import { Website } from 'src/app/_model/website';
 
 @Component({
   selector: 'app-home',
@@ -14,11 +16,14 @@ export class HomeComponent implements OnInit {
 
   rooms: {name:string, img:string}[] = [];
 
+  serviceDescription: string;
+
   constructor(
     private authenticationService: AuthenticationService,
     private roomService: RoomService,
     private imageService: ImagesService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private websiteService: WebsiteService
   ) {
     this.currentUser = this.authenticationService.currentUserValue;
    }
@@ -32,6 +37,11 @@ export class HomeComponent implements OnInit {
           });
         });
       });
+
+    this.websiteService.get().subscribe((website: Website) => {
+      this.serviceDescription = website.serviceDescription;
+    });
+
   }
 
   getImage(imageUrl: string): SafeStyle {

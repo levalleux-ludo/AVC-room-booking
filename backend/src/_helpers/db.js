@@ -1,5 +1,7 @@
 const config = require('../config.json');
 const mongoose = require('mongoose');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 connect();
 
@@ -9,8 +11,10 @@ module.exports = {
     Room: require('../rooms/room.model').model,
     Booking: require('../bookings/booking.model').model,
     Extra: require('../extras/extras.model').model,
+    Website: require('../website/website.model').model,
     Organization: require('../organizations/organization.model').model,
-    getStatus
+    getStatus,
+    eventEmitter
     // rooms: require('../rooms/room.model').collection,
     // users: require('../users/user.model').collection,
     // db: mongoose.connection,
@@ -37,16 +41,19 @@ async function connect() {
         }).on('connected', function() {
             console.log('MongoDB connected!');
             isConnected = true;
+            eventEmitter.emit('connected');
         }).once('open', function() {
             console.log('MongoDB connection opened!');
             isConnected = true;
         }).on('reconnected', function() {
             console.log('MongoDB reconnected!');
             isConnected = true;
+            eventEmitter.emit('connected');
         }).on('disconnected', function() {
             console.log('MongoDB disconnected!');
             console.log(getStatus());
             isConnected = false;
+            eventEmitter.emit('disconnected');
             mongoose.connect(dbURI, dbOptions);
         });
 };

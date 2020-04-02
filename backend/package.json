@@ -8,6 +8,7 @@
         "test-single": "mocha --timeout 10s ",
         "start": "set NODE_ENV=dev&& node ./server.js",
         "start-dev": "set NODE_ENV=dev&& nodemon ./server.js",
+        "start-dev:prod": "set NODE_ENV=dev&& nodemon --require dotenv/config ./server.js dotenv_config_path=./env/.env.prod",
         "start:env-now": "node  --require dotenv/config ./server.js dotenv_config_path=./env/.env.now",
         "start:env-prod": "node  --require dotenv/config ./server.js dotenv_config_path=./env/.env.prod",
         "start:env-preprod": "node  --require dotenv/config ./server.js dotenv_config_path=./env/.env.preprod",

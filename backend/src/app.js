@@ -22,6 +22,7 @@ app.use('/extra', require('./extras/extras.controller'));
 app.use('/organization', require('./organizations/organization.controller'));
 app.get('/', require('./home/home.controller'));
 app.use('/images', require('./images/images.controller'));
+app.use('/website', require('./website/website.controller'));
 
 
 app.get('/home', (req, res) => {

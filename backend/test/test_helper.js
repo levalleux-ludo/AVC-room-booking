@@ -89,3 +89,10 @@ async function drop_bookings(done) {
     console.log("Bookings dropped");
     done();
 }
+
+async function drop_website(done) {
+    console.log("Dropping Website ...");
+    await db.Website.deleteMany({});
+    console.log("Website dropped");
+    done();
+}

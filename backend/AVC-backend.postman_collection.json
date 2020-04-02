@@ -69,6 +69,69 @@
 			"response": []
 		},
 		{
+			"name": "GET website as admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host_url}}/website",
+					"host": [
+						"{{host_url}}"
+					],
+					"path": [
+						"website"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT update website as admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"serviceDescription\": \"We provide great meeting places and training facilities at great rates for great prices!.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host_url}}/website",
+					"host": [
+						"{{host_url}}"
+					],
+					"path": [
+						"website"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "count users",
 			"request": {
 				"method": "GET",
