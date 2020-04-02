@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { RestURLBuilder } from 'rest-url-builder';
 
 export class FetchService {
@@ -7,7 +7,7 @@ export class FetchService {
     protected httpOptions = {
         headers: new HttpHeaders({'Content-Type': 'application/json' })
       }
-    
+
     constructor(protected serviceName: string) {
     }
 
@@ -19,7 +19,7 @@ export class FetchService {
     protected log_error(message: string) {
         console.error(`${this.serviceName}: ${message}`);
     }
-    
+
     protected log(message: string) {
         console.log(`${this.serviceName}: ${message}`);
     }
@@ -32,8 +32,9 @@ export class FetchService {
             // TODO: better job of transforming error for user consumption
             this.log_error(`${operation} failed: ${error.message}`);
 
-            // Let the app keep running by returning an empty result
-            return of(result as T);
+            // // Let the app keep running by returning an empty result
+            // return of(result as T);
+            return throwError(`${operation} failed: ${error.message}`);
         }
     }
 }

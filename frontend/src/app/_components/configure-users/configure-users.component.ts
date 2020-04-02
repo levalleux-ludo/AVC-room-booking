@@ -134,7 +134,7 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
       this.users = users.map(user => new UserContext(new User(user)));
       this.waiter.removeTask(waiterTask);
     }, err => {
-      console.error(err);
+      alert(err);
       this.waiter.removeTask(waiterTask);
     });
   }
@@ -146,7 +146,7 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
       this.waiter.removeTask(waiterTask);
       console.log('allOrganizations', allOrganizations);
     }, err => {
-      console.error(err);
+      alert(err);
       this.waiter.removeTask(waiterTask);
     });
   }

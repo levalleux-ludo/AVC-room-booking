@@ -155,7 +155,7 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
   refreshList() {
     this.organizationService.getOrganizations().subscribe(organizations => {
       this.organizations = organizations.map(organization => new OrganizationContext(new Organization(organization)));
-    });
+    }, err => alert(err));
 
   }
 

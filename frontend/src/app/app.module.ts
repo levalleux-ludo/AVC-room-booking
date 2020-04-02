@@ -79,6 +79,7 @@ import { DialogCarouselComponent } from './_components/dialog-carousel/dialog-ca
 import { ConfigureUsersComponent } from './_components/configure-users/configure-users.component';
 import { ConfigureWebsiteComponent } from './_components/configure-website/configure-website.component';
 import { WaiterComponent } from './_components/waiter/waiter.component';
+import { ErrorComponent } from './_components/error/error.component';
 
 @NgModule({
   declarations: [
@@ -116,7 +117,8 @@ import { WaiterComponent } from './_components/waiter/waiter.component';
     DialogCarouselComponent,
     ConfigureUsersComponent,
     ConfigureWebsiteComponent,
-    WaiterComponent
+    WaiterComponent,
+    ErrorComponent
   ],
   imports: [
     CommonModule,
