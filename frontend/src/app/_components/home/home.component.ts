@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
 
   rooms: {name:string, img:string}[] = [];
 
-  serviceDescription: string;
+  website: Website;
 
   constructor(
     private authenticationService: AuthenticationService,
@@ -39,7 +39,7 @@ export class HomeComponent implements OnInit {
       });
 
     this.websiteService.get().subscribe((website: Website) => {
-      this.serviceDescription = website.serviceDescription;
+      this.website = new Website(website);
     });
 
   }

@@ -30,4 +30,13 @@ export class WebsiteService extends FetchService {
       catchError(this.handleError<Website>('getWebsite', undefined))
     );
   }
+
+  update(website: Website): Observable<any> {
+    const url = `${this.apiWebsite}`;
+    return this.http.put(url, website.getData(), this.httpOptions).pipe(
+      tap(_ => this.log(`updated website ${website.getData()}`)),
+      catchError(this.handleError<any>('updateWebsite'))
+    );
+  }
+
 }
