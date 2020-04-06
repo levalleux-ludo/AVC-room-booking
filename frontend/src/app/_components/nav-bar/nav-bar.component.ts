@@ -1,6 +1,10 @@
-import { Component, OnInit, Renderer, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, Renderer, ElementRef, ViewChild, HostBinding } from '@angular/core';
 import { AuthenticationService, AuthorizationRules } from '../../_services';
 import { ActivatedRoute } from '@angular/router';
+import { ImagesService } from 'src/app/_services/images.service';
+import { DomSanitizer } from '@angular/platform-browser';
+import { WebsiteService } from 'src/app/_services/website.service';
+import { Website } from 'src/app/_model/website';
 
 @Component({
   selector: 'app-nav-bar',
@@ -12,6 +16,8 @@ export class NavBarComponent implements OnInit {
 
   @ViewChild('serviceDiv', {static: false})
   serviceDiv: ElementRef;
+
+  backgroundPicture = '';
 
   isAuthorized = {
     CONFIGURE: () => {
@@ -29,7 +35,10 @@ export class NavBarComponent implements OnInit {
     private renderer: Renderer,
     private element: ElementRef,
     private route: ActivatedRoute,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private imagesService: ImagesService,
+    public sanitizer: DomSanitizer,
+    private websiteService: WebsiteService
   ) {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
@@ -55,6 +64,18 @@ export class NavBarComponent implements OnInit {
               }
           }
       });
+    this.websiteService.get().subscribe((website: Website) => {
+        this.imagesService.getImageUrl(website.backgroundPicture).subscribe((imageUrl) => {
+          this.backgroundPicture = imageUrl;
+        });
+
+      });
+    }
+
+  @HostBinding("attr.style")
+  public get backgroundPictureAsStyle(): any {
+    return this.sanitizer.bypassSecurityTrustStyle(`--background-image: url("${this.backgroundPicture}")`);
   }
+
 
 }

@@ -39,4 +39,8 @@ export class WebsiteService extends FetchService {
     );
   }
 
+  public getBackgroundImageUrl(): string {
+    return `${this.apiWebsite}/background`;
+  }
+
 }

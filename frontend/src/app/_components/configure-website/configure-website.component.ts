@@ -3,6 +3,9 @@ import { Website } from 'src/app/_model/website';
 import { WebsiteService } from 'src/app/_services/website.service';
 import { WaiterService } from 'src/app/_services/waiter.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { ImagesService } from 'src/app/_services/images.service';
+import { Observable } from 'rxjs';
+import { FileUploadAction } from '../material-file-upload/material-file-upload.component';
 
 @Component({
   selector: 'app-configure-website',
@@ -58,6 +61,7 @@ export class ConfigureWebsiteComponent implements OnInit {
 
   constructor(
     private websiteService: WebsiteService,
+    private imagesService: ImagesService,
     private waiter: WaiterService
   ) {
     waiter.init();
@@ -95,11 +99,74 @@ export class ConfigureWebsiteComponent implements OnInit {
     this.edited = new Website(this.original.getData());
   }
 
+  comparePicturesArray(pics1: string[], pics2: string[]): boolean {
+    if (pics1.length !== pics2.length) {
+      return false;
+    }
+    const copyPics1 = Array.from(pics1);
+    for (const pic2 of pics2) {
+      const index = copyPics1.indexOf(pic2);
+      if (index > -1) {
+        copyPics1.splice(index, 1);
+      }
+    }
+    return copyPics1.length === 0;
+  }
+
   isModified(): boolean {
     return (this.edited && (
       (this.edited.serviceDescription !== this.original.serviceDescription) ||
       (this.edited.presentationHTML !== this.original.presentationHTML) ||
+      (this.edited.indicatorsHTML !== this.original.indicatorsHTML) ||
+      (!this.comparePicturesArray(this.edited.pictures, this.original.pictures)) ||
+      (this.edited.backgroundPicture !== this.original.backgroundPicture) ||
       false // reserved for other fields
     ));
   }
+
+  onImageUploaded(data: any) {
+    console.log(`onImageUploaded(${JSON.stringify(data)})`);
+    const imageId = data.imageId;
+    this.imagesService.getImageUrl(imageId).subscribe((url) => {
+      if (this.edited && !this.edited.pictures.includes(imageId)) {
+        this.edited.pictures.push(imageId);
+      }
+    });
+  }
+
+  getImageUrlFromId(imageId: string): Observable<string> {
+    let url = this.imagesService.getImageUrl(imageId);
+    return url;
+  }
+
+  uploadFile(data: FileUploadAction) {
+    const file = data.fileModel;
+    console.log(`uploadFile(${file})`);
+    file.inProgress = true;
+    file.sub = this.imagesService.uploadImage(file.data)
+      .subscribe((event: any) => {
+        if (typeof event === 'object') {
+          data.onSuccess(event);
+        }
+      }, (error: any) => {
+        data.onFailure(error);
+      });
+  }
+
+  onDeleteImage(imageId: string) {
+    if (this.edited && this.edited.pictures.includes(imageId)) {
+      this.edited.pictures.splice(this.edited.pictures.indexOf(imageId), 1);
+    }
+  }
+
+  onBackgroundImageUploaded(data: any) {
+    console.log(`onImageUploaded(${JSON.stringify(data)})`);
+    const imageId = data.imageId;
+    this.imagesService.getImageUrl(imageId).subscribe((url) => {
+      if (this.edited) {
+        this.edited.backgroundPicture = imageId;
+      }
+    });
+  }
+
 }

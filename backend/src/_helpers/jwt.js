@@ -18,7 +18,8 @@ function jwt() {
             '/home',
             '/',
             '/api/home',
-            '/api'
+            '/api',
+            '/website/background'
         ],
         useOriginalUrl: false
     });

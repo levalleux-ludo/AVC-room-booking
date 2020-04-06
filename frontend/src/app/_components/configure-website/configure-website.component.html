@@ -38,6 +38,35 @@
             <mat-card-footer>
             </mat-card-footer>
         </mat-card>
+        <mat-card>
+            <mat-card-header>
+                <h3>Background Picture</h3>
+            </mat-card-header>
+            <mat-card-content style="padding: 2em;">
+                <div fxFlex fxLayout="column" fxLayoutAlign="top">
+                    <img *ngIf="edited" src="{{getImageUrlFromId(edited.backgroundPicture) | async}}">
+                    <div *ngIf="editable">
+                        <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onBackgroundImageUploaded($event)"></app-material-file-upload>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-header>
+                <h3>Slideshow Pictures</h3>
+            </mat-card-header>
+            <mat-card-content style="padding: 2em;">
+                <div *ngIf="edited" fxFlex fxLayout="column" fxLayoutAlign="top">
+                    <div *ngFor="let picture of edited.pictures" class="picture">
+                        <img src="{{getImageUrlFromId(picture) | async}}">
+                        <button class="btn btn-delete-image" *ngIf="editable" mat-raised-button color="primary" title="delete image" (click)="onDeleteImage(picture)"><i class="fa fa-trash"></i>Delete</button>
+                    </div>
+                    <div *ngIf="editable">
+                        <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onImageUploaded($event)"></app-material-file-upload>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
     </div>
     <div fxFlex>
         <button [disabled]="!isModified()" mat-raised-button color="primary" title="submit changes" (click)="onClickSubmit()">Submit</button>

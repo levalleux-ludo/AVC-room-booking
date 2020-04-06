@@ -22,7 +22,7 @@
     overflow: hidden; //added for pseudo-element
     //fixed-position background image
     &::before {
-        background-image: url('../../../assets/img/room-booking.png');
+        background-image: var(--background-image);
         background-repeat: no-repeat;
         background-position: center top;
         background-size: cover;
