@@ -109,6 +109,8 @@ export class RoomDetailComponent implements OnInit {
 
   @ViewChild('calendar', {static: false}) calendar: RoomCalendarComponent;
 
+  _displayDate = Date.now();
+
   _room: Room;
   @Input()
   set room(value: Room) {
@@ -163,6 +165,21 @@ export class RoomDetailComponent implements OnInit {
       console.log('injected room', this.data.room.name);
       this.room = this.data.room;
     }
+    // If today is already Friday-Sat-Sun, then display next week by default in availabilities
+    const now = new Date(Date.now());
+    if ((now.getDay() === 0) // Sunday
+      || (now.getDay() === 5) // Friday
+      || (now.getDay() === 6) // Saturday
+    ) {
+      const MILLISEC_PER_DAY = 24 * 3600 * 1000;
+      // 0 => +1
+      // 6 => +2
+      // 5 => +3
+      // x => (8 - x) % 7
+      const nextMonday = new Date(now.getTime() + ((8 - now.getDay() ) % 7) * MILLISEC_PER_DAY);
+      this._displayDate = nextMonday.getTime();
+    }
+
    }
 
   ngOnInit() {

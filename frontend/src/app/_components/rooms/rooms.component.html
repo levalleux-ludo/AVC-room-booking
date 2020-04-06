@@ -21,10 +21,10 @@
     <mat-grid-list cols="3" rowHeight="250px">
         <mat-grid-tile *ngFor="let room of rooms">
             <img src="{{getImage(room) | async}}" alt="room {{room.name}}">
-            <mat-grid-tile-footer>
-                <h3 mat-line>{{room.name}}</h3>
-                <span mat-line>{{room.capacity}}</span>
-                <button mat-icon-button (click)="showDetails(room)">
+            <mat-grid-tile-footer (click)="showDetails(room)" style="cursor: pointer;" matTooltip='Click to get room details'>
+                <h2 mat-line>{{room.name}}</h2>
+                <span mat-line>(Max Capacity: {{room.capacity}} people)</span>
+                <button mat-icon-button>
                       <mat-icon>info</mat-icon>
                   </button>
             </mat-grid-tile-footer>

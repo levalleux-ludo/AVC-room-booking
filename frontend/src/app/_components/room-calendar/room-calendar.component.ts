@@ -254,6 +254,16 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
 //   increment = 0.5;
 
     minDate = new jqx.date('todayDate'); // default is today
+    _displayDate;
+
+    @Input()
+    set displayDate(value: number) {
+      if (value) {
+        let date = new Date(value);
+        console.log("displayDate", date.toString());
+        this._displayDate = new jqx.date(date.getFullYear(), date.getMonth() + 1 /* Date start at 0, jxq.date starts at 1 */, date.getDate());
+      }
+    };
 
 
     // source: any =
