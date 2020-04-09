@@ -1,15 +1,17 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const bookingService = require('./booking.service');
 const authorize = require('../_helpers/authorize');
 const Roles = require('../users/user.model').roles;
+const get_organizations_for_user = require('../_helpers/get_organizations_for_user');
 
 // routes
 router.post('/create', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), create);
 router.put('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), update);
 // TODO : router.put('/cancel/:id', cancel);
+router.get('/private', get_organizations_for_user(), getAllPrivateData);
 router.get('/:id', getById);
-router.get('/', function(req, res, next) {
+router.get('/', get_organizations_for_user(), function(req, res, next) {
     if (req.query.ref) return getByRef(req, res, next);
     // if (req.query.roomId) return getAllForRoom(req, res, next);
     if (req.query.id) {
