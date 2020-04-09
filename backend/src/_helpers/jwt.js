@@ -19,7 +19,9 @@ function jwt() {
             '/',
             '/api/home',
             '/api',
-            '/website/background'
+            '/website/background',
+            /\/images\/[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/g, // use a regex to define all image id in '/images/:id'
+            '/website'
         ],
         useOriginalUrl: false
     });
