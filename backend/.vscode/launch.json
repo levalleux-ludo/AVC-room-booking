@@ -55,6 +55,19 @@
             // "address": "localhost",
             // "port": 9229,
             "sourceMaps": false
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "envFile": "${workspaceFolder}/env/.env.prod",
+            "args": [
+                "./server.js"
+            ],    
+            "cwd":"${workspaceFolder}",
+            "name": "Debug server dev prod",
+            // "address": "localhost",
+            // "port": 9229,
+            "sourceMaps": false
         }
     ]
 }
