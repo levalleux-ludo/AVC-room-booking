@@ -10,13 +10,10 @@ const ExtraSchema = new Schema({
 });
 var BookingSchema = new Schema({
     ref: { type: String, unique: true, required: true },
-    title: { type: String, required: false },
-    organizationId: { type: Schema.Types.ObjectId, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     roomId: { type: Schema.Types.ObjectId, required: true },
-    extras: { type: [Schema.Types.ObjectId], required: false },
-    totalPrice: { type: Number, required: false, default: 0 }
+    privateData: { type: Schema.Types.ObjectId }
 });
 
 BookingSchema.set('toJSON', { virtuals: true });
@@ -25,7 +22,18 @@ BookingSchema.set('toJSON', { virtuals: true });
 //     return date_helper.computeEndingTime(this.startTime, this.duration);
 // });
 
+var BookingPrivateSchema = new Schema({
+    title: { type: String, required: false },
+    details: { type: String, required: false },
+    organizationId: { type: Schema.Types.ObjectId, required: true },
+    extras: { type: [Schema.Types.ObjectId], required: false },
+    totalPrice: { type: Number, required: false, default: 0 }
+});
+
+BookingPrivateSchema.set('toJSON', { virtuals: true });
+
 module.exports = {
     model: mongoose.model('Booking', BookingSchema),
+    privateModel: mongoose.model('BookingPrivateData', BookingPrivateSchema),
     collection: mongoose.connection.collections.bookings
 };

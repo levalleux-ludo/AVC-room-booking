@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const db = require('../_helpers/db');
 const Booking = db.Booking;
+const BookingPrivateData = db.BookingPrivateData;
 const date_helper = require('../_helpers/date_helper');
 const roomService = require('../rooms/room.service');
 
@@ -12,7 +13,8 @@ module.exports = {
     delete: _delete,
     getAll,
     getById,
-    getByRef
+    getByRef,
+    getAllPrivateData
     // getAllForRoom
 };
 
@@ -64,11 +66,26 @@ async function getAll(roomId, day, startBefore, startAfter, endBefore, endAfter)
     return await Booking.find(req);
 }
 
+async function getAllPrivateData(organizations) {
+    if (organizations === '*') {
+        // the user is allowed to see every organization data, return all private data
+        return await BookingPrivateData.find();
+    }
+    return await BookingPrivateData.find().all('organizationId', organizations);
+}
+
 async function getById(id) {
     console.log(`BookingService::getById() id=${id}`);
 
     booking = await Booking.findById(id);
     return booking;
+}
+
+async function getPrivateData(id) {
+    console.log(`BookingService::getPrivateData() id=${id}`);
+
+    privateData = await BookingPrivateData.findById(id);
+    return privateData;
 }
 
 async function getByRef(ref) {
@@ -102,6 +119,10 @@ async function create(bookingParam) {
 
     const booking = new Booking(bookingParam);
 
+    const privateData = new BookingPrivateData(bookingParam.private);
+    await privateData.save();
+    booking.privateData = privateData.id;
+
     // save booking
     return await booking.save();
     // return booking;
@@ -109,6 +130,7 @@ async function create(bookingParam) {
 
 async function update(id, bookingParam) {
     const booking = await Booking.findById(id);
+    const privateData = await BookingPrivateData.findById(booking.privateData);
 
     console.log("update booking with id" + id);
 
@@ -117,6 +139,7 @@ async function update(id, bookingParam) {
 
     // copy userParam properties to user
     Object.assign(booking, bookingParam);
+    Object.assign(privateData, bookingParam.private);
 
     booking.markModified('startDate');
     booking.markModified('endDate');

@@ -10,6 +10,7 @@ module.exports = {
     Roles: require('../users/user.model').roles,
     Room: require('../rooms/room.model').model,
     Booking: require('../bookings/booking.model').model,
+    BookingPrivateData: require('../bookings/booking.model').privateModel,
     Extra: require('../extras/extras.model').model,
     Website: require('../website/website.model').model,
     Organization: require('../organizations/organization.model').model,

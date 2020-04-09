@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const bookingService = require('./booking.service');
 const authorize = require('../_helpers/authorize');
@@ -40,7 +40,16 @@ function getAll(req, res, next) {
             // dateFrom=req.query.dateFrom,
             // dateTo=req.query.dateTo
         )
-        .then(bookings => res.json(bookings))
+        .then(bookings => {
+            res.json(bookings);
+        })
+        .catch(err => next(err));
+}
+
+function getAllPrivateData(req, res, next) {
+    bookingService.getAllPrivateData(req.orgas).then(privateDatas => {
+            res.json(privateDatas);
+        })
         .catch(err => next(err));
 }
 
