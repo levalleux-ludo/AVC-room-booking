@@ -14,7 +14,7 @@ app.use(cors());
 // use JWT auth to secure the api
 app.use(jwt());
 
-app.use(express.static('public')); /* this line tells Express to use the public folder as our static folder from which we can serve static files*/
+// app.use(express.static('public')); /* this line tells Express to use the public folder as our static folder from which we can serve static files*/
 
 // api routes
 app.use('/users', require('./users/users.controller'));
