@@ -14,6 +14,7 @@ import { TestJqxSchedulerComponent } from './_components/test-jqx-scheduler/test
 import { ConfigureComponent } from './_components/configure/configure.component';
 import { eUserRole } from './_model/user';
 import { AuthorizationRules } from './_services';
+import { RegisterComponent } from './_components/register/register.component';
 
 
 const routes: Routes = [
@@ -54,6 +55,7 @@ const routes: Routes = [
   // { path: 'bookings/create', component: BookingDetailComponent, canActivate: [AuthGuard] },
   { path: 'rooms/room/:name', component: RoomDetailComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'logout', component: LoginComponent },
   { path: 'init', component: InitDBComponent },
   { path: 'calendar1', component: TestCalendarComponent },

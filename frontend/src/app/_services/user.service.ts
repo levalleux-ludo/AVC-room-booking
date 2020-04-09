@@ -70,4 +70,12 @@ export class UserService extends FetchService {
       catchError(this.handleError<User>('changeMemberOf'))
     );
   }
+
+  register (user) {
+    return this.http.post(`${this.apiUsers}/register`, user).pipe(
+      tap(() => this.log(`register user ${user.username}`)),
+      catchError(this.handleError<User>('register'))
+    );
+}
+
 }

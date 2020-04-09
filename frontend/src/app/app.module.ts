@@ -80,6 +80,7 @@ import { ConfigureUsersComponent } from './_components/configure-users/configure
 import { ConfigureWebsiteComponent } from './_components/configure-website/configure-website.component';
 import { WaiterComponent } from './_components/waiter/waiter.component';
 import { ErrorComponent } from './_components/error/error.component';
+import { RegisterComponent } from './_components/register/register.component';
 
 @NgModule({
   declarations: [
@@ -118,7 +119,8 @@ import { ErrorComponent } from './_components/error/error.component';
     ConfigureUsersComponent,
     ConfigureWebsiteComponent,
     WaiterComponent,
-    ErrorComponent
+    ErrorComponent,
+    RegisterComponent
   ],
   imports: [
     CommonModule,
