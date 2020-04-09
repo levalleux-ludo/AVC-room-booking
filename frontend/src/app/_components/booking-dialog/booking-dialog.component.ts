@@ -49,55 +49,58 @@ export class BookingDialogComponent implements OnInit {
     booking: Booking,
     room?: Room): Subscription {
 
-        if (!room && booking.roomId) {
-          room = rooms.find(room => room.id === booking.roomId);
-        }
-        let privateData: BookingPrivateData = booking.privateDataRef;
+    if (!room && booking.roomId) {
+      room = rooms.find(room => room.id === booking.roomId);
+    }
+    let privateData: BookingPrivateData = booking.privateDataRef;
 
-        let organization;
-        if (privateData) {
-          organization = organizations.find(org => org.id === privateData.organizationId);
-        } else {
-          privateData = new BookingPrivateData();
-        }
-        if ((organization === undefined) && (organizations.length === 1)) {
-          organization = organizations[0];
-        }
-        const dialogConfig = new MatDialogConfig();
+    let organization;
+    if (privateData) {
+      organization = organizations.find(org => org.id === privateData.organizationId);
+    } else {
+      privateData = new BookingPrivateData();
+    }
+    if ((organization === undefined) && (organizations.length === 1)) {
+      organization = organizations[0];
+    }
+    const dialogConfig = new MatDialogConfig();
 
-        dialogConfig.disableClose = true;
-        dialogConfig.autoFocus = true;
-        dialogConfig.data = {
-          title: privateData.title,
-          organization: organization,
-          description: privateData.details,
-          // room: this.room.name,
-          room: room,
-          extras: privateData.extras,
-          startDate: booking.startDate,
-          endDate: booking.endDate,
-          organizations: organizations,
-          rooms: rooms,
-          // rooms: this.rooms.map(room => room.name),
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      title: privateData.title,
+      organization: organization,
+      description: privateData.details,
+      // room: this.room.name,
+      room: room,
+      extras: privateData.extras,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      organizations: organizations,
+      rooms: rooms,
+      // rooms: this.rooms.map(room => room.name),
+    }
+
+    const dialogRef = dialog.open(BookingDialogComponent, dialogConfig);
+    return dialogRef.afterClosed().subscribe(
+      result => {
+        if (result) {
+          const data = result;
+          console.log('Dialog output:', data);
+          booking.roomId = data.room.id;
+          booking.startDate = data.startDate;
+          booking.endDate = data.endDate;
+          // private data
+          privateData.title = data.title;
+          privateData.details = data.description;
+          privateData.organizationId = data.organization.id;
+          privateData.extras = data.extras;
+          privateData.totalPrice = data.totalPrice;
+
+          service(booking, privateData).subscribe(
+            newBooking => then(newBooking, privateData)
+          );
         }
-
-        const dialogRef = dialog.open(BookingDialogComponent, dialogConfig);
-        return dialogRef.afterClosed().subscribe(
-      data => {
-        console.log('Dialog output:', data);
-        booking.roomId = data.room.id;
-        booking.startDate = data.startDate;
-        booking.endDate = data.endDate;
-        // private data
-        privateData.title = data.title;
-        privateData.details = data.description;
-        privateData.organizationId = data.organization.id;
-        privateData.extras = data.extras;
-        privateData.totalPrice = data.totalPrice;
-
-        service(booking, privateData).subscribe(
-          newBooking => then(newBooking, privateData)
-        );
       }
     );
   }
@@ -106,6 +109,33 @@ export class BookingDialogComponent implements OnInit {
     return date.getHours() + (date.getMinutes() / 60);
   }
 
+
+  constructor(
+    private fb: FormBuilder,
+    private dialogRef: MatDialogRef<BookingDialogComponent>,
+    private bookingService: BookingService,
+    private extraService: ExtraService,
+    @Inject(MAT_DIALOG_DATA) public data: any) {
+  }
+
+  ngOnInit() {
+    this.selectedRoom = this.data.room;
+    this.selectedExtras = this.data.extras;
+    this.form = this.fb.group({
+          title: this.data.title,
+          organization: this.data.organization,
+          description: this.data.description,
+          room: this.selectedRoom,
+          extras: new FormControl(this.data.extras),
+          date: new FormControl(),
+          startDate: new FormControl(this.data.startDate, [Validators.required]),
+          endDate: new FormControl(this.data.endDate, [Validators.required]),
+          totalPrice: 0
+      });
+      // this.onSelectedDateChanged();
+    this.OnCalendarPreviewUpdated({startDate: this.data.startDate, endDate: this.data.endDate});
+    this.extraService.refreshExtras();
+  }
   set selectedExtras(value: any[]) {
     console.log('BookingDialogCOmponent::selectedExtras() ', value);
     this._selectedExtras = value;
@@ -367,33 +397,6 @@ export class BookingDialogComponent implements OnInit {
 
   startTimeChangeRequest(event: any) {
     console.log('BookingDialogComponent::startTimeChangeRequest() event=', event);
-  }
-
-  constructor(
-      private fb: FormBuilder,
-      private dialogRef: MatDialogRef<BookingDialogComponent>,
-      private bookingService: BookingService,
-      private extraService: ExtraService,
-      @Inject(MAT_DIALOG_DATA) public data: any) {
-      }
-
-  ngOnInit() {
-    this.selectedRoom = this.data.room;
-    this.selectedExtras = this.data.extras;
-    this.form = this.fb.group({
-          title: this.data.title,
-          organization: this.data.organization,
-          description: this.data.description,
-          room: this.selectedRoom,
-          extras: new FormControl(this.data.extras),
-          date: new FormControl(),
-          startDate: new FormControl(this.data.startDate, [Validators.required]),
-          endDate: new FormControl(this.data.endDate, [Validators.required]),
-          totalPrice: 0
-       });
-       // this.onSelectedDateChanged();
-    this.OnCalendarPreviewUpdated({startDate: this.data.startDate, endDate: this.data.endDate});
-    this.extraService.refreshExtras();
   }
 
   submit(form) {

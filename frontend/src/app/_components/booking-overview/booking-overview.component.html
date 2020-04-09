@@ -7,6 +7,7 @@
     </mat-form-field>
 </div>
 <app-global-calendar #calendar [bookingFilter]="bookingFilter" [width]="800" [height]="600" [readOnly]="true" [showViews]="['monthView', 'weekView', 'dayView']"></app-global-calendar>
+<div>Double click an event to get details</div>
 <!-- <ul class="bookings">
     <li *ngFor="let booking of bookings">
         <a routerLink="/bookings/booking/{{booking.ref}}">

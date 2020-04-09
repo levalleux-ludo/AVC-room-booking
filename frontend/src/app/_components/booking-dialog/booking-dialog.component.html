@@ -1,5 +1,5 @@
 <form [formGroup]="form" (ngSubmit)="submit(form)">
-    <button class="close" mat-button mat-button-close>X</button>
+    <button class="close" mat-button [mat-dialog-close]="false">X</button>
     <h1 mat-dialog-title>Booking Form</h1>
     <mat-dialog-content>
         <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
@@ -60,7 +60,7 @@
         </div>
     </mat-dialog-content>
     <mat-dialog-actions>
-        <button mat-button type="submit " [disabled]="!form.valid ">Submit</button>
-        <button mat-button type="button " mat-dialog-close>Cancel</button>
+        <button mat-button type="submit" [disabled]="!form.valid " mat-dialog-close>Submit</button>
+        <button mat-button type="button" [mat-dialog-close]="false">Cancel</button>
     </mat-dialog-actions>
 </form>
