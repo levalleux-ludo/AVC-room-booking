@@ -21,7 +21,7 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
     protected dialog: MatDialog
   )
   {
-      super(bookingService, roomService);
+      super(bookingService, organizationService, roomService);
       this.getRooms().then(() => {
         for (let room of this.rooms) {
           this.source.localdata.push({
@@ -41,13 +41,6 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
   }
 
   minDate = new jqx.date('01-01-2019'); // default is today
-
-  organizations: Organization[];
-  getOrganizations() {
-    this.organizationService.getOrganizations().subscribe(
-      organizations => this.organizations = organizations.map(organization => new Organization(organization))
-    );
-  }
 
   getBookingFilter() {
     return {};
@@ -78,32 +71,32 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
     console.log("onEditDialogOpen");
     const dialogConfig = new MatDialogConfig();
 
-  dialogConfig.disableClose = true;
-  dialogConfig.autoFocus = true;
-  dialogConfig.data = {
-    // room: this.room.name,
-    room: undefined,
-    organizations: this.organizations,
-    rooms: this.rooms,
-    // rooms: this.rooms.map(room => room.name),
-  }
-    const dialogRef = this.dialog.open(BookingDialogComponent, dialogConfig);
-  dialogRef.afterClosed().subscribe(
-    data => {
-      console.log("Dialog output:", data);
-      let booking = this.bookingService.getEmptyBooking();
-      booking.title = data.title;
-      booking.details = data.description;
-      booking.organizationId = data.organization.id;
-      booking.roomId = data.room.id;
-      booking.startDate = data.startDate;
-      booking.endDate = data.endDate;
-      booking.extras = data.extras;
-      booking.totalPrice = data.totalPrice;
-      // TODO call bookingService to create or update the booking
-      // TODO refresh calendar to show new or updated booking
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      // room: this.room.name,
+      room: undefined,
+      organizations: this.organizations,
+      rooms: this.rooms,
+      // rooms: this.rooms.map(room => room.name),
     }
-  );
+    const dialogRef = this.dialog.open(BookingDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(
+      data => {
+        console.log("Dialog output:", data);
+        let booking = this.bookingService.getEmptyBooking();
+        booking.privateDataRef.title = data.title;
+        booking.privateDataRef.details = data.description;
+        booking.privateDataRef.organizationId = data.organization.id;
+        booking.roomId = data.room.id;
+        booking.startDate = data.startDate;
+        booking.endDate = data.endDate;
+        booking.privateDataRef.extras = data.extras;
+        booking.privateDataRef.totalPrice = data.totalPrice;
+        // TODO call bookingService to create or update the booking
+        // TODO refresh calendar to show new or updated booking
+      }
+    );
   }
 
   configureScheduler() {
@@ -121,8 +114,8 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
         if (appointment) {
           BookingDialogComponent.editBooking(
             this.dialog,
-            (booking) => this.bookingService.updateBooking(booking),
-            (booking) => {
+            (booking, privateData) => this.bookingService.updateBooking(booking, privateData),
+            (booking, privateData) => {
                 // TODO refresh calendar to show new or updated booking
             },
             this.organizations,
@@ -147,7 +140,7 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
 
   ngAfterViewInit(): void {
     this.configureScheduler();
-    this.getBookings();
+    this.getOrganizations(() => this.getBookings());
   }
 
 

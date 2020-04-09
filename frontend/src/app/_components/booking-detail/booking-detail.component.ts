@@ -112,12 +112,12 @@ export class BookingDetailComponent implements OnInit {
   }
 
   save() {
-    this.bookingService.createBooking(this.booking).subscribe(
-      booking => { if(booking) {
-          console.log("Booking created", booking);
-          this.goBack();
-        }
-      });
+    // this.bookingService.createBooking(this.booking).subscribe(
+    //   booking => { if(booking) {
+    //       console.log("Booking created", booking);
+    //       this.goBack();
+    //     }
+    //   });
   }
 
   get startTimeHour(): number {

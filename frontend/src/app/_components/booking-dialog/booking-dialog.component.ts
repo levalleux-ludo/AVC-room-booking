@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject, ViewChild } from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from "@angular/material";
+import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Room } from '../../_model';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
 import { BookingService } from '../../_services/booking.service';
-import { Booking } from '../../_model/booking';
+import { Booking, BookingPrivateData } from '../../_model/booking';
 import { TimePickerComponent } from '../time-picker/time-picker.component';
 import { PriceDisplayComponent } from '../price-display/price-display.component';
 import { ExtraService } from '../../_services/extra.service';
@@ -38,8 +38,76 @@ export class BookingDialogComponent implements OnInit {
   today = new Date();
 
   _selectedExtras: any[] = [];
+
+
+  static editBooking(
+    dialog: MatDialog,
+    service: (booking: Booking, privateData: BookingPrivateData) => Observable<Booking>,
+    then: (Booking, privateData: BookingPrivateData) => void,
+    organizations: Organization[],
+    rooms: Room[],
+    booking: Booking,
+    room?: Room): Subscription {
+
+        if (!room && booking.roomId) {
+          room = rooms.find(room => room.id === booking.roomId);
+        }
+        let privateData: BookingPrivateData = booking.privateDataRef;
+
+        let organization;
+        if (privateData) {
+          organization = organizations.find(org => org.id === privateData.organizationId);
+        } else {
+          privateData = new BookingPrivateData();
+        }
+        if ((organization === undefined) && (organizations.length === 1)) {
+          organization = organizations[0];
+        }
+        const dialogConfig = new MatDialogConfig();
+
+        dialogConfig.disableClose = true;
+        dialogConfig.autoFocus = true;
+        dialogConfig.data = {
+          title: privateData.title,
+          organization: organization,
+          description: privateData.details,
+          // room: this.room.name,
+          room: room,
+          extras: privateData.extras,
+          startDate: booking.startDate,
+          endDate: booking.endDate,
+          organizations: organizations,
+          rooms: rooms,
+          // rooms: this.rooms.map(room => room.name),
+        }
+
+        const dialogRef = dialog.open(BookingDialogComponent, dialogConfig);
+        return dialogRef.afterClosed().subscribe(
+      data => {
+        console.log('Dialog output:', data);
+        booking.roomId = data.room.id;
+        booking.startDate = data.startDate;
+        booking.endDate = data.endDate;
+        // private data
+        privateData.title = data.title;
+        privateData.details = data.description;
+        privateData.organizationId = data.organization.id;
+        privateData.extras = data.extras;
+        privateData.totalPrice = data.totalPrice;
+
+        service(booking, privateData).subscribe(
+          newBooking => then(newBooking, privateData)
+        );
+      }
+    );
+  }
+
+  static getTimeFromDate(date: Date): number {
+    return date.getHours() + (date.getMinutes() / 60);
+  }
+
   set selectedExtras(value: any[]) {
-    console.log("BookingDialogCOmponent::selectedExtras() ", value);
+    console.log('BookingDialogCOmponent::selectedExtras() ', value);
     this._selectedExtras = value;
     this.updatePrice();
   }
@@ -52,7 +120,7 @@ export class BookingDialogComponent implements OnInit {
       this.priceDisplay.roomRatePerHour = this.selectedRoom.rentRateHour;
 
       let durationMS = this.endDate.valueOf() - this.startDate.valueOf();
-      let durationHour = durationMS/(1000*60*60);
+      let durationHour = durationMS / (1000 * 60 * 60);
       this.priceDisplay.hourQuantity = durationHour;
 
       this.priceDisplay.extras = {};
@@ -74,13 +142,13 @@ export class BookingDialogComponent implements OnInit {
   set selectedRoom(value: Room) {
     this._selectedRoom = value;
     if (this._selectedRoom) {
-      this.bookingService.getBookings({roomId: this._selectedRoom.id, endAfter:(new Date())}).subscribe(
+      this.bookingService.getBookings({roomId: this._selectedRoom.id, endAfter: (new Date())}).subscribe(
         bookings => {
           this.actualBookings = bookings;
           if (this.selectedDate) {
             this.computeUnavailableHours();
             if (this.checkConflicts(this.startDate, this.endDate)) {
-              console.log("BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities")
+              console.log('BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities')
               this.unsetTimePickers();
             }
             this.updateCalendar();
@@ -95,12 +163,12 @@ export class BookingDialogComponent implements OnInit {
   unsetTimePickers() {
       try {
         this.startTimePicker.setHourWithoutNotification(undefined);
-      this._startTime = undefined;
-      this.form.patchValue({startDate: undefined});
-      this.startTimePicker.setHourWithoutNotification(undefined);
-      this._endTime = undefined;
-      this.form.patchValue({endDate: undefined});
-      this.updatePrice();
+        this._startTime = undefined;
+        this.form.patchValue({startDate: undefined});
+        this.startTimePicker.setHourWithoutNotification(undefined);
+        this._endTime = undefined;
+        this.form.patchValue({endDate: undefined});
+        this.updatePrice();
     } catch (e) {
       console.error(e);
     }
@@ -113,7 +181,7 @@ export class BookingDialogComponent implements OnInit {
     this.computeUnavailableHours();
     // If the current selected time slot in not available anymore with the new date, unset it
     if (this.checkConflicts(this.startDate, this.endDate)) {
-        console.log("BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities");
+        console.log('BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities');
         this.unsetTimePickers();
     }
     this.updateCalendar();
@@ -189,7 +257,7 @@ export class BookingDialogComponent implements OnInit {
   }
 
   startTimeChanged(event: any) { // this event is raised when the user select another time in time-picker
-    console.log("BookingDialogComponent::startTimeChanged()", event);
+    console.log('BookingDialogComponent::startTimeChanged()', event);
     this._startTime = event;
     if (this.endTime <= this.startTime) {
       for (let endTime = this.startTime + this.increment; endTime <= this.maxTime; endTime += this.increment) {
@@ -204,7 +272,7 @@ export class BookingDialogComponent implements OnInit {
     this.updatePrice();
   }
   endTimeChanged(event: any) { // this event is raised when the user select another time in time-picker
-    console.log("BookingDialogComponent::endTimeChanged()", event);
+    console.log('BookingDialogComponent::endTimeChanged()', event);
     this._endTime = event;
     if (this.startTime >= this._endTime) {
       for (let startTime = this.endTime - this.increment; startTime >= this.minTime; startTime -= this.increment) {
@@ -225,7 +293,7 @@ export class BookingDialogComponent implements OnInit {
   }
   set startTime(value: number) {
     if (this._startTime !== value) {
-      console.log("BookingDialogComponent::set startTime()", value);
+      console.log('BookingDialogComponent::set startTime()', value);
       let oldStartTime = this._startTime;
       this._startTime = value;
       let oldEndTime = this._endTime;
@@ -261,7 +329,7 @@ export class BookingDialogComponent implements OnInit {
     let actualDateBookings = this.getActualDateBookings(startDate);
     for (let booking of actualDateBookings) {
       if ((booking.startDate < endDate) && (booking.endDate > startDate)) {
-        console.log("BookingDialogComponent::checkConflicts() conflict found with event ", booking);
+        console.log('BookingDialogComponent::checkConflicts() conflict found with event ', booking);
         return true;
       }
     }
@@ -278,8 +346,8 @@ export class BookingDialogComponent implements OnInit {
     return {valid: true, startTime: startTime, endTime: endTime};
   }
   OnCalendarPreviewUpdated(event: {startDate: Date, endDate: Date}) {
-    console.log("BookingDialogComponent::OnCalendarPreviewUpdated, event", event);
-    let date: number = new Date(event.startDate).setHours(0,0,0,0);
+    console.log('BookingDialogComponent::OnCalendarPreviewUpdated, event', event);
+    let date: number = new Date(event.startDate).setHours(0, 0, 0, 0);
     if (!this.checkConflicts(event.startDate, event.endDate)) {
       let {valid, startTime, endTime} = this.validateHours(BookingDialogComponent.getTimeFromDate(event.startDate), BookingDialogComponent.getTimeFromDate(event.endDate));
       if (valid) {
@@ -298,7 +366,7 @@ export class BookingDialogComponent implements OnInit {
   }
 
   startTimeChangeRequest(event: any) {
-    console.log("BookingDialogComponent::startTimeChangeRequest() event=", event);
+    console.log('BookingDialogComponent::startTimeChangeRequest() event=', event);
   }
 
   constructor(
@@ -324,8 +392,8 @@ export class BookingDialogComponent implements OnInit {
           totalPrice: 0
        });
        // this.onSelectedDateChanged();
-       this.OnCalendarPreviewUpdated({startDate: this.data.startDate, endDate: this.data.endDate});
-       this.extraService.refreshExtras();
+    this.OnCalendarPreviewUpdated({startDate: this.data.startDate, endDate: this.data.endDate});
+    this.extraService.refreshExtras();
   }
 
   submit(form) {
@@ -336,7 +404,7 @@ export class BookingDialogComponent implements OnInit {
   }
 
   compareRooms(room1: Room, room2: Room): boolean {
-    if(room1 && room2) {
+    if (room1 && room2) {
       return room1.id === room2.id
      } else {
       return room1 === room2
@@ -349,58 +417,6 @@ export class BookingDialogComponent implements OnInit {
     return day !== 0 && day !== 6;
   }
 
-  static editBooking(
-    dialog: MatDialog,
-     service: (booking: Booking) => Observable<Booking>,
-     then:(Booking) => void,
-     organizations: Organization[],
-      rooms: Room[],
-      booking: Booking,
-       room?: Room): Subscription {
 
-        if (!room && booking.roomId) {
-          room = rooms.find(room => room.id === booking.roomId);
-        }
-        let organization = organizations.find(org => org.id === booking.organizationId);
-    const dialogConfig = new MatDialogConfig();
-
-    dialogConfig.disableClose = true;
-    dialogConfig.autoFocus = true;
-    dialogConfig.data = {
-      title: booking.title,
-      organization: organization,
-      description: booking.details,
-      // room: this.room.name,
-      room: room,
-      extras: booking.extras,
-      startDate: booking.startDate,
-      endDate: booking.endDate,
-      organizations: organizations,
-      rooms: rooms,
-      // rooms: this.rooms.map(room => room.name),
-    }
-
-    const dialogRef = dialog.open(BookingDialogComponent, dialogConfig);
-    return dialogRef.afterClosed().subscribe(
-      data => {
-        console.log("Dialog output:", data);
-        booking.title = data.title;
-        booking.details = data.description;
-        booking.organizationId = data.organization.id;
-        booking.roomId = data.room.id;
-        booking.startDate = data.startDate;
-        booking.endDate = data.endDate;
-        booking.extras = data.extras;
-        booking.totalPrice = data.totalPrice;
-        service(booking).subscribe(
-          newBooking => then(newBooking)
-        );
-      }
-    );
-  }
-
-  static getTimeFromDate(date: Date): number {
-    return date.getHours() + (date.getMinutes() / 60);
-  }
 
 }

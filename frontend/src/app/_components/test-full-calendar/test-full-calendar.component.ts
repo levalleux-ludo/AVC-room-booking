@@ -32,7 +32,7 @@ export class TestFullCalendarComponent implements OnInit {
   booking2event(booking: Booking) {
     return {
       id: booking.ref,
-      title: booking.title,
+      title: booking.privateDataRef.title,
       start: booking.startDate, // convert to local time
       end: booking.endDate, // convert to local time
     }

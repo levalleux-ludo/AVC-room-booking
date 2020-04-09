@@ -18,7 +18,7 @@ export class BookingOverviewComponent implements OnInit {
   calendar: GlobalCalendarComponent;
   // myScheduler: jqxSchedulerComponent;
 
-  bookings: Booking[];
+  // bookings: Booking[];
 
   organizations: any[] = [];
 
@@ -102,7 +102,7 @@ export class BookingOverviewComponent implements OnInit {
         this.organizations = organizations;
       }
       this.selectedOrganizations = Array.from(this.organizations);
-      this.getBookings();
+      // this.getBookings();
     });
   }
   //   this.views.push({
@@ -130,15 +130,15 @@ export class BookingOverviewComponent implements OnInit {
   //   showWorkTime : false,
 // });
 
-  getBookings() {
-    this.bookingService.getBookings().subscribe(
-      bookings => {
-        const orgaIds = this.selectedOrganizations.map(orga => orga.id);
-        this.bookings = bookings.filter(
-          booking => orgaIds.includes(booking.organizationId)
-        );
-      });
-  }
+  // getBookings() {
+  //   this.bookingService.getBookings().subscribe(
+  //     bookings => {
+  //       const orgaIds = this.selectedOrganizations.map(orga => orga.id);
+  //       this.bookings = bookings.filter(
+  //         booking => booking.privateDataRef && orgaIds.includes(booking.privateDataRef.organizationId)
+  //       );
+  //     });
+  // }
 
   duration(booking: Booking) {
     duration(booking);
@@ -146,7 +146,7 @@ export class BookingOverviewComponent implements OnInit {
 
   bookingFilter = (booking) => {
     const orgaIds = this.selectedOrganizations.map(orga => orga.id);
-    return orgaIds.includes(booking.organizationId);
+    return booking.privateDataRef && orgaIds.includes(booking.privateDataRef.organizationId);
   }
 
 

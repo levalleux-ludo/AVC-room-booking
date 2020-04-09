@@ -16,6 +16,7 @@ import { Observable } from 'rxjs';
 import { ImagesService } from 'src/app/_services/images.service';
 import { inject } from '@angular/core/testing';
 import { DialogCarouselComponent } from '../dialog-carousel/dialog-carousel.component';
+import { AuthenticationService, AuthorizationRules } from 'src/app/_services';
 
 @Directive({
   selector: '[appSetImageToCenter]'
@@ -137,6 +138,8 @@ export class RoomDetailComponent implements OnInit {
   nextBookings: Booking[];
   rooms: Room[];
   organizations: Organization[];
+  loggedIn = false;
+  bookingAllowed = false;
 
   getExtraFromId(extraId): Extra {
     return this.extraService.getExtraFromId(extraId);
@@ -156,6 +159,7 @@ export class RoomDetailComponent implements OnInit {
     private extraService: ExtraService,
     private organizationService: OrganizationService,
     private imagesService: ImagesService,
+    private authenticationService: AuthenticationService,
     private location: Location, // required to get back in navigation history
     private dialog: MatDialog, // required to open a dialog
     public bottomSheetRef: MatBottomSheetRef<RoomDetailComponent>, // required to integrate the component in the 'bottomSheet'
@@ -186,6 +190,10 @@ export class RoomDetailComponent implements OnInit {
     // this.getRoom();
     this.getAllRooms();
     this.extraService.refreshExtras();
+    this.loggedIn = (this.authenticationService.currentUserValue !== undefined);
+    this.bookingAllowed = this.authenticationService.currentUserValue
+     && (AuthorizationRules.BOOKINGS.includes(this.authenticationService.currentUserValue.role)
+      || AuthorizationRules.MYBOOKINGS.includes(this.authenticationService.currentUserValue.role));
     this.organizationService.getOrganizations().subscribe(
       organizations => this.organizations = organizations.map(organization => new Organization(organization))
     );
@@ -249,8 +257,8 @@ export class RoomDetailComponent implements OnInit {
   bookNow() {
     BookingDialogComponent.editBooking(
       this.dialog,
-      (newBooking) => this.bookingService.createBooking(newBooking),
-      (newBooking) =>  {
+      (newBooking, privateData) => this.bookingService.createBooking(newBooking, privateData),
+      (newBooking, privateData) =>  {
         console.log("booking has been created:", newBooking);
         if (newBooking.roomId === this.room.id) {
           this.getBookings(this.room.id);

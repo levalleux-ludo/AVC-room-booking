@@ -6,6 +6,7 @@ import { BookingService } from '../../_services/booking.service';
 import { Booking } from '../../_model/booking';
 import { RoomService } from '../../_services/room.service';
 import { AbstractCalendarComponent } from '../abstract-calendar/abstract-calendar.component';
+import { OrganizationService } from 'src/app/_services/organization.service';
 
 
 
@@ -26,10 +27,11 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
 
     constructor(
         protected bookingService: BookingService,
+        protected organizationService: OrganizationService,
         protected roomService: RoomService
     )
     {
-        super(bookingService, roomService);
+        super(bookingService, organizationService, roomService);
      }
 
     ngOnInit() {
@@ -57,8 +59,11 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
 
     booking2event(booking: Booking) {
         let appointment = super.booking2event(booking);
-        appointment.subject = booking.startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
-                  + "-" + booking.endDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
+        appointment.subject = `${
+          booking.startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute: '2-digit'})
+        }-${
+            booking.endDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute: '2-digit'})
+          } ${(booking.privateDataRef && booking.privateDataRef.organizationId) ? booking.privateDataRef.title : 'unavailable'}`;
         return appointment;
     }
 
@@ -178,7 +183,12 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
                 data.cssClass = "preview-event";
                 // data.html = "<div class='preview-event'></div>";
             } else if (privateDatas.tag === 'unavailable') {
-                data.style = "#8B0000"; // red
+                if (privateDatas.organization === '') { // unknown event
+                  data.style = "#8B0000"; // red
+                } else {
+                  data.style = "#008B00"; // green
+                }
+
                 data.cssClass = "unavailable-event";
                 data.html = "<div class='unavailable-event'></div>";
             } else {
@@ -228,8 +238,8 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
         console.log("room calendar select room:", value.name);
         this._room = value;
         this.getRooms(this._room);
-        this.getBookings();
-    }
+        this.getOrganizations(() => this.getBookings());
+      }
 
     @Input()
     get room():Room {

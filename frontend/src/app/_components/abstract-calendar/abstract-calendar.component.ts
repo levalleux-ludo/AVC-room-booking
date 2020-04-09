@@ -5,6 +5,8 @@ import { jqxSchedulerComponent } from 'jqwidgets-ng/jqxscheduler';
 import { BookingService } from '../../_services/booking.service';
 import { Booking } from '../../_model/booking';
 import { RoomService } from '../../_services/room.service';
+import { OrganizationService } from 'src/app/_services/organization.service';
+import { Organization } from 'src/app/_model/organization';
 
 // useful documentation : https://www.jqwidgets.com/jquery-widgets-documentation/documentation/jqxscheduler/jquery-scheduler-api.htm
 // and https://www.jqwidgets.com/angular-components-documentation/documentation/jqxscheduler/angular-scheduler-api.htm
@@ -85,9 +87,11 @@ export abstract class AbstractCalendarComponent {
   views: any[] = [];
   rooms: Room[] = [];
   bookings: Booking[]= [];
+  organizations: Organization[] = [];
 
   constructor(
     protected bookingService: BookingService,
+    protected organizationService: OrganizationService,
     protected roomService: RoomService
    ) { }
 
@@ -135,6 +139,17 @@ async getRooms(room?: Room) {
   }
 }
 
+getOrganizations(next?: (organizations) => void ) {
+  this.organizationService.getOrganizations().subscribe(
+    organizations => {
+      this.organizations = organizations.map(organization => new Organization(organization));
+      if (next) {
+        next(this.organizations);
+      }
+    }
+  );
+}
+
 getBookings() {
   this.bookingService.getBookings(this.getBookingFilter()).subscribe(
         bookings => {
@@ -161,28 +176,28 @@ getBookings() {
 }
 
 booking2event(booking: Booking) {
-    let privateDatas: EventPrivateData = {
+  const orga = (booking.privateDataRef) ? this.organizations.find(orga => orga.id === booking.privateDataRef.organizationId) : undefined;
+  const orgaName = (orga) ? orga.name : '';
+  let privateDatas: EventPrivateData = {
         id: booking.ref,
-        title: booking.title,
-        organization: booking.organizationId,
+        title: (booking.privateDataRef) ? booking.privateDataRef.title : '',
+        organization: orgaName,
         roomId: booking.roomId,
         tag: 'unavailable',
-        description: booking.details
+        description: (booking.privateDataRef) ? booking.privateDataRef.details : ''
     };
-    let room = this.rooms.find(room => room.id === booking.roomId);
-    if (!room) {
+  let room = this.rooms.find(room => room.id === booking.roomId);
+  if (!room) {
       throw Error(`Unable to find the room with id '${booking.roomId}' for booking '${JSON.stringify(booking)}'`)
     }
-    return {
+  return {
       id: booking.ref,
-      // subject: booking.startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})
-                  // + "-" + booking.endDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'}),
-      subject: `${booking.startDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})}-${booking.endDate.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'})} [${booking.organizationId}] [${room.name}] ${booking.title}`,
+      subject: `${(booking.privateDataRef) ? booking.privateDataRef.title : ''}`,
       privateDatas: JSON.stringify(privateDatas),
       room: room.name,
       start: booking.startDate, // convert to local time
       end: booking.endDate, // convert to local time
-      organization: booking.organizationId,
+      organization: orgaName,
     }
 }
 
@@ -202,15 +217,15 @@ onAppointmentAdd(appointment, privateDatas: EventPrivateData) {
 configureScheduler(lockScheduler: boolean = true) {
   if (lockScheduler) this.myScheduler.beginAppointmentsUpdate();
 
-    this.myScheduler.editDialog(false);
+  this.myScheduler.editDialog(false);
 
-    this.myScheduler.onAppointmentAdd.subscribe((event: any) => {
+  this.myScheduler.onAppointmentAdd.subscribe((event: any) => {
         let args = event.args;
         let appointment = args.appointment;
         let privateDatas: EventPrivateData = JSON.parse(appointment.originalData.privateDatas);
         this.onAppointmentAdd(appointment, privateDatas);
     });
-    this.myScheduler.onCellClick.subscribe((event: any) => {
+  this.myScheduler.onCellClick.subscribe((event: any) => {
         console.log("RoomCalendar::onCellClick() date=", event.args.date.toDate());
         let selection = this.myScheduler.getSelection();
         console.log("RoomCalendar::onCellClick() selection from=", selection.from.toDate(), "to=", selection.to.toDate(), "resource=", selection.ResourceId);

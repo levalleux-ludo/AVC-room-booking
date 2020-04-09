@@ -101,9 +101,11 @@
             </a>
         </li>
     </ul> -->
-    <button class="doctor" mat-button mat-flat-button color="primary" (click)='bookNow()' style="height: 3em; width: 10em;">
-      <i class="fa fa-calendar-check-o"></i> Book Now
-    </button>
+    <div [matTooltip]="bookingAllowed ? 'book now' : 'your account is not allowed to book yet. Please contact Ashford Volunteers Center staff'">
+      <button class="doctor" mat-button mat-flat-button color="primary" (click)='bookNow()' style="height: 3em; width: 10em;" [disabled]="!bookingAllowed" >
+       <i class="fa fa-calendar-check-o"></i> Book Now
+      </button>
+    </div>
 </div>
 <!-- <button (click)='bookNow()'>book now</button> -->
 <!-- <button (click)='goBack()'>go back</button> -->
