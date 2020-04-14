@@ -1,73 +1,77 @@
 <div fxFlex fxLayout="column" fxLayoutWrap fxLayoutAlign="top">
-    <div fxFlex>
-        <mat-card>
-            <mat-card-header>
-                <h3>Service Description</h3>
-            </mat-card-header>
-            <mat-card-content>
-                <mat-form-field appearance="outline" required class="serviceDescription" *ngIf="editable && edited">
-                    <h3><input matInput required placeholder="Enter Room Booking Service Description" [(ngModel)]="edited.serviceDescription"></h3>
-                </mat-form-field>
-            </mat-card-content>
-            <mat-card-footer>
-            </mat-card-footer>
-        </mat-card>
-        <mat-card>
-            <mat-card-header>
-                <h3>Presentation</h3>
-            </mat-card-header>
-            <mat-card-content class="descriptionHTML" *ngIf="editable && edited">
-                <div *ngIf="!editable" [innerHTML]="edited.presentationHTML"></div>
+    <mat-accordion>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <div class="name">Service Description</div>
+                </mat-panel-title>
+                <mat-panel-description>
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <mat-form-field appearance="outline" required class="serviceDescription" *ngIf="editable && edited">
+                <h3><input matInput required placeholder="Enter Room Booking Service Description" [(ngModel)]="edited.serviceDescription"></h3>
+            </mat-form-field>
+        </mat-expansion-panel>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <div class="name">Presentation</div>
+                </mat-panel-title>
+                <mat-panel-description>
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div *ngIf="!editable" [innerHTML]="edited.presentationHTML"></div>
+            <div *ngIf="editable">
+                <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [(ngModel)]="edited.presentationHTML"></angular-editor>
+            </div>
+        </mat-expansion-panel>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <div class="name">Indicators</div>
+                </mat-panel-title>
+                <mat-panel-description>
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div *ngIf="!editable" [innerHTML]="edited.indicatorsHTML"></div>
+            <div *ngIf="editable">
+                <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [(ngModel)]="edited.indicatorsHTML"></angular-editor>
+            </div>
+        </mat-expansion-panel>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <div class="name">Background Picture</div>
+                </mat-panel-title>
+                <mat-panel-description>
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div fxFlex fxLayout="column" fxLayoutAlign="top">
+                <img *ngIf="edited" src="{{getImageUrlFromId(edited.backgroundPicture) | async}}">
                 <div *ngIf="editable">
-                    <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [(ngModel)]="edited.presentationHTML"></angular-editor>
+                    <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onBackgroundImageUploaded($event)"></app-material-file-upload>
                 </div>
-            </mat-card-content>
-            <mat-card-footer>
-            </mat-card-footer>
-        </mat-card>
-        <mat-card>
-            <mat-card-header>
-                <h3>Indicators</h3>
-            </mat-card-header>
-            <mat-card-content class="indicatorsHTML" *ngIf="editable && edited">
-                <div *ngIf="!editable" [innerHTML]="edited.indicatorsHTML"></div>
+            </div>
+        </mat-expansion-panel>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <div class="name">Slideshow Pictures</div>
+                </mat-panel-title>
+                <mat-panel-description>
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div *ngIf="edited" fxFlex fxLayout="column" fxLayoutAlign="top">
+                <div *ngFor="let picture of edited.pictures" class="picture">
+                    <img src="{{getImageUrlFromId(picture) | async}}">
+                    <button class="btn btn-delete-image" *ngIf="editable" mat-raised-button color="primary" title="delete image" (click)="onDeleteImage(picture)"><i class="fa fa-trash"></i>Delete</button>
+                </div>
                 <div *ngIf="editable">
-                    <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [(ngModel)]="edited.indicatorsHTML"></angular-editor>
+                    <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onImageUploaded($event)"></app-material-file-upload>
                 </div>
-            </mat-card-content>
-            <mat-card-footer>
-            </mat-card-footer>
-        </mat-card>
-        <mat-card>
-            <mat-card-header>
-                <h3>Background Picture</h3>
-            </mat-card-header>
-            <mat-card-content style="padding: 2em;">
-                <div fxFlex fxLayout="column" fxLayoutAlign="top">
-                    <img *ngIf="edited" src="{{getImageUrlFromId(edited.backgroundPicture) | async}}">
-                    <div *ngIf="editable">
-                        <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onBackgroundImageUploaded($event)"></app-material-file-upload>
-                    </div>
-                </div>
-            </mat-card-content>
-        </mat-card>
-        <mat-card>
-            <mat-card-header>
-                <h3>Slideshow Pictures</h3>
-            </mat-card-header>
-            <mat-card-content style="padding: 2em;">
-                <div *ngIf="edited" fxFlex fxLayout="column" fxLayoutAlign="top">
-                    <div *ngFor="let picture of edited.pictures" class="picture">
-                        <img src="{{getImageUrlFromId(picture) | async}}">
-                        <button class="btn btn-delete-image" *ngIf="editable" mat-raised-button color="primary" title="delete image" (click)="onDeleteImage(picture)"><i class="fa fa-trash"></i>Delete</button>
-                    </div>
-                    <div *ngIf="editable">
-                        <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onImageUploaded($event)"></app-material-file-upload>
-                    </div>
-                </div>
-            </mat-card-content>
-        </mat-card>
-    </div>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
     <div fxFlex>
         <button [disabled]="!isModified()" mat-raised-button color="primary" title="submit changes" (click)="onClickSubmit()">Submit</button>
         <button [disabled]="!isModified()" mat-raised-button color="primary" title="cancel changes" (click)="onClickCancel()">Cancel</button>
