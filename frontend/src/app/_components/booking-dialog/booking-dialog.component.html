@@ -4,63 +4,76 @@
     <mat-dialog-content>
         <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
             <div fxFlex fxLayout="column" style="width: 20em;">
-                <mat-form-field>
-                    <mat-select required placeholder="Select Organization" formControlName="organization">
-                        <mat-option *ngFor="let organization of data.organizations" [value]="organization">
+                <mat-form-field [ngClass]="{'readonly-wrapper' : readOnly}">
+                    <mat-select [ngClass]="{'readonly-block' : readOnly}" required placeholder="Select Organization" formControlName="organization">
+                        <mat-option [ngClass]="{'readonly-wrapper' : readOnly}" *ngFor="let organization of data.organizations" [value]="organization">
                             {{organization.name}}
                         </mat-option>
                     </mat-select>
+                    <div *ngIf="readOnly && form.controls['organization'].value">{{form.controls['organization'].value.name}}</div>
                 </mat-form-field>
                 <mat-form-field>
-                    <input matInput required placeholder="Enter Event Title" formControlName="title">
+                    <input matInput readonly="{{readOnly}}" required placeholder="Enter Event Title" formControlName="title">
                 </mat-form-field>
                 <mat-form-field>
-                    <textarea matInput placeholder="Describe Event" formControlName="description"></textarea>
+                    <textarea matInput readonly="{{readOnly}}" placeholder="Describe Event" formControlName="description"></textarea>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field [ngClass]="{'readonly-wrapper' : readOnly}">
                     <mat-label>Extra Services</mat-label>
-                    <mat-select *ngIf="selectedRoom" formControlName="extras" multiple [(value)]="selectedExtras">
-                        <mat-option *ngFor="let extraId of selectedRoom.availableExtras" [value]="extraId">{{getExtraFromId(extraId).name}} ({{getExtraFromId(extraId).defaultRate | currency:'GBP':'symbol-narrow'}})</mat-option>
+                    <mat-select [ngClass]="{'readonly-block' : readOnly}" *ngIf="selectedRoom" formControlName="extras" multiple [(value)]="selectedExtras">
+                        <mat-option [ngClass]="{'readonly-wrapper' : readOnly}" *ngFor="let extraId of selectedRoom.availableExtras" [value]="extraId">{{getExtraFromId(extraId).name}} ({{getExtraFromId(extraId).defaultRate | currency:'GBP':'symbol-narrow'}})</mat-option>
                     </mat-select>
+                    <div *ngIf="readOnly" fxLayout="row">
+                        <div *ngFor="let extraId of form.controls['extras'].value">{{getExtraFromId(extraId).name}},&nbsp;</div>
+                    </div>
                 </mat-form-field>
                 <div fxFlex fxLayout="column" style="margin: 1em;">
-                    <app-price-display #price [roomRatePerHour]="selectedRoom.rentRateHour"></app-price-display>
+                    <app-price-display #price></app-price-display>
                 </div>
             </div>
             <div fxFlex fxLayout="column" style="margin: 1em;">
                 <div fxFlex fxLayout="column" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top center">
-                    <mat-form-field style="width: 18em;">
-                        <mat-select required placeholder="Select Room" [(value)]="selectedRoom" formControlName="room" [compareWith]="compareRooms">
-                            <mat-option *ngFor="let room of data.rooms" [value]="room">
+                    <mat-form-field style="width: 18em;" [ngClass]="{'readonly-wrapper' : readOnly}">
+                        <mat-select [ngClass]="{'readonly-block' : readOnly}" required placeholder="Select Room" [(value)]="selectedRoom" formControlName="room" [compareWith]="compareRooms">
+                            <mat-option [ngClass]="{'readonly-wrapper' : readOnly}" *ngFor="let room of data.rooms" [value]="room">
                                 {{room.name}}
                             </mat-option>
                         </mat-select>
+                        <div *ngIf="readOnly">{{form.controls['room'].value.name}}</div>
                     </mat-form-field>
                     <mat-form-field style="width: 18em;">
-                        <input required #dateInput matInput [min]="today" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()" [matDatepickerFilter]="datePickerFilter">
+                        <input required readonly="readOnly" #dateInput matInput [min]="(readOnly) ? 0 : today" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()"  [matDatepickerFilter]="datePickerFilter"
+                            [errorStateMatcher]="(readOnly) ? null : errorMatcher">
                         <mat-datepicker-toggle matSuffix [for]="picker "></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
+                        <mat-datepicker #picker disabled="{{readOnly}}"></mat-datepicker>
+                        <mat-error *ngIf="!readOnly && form.hasError('dateInPast')">Start date/time can not be past</mat-error>
                     </mat-form-field>
                     <div fxLayout="row" fxLayoutAlign="top center">
                         <div fxLayout="column" style="width: 10em;">
                             <!-- <label for="startTime">Starting Time: </label> -->
-                            <app-time-picker #startTimePicker [required]="true" placeholder="Starting Time" [minTime]="minTime " [maxTime]="maxTime " [increment]="increment " [unavailableHours]="unavailableStartHours " (hourChange)="startTimeChanged($event) "></app-time-picker>
+                            <app-time-picker [readOnly]="readOnly" #startTimePicker [required]="true" placeholder="Starting Time" [minTime]="minTime " [maxTime]="maxTime " [increment]="increment " [unavailableHours]="unavailableStartHours " (hourChange)="startTimeChanged($event) "></app-time-picker>
                         </div>
                         <div fxLayout="column" style="width: 10em;">
                             <!-- <label for="endTime ">Ending Time: </label> -->
-                            <app-time-picker #endTimePicker [required]="true" placeholder="Ending Time" [minTime]="startTime + increment " [maxTime]="maxTime + 1 " [increment]="increment " [unavailableHours]="unavailableEndHours " (hourChange)="endTimeChanged($event) "></app-time-picker>
+                            <app-time-picker [readOnly]="readOnly" #endTimePicker [required]="true" placeholder="Ending Time" [minTime]="minTime" [maxTime]="maxTime + 1 " [increment]="increment " [unavailableHours]="unavailableEndHours " (hourChange)="endTimeChanged($event) "></app-time-picker>
                         </div>
                     </div>
                 </div>
                 <div [ngStyle.xs]="{'overflow-x': 'auto', 'white-space': 'nowrap', 'width': '20em'}">
-                    <app-room-calendar #calendar [room]="selectedRoom " [height]="350 " [width]="400 " [scaleStartHour]="minTime " [scaleEndHour]="maxTime-1 " [readOnly]="true " [showViews]="[ 'weekView'] " (selectionValidated)="OnCalendarPreviewUpdated($event)" (previewUpdated)="OnCalendarPreviewUpdated($event) "></app-room-calendar>
+                    <app-room-calendar #calendar [bookingFilter]="bookingFilter" [room]="selectedRoom " [height]="350 " [width]="400 " [scaleStartHour]="minTime " [scaleEndHour]="maxTime-1 " [readOnly]="true " [previewReadOnly]="readOnly" [showViews]="[ 'weekView'] " (selectionValidated)="OnCalendarPreviewUpdated($event)"
+                        (previewUpdated)="OnCalendarPreviewUpdated($event) "></app-room-calendar>
                 </div>
             </div>
 
         </div>
     </mat-dialog-content>
     <mat-dialog-actions>
-        <button mat-button type="submit" [disabled]="!form.valid " mat-dialog-close>Submit</button>
+        <button *ngIf="newBooking || !readOnly" mat-button type="submit" [disabled]="!form.valid || readOnly" mat-dialog-close>Submit</button>
+        <button *ngIf="canModify && !newBooking && readOnly" mat-button type="button" (click)="readOnly = false;">Modify</button>
+        <button *ngIf="canModify && !newBooking && !readOnly" mat-button type="button" (click)="deleteEvent()">Delete Event</button>
         <button mat-button type="button" [mat-dialog-close]="false">Cancel</button>
+        <!-- <button *ngIf="!newBooking && !readOnly" mat-button type="button" [matMenuTriggerFor]="menu">Menu</button>
+        <mat-menu #menu="matMenu">
+        </mat-menu> -->
     </mat-dialog-actions>
 </form>

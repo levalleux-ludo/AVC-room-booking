@@ -207,10 +207,10 @@ event2booking(appointment) {
   return this.bookings.find(booking => booking.ref === bookingRef);
 }
 
-onAppointmentAdd(appointment, privateDatas: EventPrivateData) {
-    this.myScheduler.setAppointmentProperty(appointment.id, 'resizable', !this.readOnly);
-    this.myScheduler.setAppointmentProperty(appointment.id, 'draggable', !this.readOnly);
-    this.myScheduler.setAppointmentProperty(appointment.id, 'readOnly', this.readOnly);
+onAppointmentAdd(appointment, privateDatas: EventPrivateData, readOnly: boolean) {
+    this.myScheduler.setAppointmentProperty(appointment.id, 'resizable', !readOnly);
+    this.myScheduler.setAppointmentProperty(appointment.id, 'draggable', !readOnly);
+    this.myScheduler.setAppointmentProperty(appointment.id, 'readOnly', readOnly);
     this.myScheduler.setAppointmentProperty(appointment.id, 'tooltip', '');
 }
 
@@ -223,7 +223,7 @@ configureScheduler(lockScheduler: boolean = true) {
         let args = event.args;
         let appointment = args.appointment;
         let privateDatas: EventPrivateData = JSON.parse(appointment.originalData.privateDatas);
-        this.onAppointmentAdd(appointment, privateDatas);
+        this.onAppointmentAdd(appointment, privateDatas, this.readOnly);
     });
   this.myScheduler.onCellClick.subscribe((event: any) => {
         console.log("RoomCalendar::onCellClick() date=", event.args.date.toDate());

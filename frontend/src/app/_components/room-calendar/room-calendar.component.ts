@@ -25,6 +25,15 @@ class EventPrivateData {
 })
 export class RoomCalendarComponent extends AbstractCalendarComponent implements OnInit, AfterViewInit {
 
+    @Input()
+    set previewReadOnly(value: boolean) {
+      this._previewReadOnly = value;
+      if (this.lastPreviewEvent) {
+        this.previewEvent(this.lastPreviewEvent.title, this.lastPreviewEvent.startDate, this.lastPreviewEvent.endDate);
+      }
+    }
+    _previewReadOnly = true;
+
     constructor(
         protected bookingService: BookingService,
         protected organizationService: OrganizationService,
@@ -39,10 +48,14 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
     }
 
     getBookingFilter() {
+      if (this.room) {
         let nextHour = new Date();
         nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
         console.log("RoomCalendarComponent::getBookings() compute next half hour : ", nextHour);
         return { roomId: this.room.id, endAfter: nextHour };
+      } else {
+
+      }
     }
 
     processBooking(booking): Booking {
@@ -160,11 +173,12 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
         );
     }
 
-    onAppointmentAdd(appointment, privateDatas: EventPrivateData) {
+    onAppointmentAdd(appointment, privateDatas: EventPrivateData, readOnly: boolean) {
         if (privateDatas.tag === 'preview') {
             this._previewEventId = appointment.id;
+            super.onAppointmentAdd(appointment, privateDatas, this._previewReadOnly);
         } else {
-            super.onAppointmentAdd(appointment, privateDatas);
+            super.onAppointmentAdd(appointment, privateDatas, readOnly);
         }
       }
 
@@ -196,22 +210,26 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
             return data;
         });
         this.myScheduler.onContextMenuOpen.subscribe((event) => {
-            console.log("RoomCalendar::onContextMenuOpen(), event=", event);
-            event.args.menu.empty();
-            let selection = this.myScheduler.getSelection();
+          console.log("RoomCalendar::onContextMenuOpen(), event=", event);
+          event.args.menu.empty();
+          if (!this._previewReadOnly) {
+              let selection = this.myScheduler.getSelection();
             if (selection && selection.from && selection.to) {
                 console.log("RoomCalendar::onContextMenuOpen() selection from=", selection.from.toDate(), "to=", selection.to.toDate(), "resource=", selection.ResourceId);
             }
             this.validateSelection();
-            return event;
+          }
+          return event;
         });
         this.myScheduler.onAppointmentChange.subscribe((event) => {
+          if (!this._previewReadOnly) {
             let args = event.args;
             let appointment = args.appointment;
             let privateDatas: EventPrivateData = JSON.parse(appointment.originalData.privateDatas);
             if (privateDatas.tag === 'preview') {
                 this.previewUpdated.emit({startDate: appointment.from.toDate(), endDate: appointment.to.toDate()});
             }
+          }
         });
         this.myScheduler.endAppointmentsUpdate();
     }

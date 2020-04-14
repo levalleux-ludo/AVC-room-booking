@@ -34,7 +34,8 @@ import {
   MatProgressBarModule,
   MatBottomSheetModule,
   MatSidenavModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MatMenuModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './_components/time-picker/time-picker.component';
@@ -164,7 +165,8 @@ import { RegisterComponent } from './_components/register/register.component';
     NgbTimepickerModule,
     NgbToastModule,
     AngularEditorModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatMenuModule
   ],
   exports: [
     MatNativeDateModule,

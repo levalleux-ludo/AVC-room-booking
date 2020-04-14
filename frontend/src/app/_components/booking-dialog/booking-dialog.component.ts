@@ -1,6 +1,6 @@
-import { Component, OnInit, Inject, ViewChild } from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Component, OnInit, Inject, ViewChild, AfterViewInit, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig, ErrorStateMatcher} from '@angular/material';
+import { FormGroup, FormBuilder, FormControl, Validators, FormGroupDirective, NgForm } from '@angular/forms';
 import { Room } from '../../_model';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
@@ -12,20 +12,27 @@ import { ExtraService } from '../../_services/extra.service';
 import { Extra } from '../../_model/extra';
 import { Observable, Subscription } from 'rxjs';
 import { Organization } from '../../_model/organization';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
-
+class DateInPastErrorMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    // return control.dirty && form.invalid;
+    return form.invalid;
+  }
+}
 @Component({
   selector: 'app-booking-dialog',
   templateUrl: './booking-dialog.component.html',
   styleUrls: ['./booking-dialog.component.scss']
 })
-export class BookingDialogComponent implements OnInit {
+export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewChecked {
   form: FormGroup;
 
   @ViewChild('calendar', {static: false}) calendar: RoomCalendarComponent;
   @ViewChild('startTimePicker', {static: false}) startTimePicker: TimePickerComponent;
   @ViewChild('endTimePicker', {static: false}) endTimePicker: TimePickerComponent;
   @ViewChild('price', {static: false}) priceDisplay: PriceDisplayComponent;
+  @ViewChild('dateInput', {static: false}) dateInput: ElementRef;
 
   _selectedRoom: Room;
   availableExtras = [];
@@ -36,13 +43,20 @@ export class BookingDialogComponent implements OnInit {
   minTime = 8;
   maxTime = 20;
   today = new Date();
+  readOnly = true;
+  newBooking = false;
+  canModify = false;
 
   _selectedExtras: any[] = [];
+
+  errorMatcher = new DateInPastErrorMatcher();
+
 
 
   static editBooking(
     dialog: MatDialog,
-    service: (booking: Booking, privateData: BookingPrivateData) => Observable<Booking>,
+    createUpdateSrv: (booking: Booking, privateData: BookingPrivateData) => Observable<Booking>,
+    deleteSrv: (bookingId: any) => Observable<any>,
     then: (Booking, privateData: BookingPrivateData) => void,
     organizations: Organization[],
     rooms: Room[],
@@ -68,12 +82,15 @@ export class BookingDialogComponent implements OnInit {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     dialogConfig.data = {
+      id: booking.id,
       title: privateData.title,
       organization: organization,
       description: privateData.details,
       // room: this.room.name,
       room: room,
       extras: privateData.extras,
+      totalPrice: privateData.totalPrice,
+      date: new Date(booking.startDate.getUTCFullYear(), booking.startDate.getUTCMonth(), booking.startDate.getUTCDate()),
       startDate: booking.startDate,
       endDate: booking.endDate,
       organizations: organizations,
@@ -84,8 +101,8 @@ export class BookingDialogComponent implements OnInit {
     const dialogRef = dialog.open(BookingDialogComponent, dialogConfig);
     return dialogRef.afterClosed().subscribe(
       result => {
-        if (result) {
-          const data = result;
+        if ((result.action === 'create') || (result.action === 'update')) {
+          const data = result.data;
           console.log('Dialog output:', data);
           booking.roomId = data.room.id;
           booking.startDate = data.startDate;
@@ -97,8 +114,12 @@ export class BookingDialogComponent implements OnInit {
           privateData.extras = data.extras;
           privateData.totalPrice = data.totalPrice;
 
-          service(booking, privateData).subscribe(
+          createUpdateSrv(booking, privateData).subscribe(
             newBooking => then(newBooking, privateData)
+          );
+        } else if (result.action === 'delete') {
+          deleteSrv(booking.id).subscribe(
+            () => then(undefined, undefined)
           );
         }
       }
@@ -111,31 +132,71 @@ export class BookingDialogComponent implements OnInit {
 
 
   constructor(
+    private dialog: MatDialog,
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<BookingDialogComponent>,
     private bookingService: BookingService,
     private extraService: ExtraService,
+    private changeDetector: ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
-
   ngOnInit() {
-    this.selectedRoom = this.data.room;
+    this._selectedRoom = this.data.room;
     this.selectedExtras = this.data.extras;
+    this.startTime = BookingDialogComponent.getTimeFromDate(this.data.startDate);
+    this.endTime = BookingDialogComponent.getTimeFromDate(this.data.endDate);
+
     this.form = this.fb.group({
+          id: this.data.id,
           title: this.data.title,
           organization: this.data.organization,
           description: this.data.description,
           room: this.selectedRoom,
           extras: new FormControl(this.data.extras),
-          date: new FormControl(),
+          date: new FormControl(this.data.date, [Validators.required]),
           startDate: new FormControl(this.data.startDate, [Validators.required]),
           endDate: new FormControl(this.data.endDate, [Validators.required]),
           totalPrice: 0
+    }, { validators: this.dateInPastValidator });
+    // this.onSelectedDateChanged();
+    if (!this.data.id) {
+      this.newBooking = true;
+      this.readOnly = false;
+    }
+    if (!this.newBooking) {
+      // if booking already exists ('update'), check its state to know if the dialog must be readonly or not
+      this.bookingService.getBookingState(this.data.id).subscribe((state) => {
+        this.canModify = (state === "Scheduled");
       });
-      // this.onSelectedDateChanged();
+    }
+  }
+
+  dateInPastValidator(form: FormGroup) {
+    const startDate: Date = new Date(form.controls['startDate'].value);
+    // startDate.setHours(Math.floor(this.startTime));
+    // startDate.setMinutes(60 * (this.startTime - Math.floor(this.startTime)) );
+    if (startDate.getTime() < Date.now()) {
+      return { dateInPast: true };
+    }
+    return null;
+  }
+
+  ngAfterViewInit(): void {
+    if (this.startTimePicker) {
+      this.startTimePicker.setHourWithoutNotification(this._startTime);
+    }
+    if (this.endTimePicker) {
+      this.endTimePicker.setHourWithoutNotification(this._endTime);
+    }
     this.OnCalendarPreviewUpdated({startDate: this.data.startDate, endDate: this.data.endDate});
     this.extraService.refreshExtras();
+    this.changeDetector.detectChanges();
   }
+
+  ngAfterViewChecked(): void {
+  }
+
+
   set selectedExtras(value: any[]) {
     console.log('BookingDialogCOmponent::selectedExtras() ', value);
     this._selectedExtras = value;
@@ -195,7 +256,7 @@ export class BookingDialogComponent implements OnInit {
         this.startTimePicker.setHourWithoutNotification(undefined);
         this._startTime = undefined;
         this.form.patchValue({startDate: undefined});
-        this.startTimePicker.setHourWithoutNotification(undefined);
+        this.endTimePicker.setHourWithoutNotification(undefined);
         this._endTime = undefined;
         this.form.patchValue({endDate: undefined});
         this.updatePrice();
@@ -214,8 +275,18 @@ export class BookingDialogComponent implements OnInit {
         console.log('BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities');
         this.unsetTimePickers();
     }
+    this.form.patchValue({startDate: this.startDate});
+    this.form.patchValue({endDate: this.endDate});
     this.updateCalendar();
   }
+
+  // dateIsPast = (controlName: string) => {
+  //   const date = this.form.controls['date'].value.getTime();
+  //   if (date < Date.now()) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   compareDateSameDay(date1: Date, date2: Date): boolean {
     if (date1 && date2) {
@@ -254,6 +325,10 @@ export class BookingDialogComponent implements OnInit {
       }
     }
     for (let booking of actualDateBookings) {
+      // exclude current booking
+      if (this.data.id === booking.id) {
+        continue;
+      }
       let startTime = BookingDialogComponent.getTimeFromDate(booking.startDate);
       let endTime = BookingDialogComponent.getTimeFromDate(booking.endDate);
       this.unavailableStartHours.push(startTime);
@@ -317,7 +392,7 @@ export class BookingDialogComponent implements OnInit {
     this.updatePrice();
   }
 
-  _startTime: number = this.minTime;
+  _startTime: number = 0;
   get startTime() {
     return this._startTime;
   }
@@ -340,7 +415,7 @@ export class BookingDialogComponent implements OnInit {
     }
   }
 
-  _endTime: number = this.minTime;
+  _endTime: number = 0;
   get endTime() {
     return this._endTime;
   }
@@ -350,7 +425,7 @@ export class BookingDialogComponent implements OnInit {
       this._endTime = value;
       this.updateCalendar();
       if (this.endTimePicker) {
-        this.endTimePicker.hour = this._endTime;
+        this.endTimePicker.setHourWithoutNotification(this._endTime);
       }
     }
   }
@@ -358,6 +433,10 @@ export class BookingDialogComponent implements OnInit {
   checkConflicts(startDate: Date, endDate: Date): boolean {
     let actualDateBookings = this.getActualDateBookings(startDate);
     for (let booking of actualDateBookings) {
+      // exclude current booking from conflict check
+      if (this.data.id === booking.id) {
+        continue;
+      }
       if ((booking.startDate < endDate) && (booking.endDate > startDate)) {
         console.log('BookingDialogComponent::checkConflicts() conflict found with event ', booking);
         return true;
@@ -370,6 +449,9 @@ export class BookingDialogComponent implements OnInit {
     if (startTime < this.minTime) {
       startTime = this.minTime;
     }
+    if (endTime <= startTime) {
+      endTime = startTime + this.increment;
+    }
     if (endTime > this.maxTime) {
       endTime = this.maxTime;
     }
@@ -378,7 +460,7 @@ export class BookingDialogComponent implements OnInit {
   OnCalendarPreviewUpdated(event: {startDate: Date, endDate: Date}) {
     console.log('BookingDialogComponent::OnCalendarPreviewUpdated, event', event);
     let date: number = new Date(event.startDate).setHours(0, 0, 0, 0);
-    if (!this.checkConflicts(event.startDate, event.endDate)) {
+    if ((event.startDate.getTime() >= Date.now()) && !this.checkConflicts(event.startDate, event.endDate)) {
       let {valid, startTime, endTime} = this.validateHours(BookingDialogComponent.getTimeFromDate(event.startDate), BookingDialogComponent.getTimeFromDate(event.endDate));
       if (valid) {
         this.shallUpdateCalendar = false;
@@ -403,7 +485,7 @@ export class BookingDialogComponent implements OnInit {
       form.patchValue({startDate: this.startDate});
       form.patchValue({endDate: this.endDate});
       form.patchValue({totalPrice: this.priceDisplay.totalPrice});
-      this.dialogRef.close(form.value);
+      this.dialogRef.close({action: (this.newBooking) ? "create" : "update", data: form.value});
   }
 
   compareRooms(room1: Room, room2: Room): boolean {
@@ -420,6 +502,43 @@ export class BookingDialogComponent implements OnInit {
     return day !== 0 && day !== 6;
   }
 
+  deleteEvent() {
+    // check if the event is not already started or completed
+    this.bookingService.getBookingState(this.form.value.id).subscribe((state) => {
+      let confirmDialogRef;
+      let deletedAllowed = false;
+      if (state === 'InProgress') {
+        confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {title: 'Error', message: `booking event '${this.form.value.title}' cannot be deleted because it is already started`}
+        });
+      } else if (state === 'Completed') {
+        confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {title: 'Error', message: `booking event '${this.form.value.title}' cannot be deleted because it is already completed`}
+        });
+      } else if (state === 'Cancelled') {
+        confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {title: 'Error', message: `booking event '${this.form.value.title}' cannot be deleted because it is already cancelled`}
+        });
+      } else {
+        deletedAllowed = true;
+        confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {title: 'Delete Confirmation', message: `Are you sure you want to delete the booking event '${this.form.value.title}' ?`}
+        });
+      }
+      confirmDialogRef.afterClosed().subscribe(result => {
+        if (result && deletedAllowed) {
+          this.dialogRef.close({action: "delete", data: this.form.value.id});
+        }
+      });
+    });
+  }
 
+  bookingFilter = (booking) => {
+    return (this.data.id === undefined) || (this.data.id !== booking.id);
+  }
 
 }

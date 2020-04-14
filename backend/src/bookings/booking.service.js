@@ -1,4 +1,4 @@
-﻿const config = require('../config.json');
+const config = require('../config.json');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const db = require('../_helpers/db');
@@ -144,6 +144,7 @@ async function update(id, bookingParam) {
     booking.markModified('startDate');
     booking.markModified('endDate');
 
+    await privateData.save();
     return await booking.save();
     // (err, booking) => {
     //     if (err) return console.error(err);
@@ -152,6 +153,7 @@ async function update(id, bookingParam) {
 }
 
 async function _delete(id) {
+    await BookingPrivateData.findByIdAndRemove(booking.privateData);
     await Booking.findByIdAndRemove(id);
 }
 

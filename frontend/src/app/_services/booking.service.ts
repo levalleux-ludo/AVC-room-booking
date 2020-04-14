@@ -13,6 +13,7 @@ export class BookingService extends FetchService {
 
   private apiBookings = `${environment.apiRoomBooking}/booking`;
 
+  private _minBookingTime = 8;
 
   constructor(
     protected http: HttpClient
@@ -106,11 +107,13 @@ export class BookingService extends FetchService {
   }
 
   getEmptyBooking(): Booking {
+    const MILLISEC_PER_DAY = 24 * 3600 * 1000;
+    const tomorrow = new Date(Date.now() + MILLISEC_PER_DAY);
     return {
       id: undefined,
       ref: this.getNewRef(),
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: new Date(tomorrow.getUTCFullYear(), tomorrow.getUTCMonth(), tomorrow.getUTCDate(), this._minBookingTime),
+      endDate: new Date(tomorrow.getUTCFullYear(), tomorrow.getUTCMonth(), tomorrow.getUTCDate(), this._minBookingTime + 2),
       roomId: 0,
       privateData: undefined,
       privateDataRef: {
@@ -121,6 +124,22 @@ export class BookingService extends FetchService {
       totalPrice: 0
       }
     };
+  }
+
+  deleteBooking(bookingId: any) {
+    const url = `${this.apiBookings}/${bookingId}`;
+    return this.http.delete<any>(url, this.httpOptions).pipe(
+      tap(() => this.log(`deleted booking event w/ ref=${bookingId}`)),
+      catchError(this.handleError<Booking>('deleteBooking'))
+    );
+  }
+
+  getBookingState(bookingId: any): Observable<string> {
+    const url = `${this.apiBookings}/state/${bookingId}`;
+    return this.http.get<string>(url, this.httpOptions).pipe(
+      tap((state: string) => this.log(`get state of booking event w/ ref=${bookingId}: ${state}`)),
+      catchError(this.handleError<string>('getBookingState'))
+    );
   }
 
 }

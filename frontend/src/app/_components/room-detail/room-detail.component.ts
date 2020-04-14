@@ -12,7 +12,7 @@ import { ExtraService } from '../../_services/extra.service';
 import { Extra } from '../../_model/extra';
 import { OrganizationService } from '../../_services/organization.service';
 import { Organization } from '../../_model/organization';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ImagesService } from 'src/app/_services/images.service';
 import { inject } from '@angular/core/testing';
 import { DialogCarouselComponent } from '../dialog-carousel/dialog-carousel.component';
@@ -258,6 +258,7 @@ export class RoomDetailComponent implements OnInit {
     BookingDialogComponent.editBooking(
       this.dialog,
       (newBooking, privateData) => this.bookingService.createBooking(newBooking, privateData),
+      (bookingId) => of(null),
       (newBooking, privateData) =>  {
         console.log("booking has been created:", newBooking);
         if (newBooking.roomId === this.room.id) {

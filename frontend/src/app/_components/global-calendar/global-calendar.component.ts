@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { AbstractCalendarComponent } from '../abstract-calendar/abstract-calendar.component';
 import { Booking } from '../../_model/booking';
 import { BookingService } from '../../_services/booking.service';
@@ -14,6 +14,7 @@ import { Organization } from '../../_model/organization';
   styleUrls: ['./global-calendar.component.scss']
 })
 export class GlobalCalendarComponent extends AbstractCalendarComponent implements OnInit, AfterViewInit {
+
   constructor(
     protected bookingService: BookingService,
     protected roomService: RoomService,
@@ -115,8 +116,10 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
           BookingDialogComponent.editBooking(
             this.dialog,
             (booking, privateData) => this.bookingService.updateBooking(booking, privateData),
+            (bookingId) => this.bookingService.deleteBooking(bookingId),
             (booking, privateData) => {
-                // TODO refresh calendar to show new or updated booking
+                // TODO refresh calendar to show new or updated or deleted booking
+                this.getBookings();
             },
             this.organizations,
             this.rooms,

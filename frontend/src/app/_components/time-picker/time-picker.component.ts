@@ -24,8 +24,11 @@ export class TimePickerComponent implements OnInit {
   set selectedHour(value: TimeInSelect) {
     this._selectedHour = value;
     if (this._selectedHour) {
+      this._requestedTime = this._selectedHour.value;
       console.log(`this.hourChange.emit(${this._selectedHour.value})`);
       this.hourChange.emit(this._selectedHour.value);
+    } else {
+      this._requestedTime = 0;
     }
   }
   // minutes: TimeInSelect[] = [
@@ -98,7 +101,7 @@ export class TimePickerComponent implements OnInit {
   // required: boolean = false;
   @Input('required') isRequired: boolean;
 
-  
+
   _placeholder: string = 'feefezfef';
   @Input()
   get placeholder() {
@@ -107,8 +110,11 @@ export class TimePickerComponent implements OnInit {
   set placeholder(value: string) {
     this._placeholder = value;
   }
-  
-  
+
+  @Input()
+  readOnly = false;
+
+
   _unavailableHours: number[];
   @Input()
   get unavailableHours(): number[] {

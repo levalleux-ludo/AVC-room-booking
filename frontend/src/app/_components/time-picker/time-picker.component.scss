@@ -1,0 +1,8 @@
+.readonly-wrapper {
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.readonly-block {
+    visibility: hidden;
+}
