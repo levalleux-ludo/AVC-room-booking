@@ -27,8 +27,8 @@ export class TimePickerComponent implements OnInit {
       this._requestedTime = this._selectedHour.value;
       console.log(`this.hourChange.emit(${this._selectedHour.value})`);
       this.hourChange.emit(this._selectedHour.value);
-    } else {
-      this._requestedTime = 0;
+    // } else {
+    //   this._requestedTime = 0;
     }
   }
   // minutes: TimeInSelect[] = [

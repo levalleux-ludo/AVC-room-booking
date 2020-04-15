@@ -20,8 +20,8 @@
                 <mat-panel-description>
                 </mat-panel-description>
             </mat-expansion-panel-header>
-            <div *ngIf="!editable" [innerHTML]="edited.presentationHTML"></div>
-            <div *ngIf="editable">
+            <div *ngIf="!editable && edited" [innerHTML]="edited.presentationHTML"></div>
+            <div *ngIf="editable && edited">
                 <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [(ngModel)]="edited.presentationHTML"></angular-editor>
             </div>
         </mat-expansion-panel>
@@ -33,8 +33,8 @@
                 <mat-panel-description>
                 </mat-panel-description>
             </mat-expansion-panel-header>
-            <div *ngIf="!editable" [innerHTML]="edited.indicatorsHTML"></div>
-            <div *ngIf="editable">
+            <div *ngIf="!editable && edited" [innerHTML]="edited.indicatorsHTML"></div>
+            <div *ngIf="editable && edited">
                 <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [(ngModel)]="edited.indicatorsHTML"></angular-editor>
             </div>
         </mat-expansion-panel>

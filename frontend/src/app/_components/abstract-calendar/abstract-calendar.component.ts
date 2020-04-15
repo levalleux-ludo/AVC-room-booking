@@ -28,11 +28,25 @@ class EventPrivateData {
 export abstract class AbstractCalendarComponent {
   @ViewChild('schedulerReference', {static: false})
   myScheduler: jqxSchedulerComponent;
+  _scaleStartHour = 7;
+  _scaleEndHour = 21;
 
   @Input()
-  scaleStartHour = 7;
+  set scaleStartHour(value: number) {
+    this._scaleStartHour = value;
+    this.updateViews();
+  }
+  get scaleStartHour(): number {
+    return this._scaleStartHour;
+  }
   @Input()
-  scaleEndHour = 21;
+  set scaleEndHour(value: number) {
+    this._scaleEndHour = value;
+    this.updateViews();
+  }
+  get scaleEndHour(): number {
+    return this._scaleEndHour;
+  }
   @Input()
   disabled = false;
   @Input()
@@ -124,6 +138,18 @@ export abstract class AbstractCalendarComponent {
           showWorkTime : false,
       });
   }
+}
+
+updateViews() {
+  if (!this.myScheduler) {
+    return;
+  }
+  this.myScheduler.beginAppointmentsUpdate();
+  for (let view of this.views) {
+    view.timeRuler.scaleStartHour = this.scaleStartHour;
+    view.timeRuler.scaleEndHour = this.scaleEndHour;
+  }
+  this.myScheduler.endAppointmentsUpdate();
 }
 
 abstract getBookingFilter(): any;

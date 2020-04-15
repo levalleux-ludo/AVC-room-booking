@@ -1,0 +1,44 @@
+<div>
+    <table>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+            <!-- <th></th>
+            <th></th> -->
+        </tr>
+        <tr>
+            <td>
+                <div class="extra">Booking Start Time:</div>
+            </td>
+            <td>
+                <app-time-picker #startTimePicker [hour]="edited?.startTime" (hourChange)="edited.startTime = $event" [readOnly]="false" [required]="true" placeholder="Start Time" [minTime]="0" [maxTime]="24" [increment]="0.5 "></app-time-picker>
+            </td>
+            <!-- <td style="vertical-align: top; text-align: center;">
+                <button *ngIf="startTimePicker.readOnly" mat-raised-button color="primary" title="edit ''" (click)="startTimePicker.readOnly = false;"><i class="fa fa-edit"></i>Edit</button>
+                <button *ngIf="!startTimePicker.readOnly" mat-raised-button color="primary" title="edit ''" (click)="startTimePicker.readOnly = true;"><i class="fa fa-edit"></i>Submit</button>
+            </td>
+            <td style="vertical-align: top; text-align: center;">
+                <button *ngIf="!startTimePicker.readOnly" mat-raised-button color="primary" title="edit ''" (click)="startTimePicker.readOnly = true;"><i class="fa fa-edit"></i>Cancel</button>
+            </td> -->
+        </tr>
+        <tr>
+            <td>
+                <div class="extra">Booking End Time:</div>
+            </td>
+            <td>
+                <app-time-picker #endTimePicker [hour]="edited?.endTime" (hourChange)="edited.endTime = $event" [readOnly]="false" [required]="true" placeholder="En Time" [minTime]="edited?.startTime" [maxTime]="24" [increment]="0.5 "></app-time-picker>
+            </td>
+            <!-- <td style="vertical-align: top; text-align: center;">
+                <button *ngIf="endTimePicker.readOnly" mat-raised-button color="primary" title="edit ''" (click)="endTimePicker.readOnly = false;"><i class="fa fa-edit"></i>Edit</button>
+                <button *ngIf="!endTimePicker.readOnly" mat-raised-button color="primary" title="edit ''" (click)="endTimePicker.readOnly = true;"><i class="fa fa-edit"></i>Submit</button>
+            </td>
+            <td style="vertical-align: top; text-align: center;">
+                <button *ngIf="!endTimePicker.readOnly" mat-raised-button color="primary" title="edit ''" (click)="endTimePicker.readOnly = true;"><i class="fa fa-edit"></i>Cancel</button>
+            </td> -->
+        </tr>
+    </table>
+    <div>
+        <button [disabled]="!isModified() || !isValid()" mat-raised-button color="primary" title="submit changes" (click)="onClickSubmit()">Submit</button>
+        <button [disabled]="!isModified()" mat-raised-button color="primary" title="cancel changes" (click)="onClickCancel()">Cancel</button>
+    </div>
+</div>

@@ -25,7 +25,7 @@ app.use('/organization', require('./organizations/organization.controller'));
 app.get('/', require('./home/home.controller'));
 app.use('/images', require('./images/images.controller'));
 app.use('/website', require('./website/website.controller'));
-
+app.use('/bookings-config', require('./bookings-config/bookings-config.controller'));
 
 app.get('/home', (req, res) => {
     // Return success response

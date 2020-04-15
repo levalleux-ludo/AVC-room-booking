@@ -7,6 +7,7 @@ import { Booking } from '../../_model/booking';
 import { RoomService } from '../../_services/room.service';
 import { AbstractCalendarComponent } from '../abstract-calendar/abstract-calendar.component';
 import { OrganizationService } from 'src/app/_services/organization.service';
+import { BookingsConfigService } from 'src/app/_services/bookings-config.service';
 
 
 
@@ -37,14 +38,25 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
     constructor(
         protected bookingService: BookingService,
         protected organizationService: OrganizationService,
-        protected roomService: RoomService
+        protected roomService: RoomService,
+        protected bookingsConfigService: BookingsConfigService
     )
     {
         super(bookingService, organizationService, roomService);
      }
 
     ngOnInit() {
-        this.createViews();
+      this.createViews();
+      // this.bookingsConfigService.get().subscribe((bookingsConfig) => {
+      //   this.scaleStartHour = bookingsConfig.startTime;
+      //   this.scaleEndHour = bookingsConfig.endTime;
+      //   this.updateViews();
+      // });
+
+    }
+
+    ngAfterViewInit() {
+      this.configureScheduler();
     }
 
     getBookingFilter() {
@@ -232,10 +244,6 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
           }
         });
         this.myScheduler.endAppointmentsUpdate();
-    }
-
-    ngAfterViewInit() {
-        this.configureScheduler();
     }
 
     // selectionValidated : raised when a selection is 'validated', ie the user right-click after selecting several cells

@@ -13,6 +13,7 @@ import { Extra } from '../../_model/extra';
 import { Observable, Subscription } from 'rxjs';
 import { Organization } from '../../_model/organization';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { BookingsConfigService } from 'src/app/_services/bookings-config.service';
 
 class DateInPastErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -138,6 +139,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     private bookingService: BookingService,
     private extraService: ExtraService,
     private changeDetector: ChangeDetectorRef,
+    private bookingsConfigService: BookingsConfigService,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
   ngOnInit() {
@@ -169,6 +171,15 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
         this.canModify = (state === "Scheduled");
       });
     }
+    this.bookingsConfigService.get().subscribe((bookingsConfig) => {
+      if (this.newBooking) {
+        this.minTime = bookingsConfig.startTime;
+        this.maxTime = bookingsConfig.endTime;
+      } else {
+        this.minTime = Math.min(bookingsConfig.startTime, this.startTime);
+        this.maxTime = Math.max(bookingsConfig.endTime, this.endTime);
+      }
+    });
   }
 
   dateInPastValidator(form: FormGroup) {

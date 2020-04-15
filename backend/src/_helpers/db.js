@@ -14,6 +14,7 @@ module.exports = {
     Extra: require('../extras/extras.model').model,
     Website: require('../website/website.model').model,
     Organization: require('../organizations/organization.model').model,
+    BookingsConfig: require('../bookings-config/bookings-config.model').model,
     getStatus,
     eventEmitter
     // rooms: require('../rooms/room.model').collection,
