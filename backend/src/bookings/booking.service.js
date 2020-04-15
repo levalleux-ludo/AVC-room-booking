@@ -1,4 +1,4 @@
-const config = require('../config.json');
+﻿const config = require('../config.json');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const db = require('../_helpers/db');
@@ -6,6 +6,7 @@ const Booking = db.Booking;
 const BookingPrivateData = db.BookingPrivateData;
 const date_helper = require('../_helpers/date_helper');
 const roomService = require('../rooms/room.service');
+const States = require('./booking.model').states;
 
 module.exports = {
     create,
@@ -14,7 +15,8 @@ module.exports = {
     getAll,
     getById,
     getByRef,
-    getAllPrivateData
+    getAllPrivateData,
+    getBookingState
     // getAllForRoom
 };
 
@@ -179,4 +181,20 @@ async function checkConflict(bookingParam) {
 
 function displayBookingPeriod(startDate, endDate) {
     return date_helper.formatDay(startDate) + '\' from \'' + date_helper.formatHM(startDate) + '\' to \'' + date_helper.formatHM(endDate) + '\'';
+}
+
+async function getBookingState(bookingId) {
+    const booking = await getById(bookingId);
+    if (!booking) {
+        return undefined;
+    }
+    if (booking.cancelled) {
+        return States.Cancelled;
+    } else if (booking.startDate > Date.now()) {
+        return States.Scheduled;
+    } else if (booking.endDate > Date.now()) {
+        return States.InProgress;
+    } else {
+        return States.Completed;
+    }
 }

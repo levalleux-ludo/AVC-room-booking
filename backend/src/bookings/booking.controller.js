@@ -21,6 +21,7 @@ router.get('/', get_organizations_for_user(), function(req, res, next) {
     return getAll(req, res, next);
 });
 // TODO : router.get('/:company', getAllForCompany);
+router.get('/state/:id', getBookingState);
 router.delete('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), _delete);
 
 module.exports = router;
@@ -74,6 +75,12 @@ function getById(req, res, next) {
 function getByRef(req, res, next) {
     bookingService.getByRef(req.query.ref)
         .then(booking => booking ? res.json(booking) : res.sendStatus(404))
+        .catch(err => next(err));
+}
+
+function getBookingState(req, res, next) {
+    bookingService.getBookingState(req.params.id)
+        .then(state => state ? res.json(state) : res.sendStatus(404))
         .catch(err => next(err));
 }
 
