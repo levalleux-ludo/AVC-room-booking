@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiAuthentication: 'https://avc-room-booking-backend.firebaseapp.com',
-  apiRoomBooking: 'https://avc-room-booking-backend.firebaseapp.com'
+  apiAuthentication: 'http://3.11.125.148:4000',
+  apiRoomBooking: 'http://3.11.125.148:4000'
 };
