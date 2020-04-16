@@ -1,7 +1,7 @@
 <div *ngIf="booking" class="booking">
     <h2>{{booking.ref | uppercase}} Details</h2>
-    <div class="booking title">{{booking.title}}</div>
-    <div class="booking details">{{booking.details}}</div>
+    <div class="booking title">{{booking.privateDataRef?.title}}</div>
+    <div class="booking details">{{booking.privateDataRef?.details}}</div>
     <div>Room:
         <a *ngIf="room; else unknown_room" routerLink="/rooms/room/{{room.name}}">
             <span class="badge">{{room.name}}</span>

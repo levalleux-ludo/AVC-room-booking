@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from 'src/app/_services';
 import { OrganizationService } from 'src/app/_services/organization.service';
 import { GlobalCalendarComponent } from '../global-calendar/global-calendar.component';
+import { WaiterService } from 'src/app/_services/waiter.service';
 
 @Component({
   selector: 'app-booking-overview',
@@ -85,7 +86,8 @@ export class BookingOverviewComponent implements OnInit {
     private bookingService: BookingService,
     private authenticationService: AuthenticationService,
     private organizationService: OrganizationService,
-    private route: ActivatedRoute // required to parse th current URL and find the room's name
+    private route: ActivatedRoute, // required to parse th current URL and find the room's name
+    private waiter: WaiterService
   ) { }
 
   ngOnInit() {
@@ -93,6 +95,7 @@ export class BookingOverviewComponent implements OnInit {
     const path = this.route.snapshot.routeConfig.path;
     console.log("path", path);
     const filterPerUser = path.endsWith('mybookings');
+    const waiterTask = this.waiter.addTask();
     this.organizationService.getOrganizations().subscribe((organizations) => {
       if (filterPerUser) {
         const memberOf = this.authenticationService.currentUserValue.memberOf;
@@ -103,6 +106,10 @@ export class BookingOverviewComponent implements OnInit {
       }
       this.selectedOrganizations = Array.from(this.organizations);
       // this.getBookings();
+      this.waiter.removeTask(waiterTask);
+    }, err => {
+      alert(err);
+      this.waiter.removeTask(waiterTask);
     });
   }
   //   this.views.push({

@@ -7,6 +7,7 @@ import { MatDialogConfig, MatDialog } from '@angular/material';
 import { BookingDialogComponent } from '../booking-dialog/booking-dialog.component';
 import { OrganizationService } from '../../_services/organization.service';
 import { Organization } from '../../_model/organization';
+import { WaiterService } from 'src/app/_services/waiter.service';
 
 @Component({
   selector: 'app-global-calendar',
@@ -19,10 +20,11 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
     protected bookingService: BookingService,
     protected roomService: RoomService,
     protected organizationService: OrganizationService,
-    protected dialog: MatDialog
+    protected dialog: MatDialog,
+    protected waiter: WaiterService
   )
   {
-      super(bookingService, organizationService, roomService);
+      super(bookingService, organizationService, roomService, waiter);
       this.getRooms().then(() => {
         for (let room of this.rooms) {
           this.source.localdata.push({

@@ -7,6 +7,7 @@ import { Booking } from '../../_model/booking';
 import { RoomService } from '../../_services/room.service';
 import { OrganizationService } from 'src/app/_services/organization.service';
 import { Organization } from 'src/app/_model/organization';
+import { WaiterService } from 'src/app/_services/waiter.service';
 
 // useful documentation : https://www.jqwidgets.com/jquery-widgets-documentation/documentation/jqxscheduler/jquery-scheduler-api.htm
 // and https://www.jqwidgets.com/angular-components-documentation/documentation/jqxscheduler/angular-scheduler-api.htm
@@ -106,7 +107,8 @@ export abstract class AbstractCalendarComponent {
   constructor(
     protected bookingService: BookingService,
     protected organizationService: OrganizationService,
-    protected roomService: RoomService
+    protected roomService: RoomService,
+    protected waiter: WaiterService
    ) { }
 
    createViews() {
@@ -161,44 +163,59 @@ async getRooms(room?: Room) {
   if (room) {
     this.rooms = [room];
   } else {
-    this.rooms = await this.roomService.getRooms().toPromise();
+    const waiterTask = this.waiter.addTask();
+    await this.roomService.getRooms().toPromise().then((rooms) => {
+      this.rooms = rooms;
+      this.waiter.removeTask(waiterTask);
+    }).catch(err => {
+      this.waiter.removeTask(waiterTask);
+      alert(err);
+    });
   }
 }
 
 getOrganizations(next?: (organizations) => void ) {
+  const waiterTask = this.waiter.addTask();
   this.organizationService.getOrganizations().subscribe(
     organizations => {
       this.organizations = organizations.map(organization => new Organization(organization));
       if (next) {
         next(this.organizations);
       }
-    }
-  );
+      this.waiter.removeTask(waiterTask);
+    }, err => {
+      alert(err);
+      this.waiter.removeTask(waiterTask);
+    });
 }
 
 getBookings() {
+  const waiterTask = this.waiter.addTask();
   this.bookingService.getBookings(this.getBookingFilter()).subscribe(
-        bookings => {
-            this.bookings = bookings.filter(this._bookingFilter);
-            this.myScheduler.beginAppointmentsUpdate();
-            this.myScheduler.getAppointments().forEach(
-                appointment => {this.myScheduler.deleteAppointment(appointment.id as string);}
-            );
-            this.bookings.forEach(fetchBooking => {
-                let booking = this.processBooking(fetchBooking);
-                if (new Date(booking.startDate).valueOf() < new Date(booking.endDate).valueOf()) {
-                  try {
-                    let appointment = this.booking2event(booking);
-                    this.myScheduler.addAppointment(appointment);
-                  } catch (e) {
-                    console.error(e);
-                  }
-                }
-            });
-            this.afterBookingFetched();
-            this.myScheduler.endAppointmentsUpdate();
-        }
-    );
+    bookings => {
+      this.bookings = bookings.filter(this._bookingFilter);
+      this.myScheduler.beginAppointmentsUpdate();
+      this.myScheduler.getAppointments().forEach(
+          appointment => {this.myScheduler.deleteAppointment(appointment.id as string);}
+      );
+      this.bookings.forEach(fetchBooking => {
+          let booking = this.processBooking(fetchBooking);
+          if (new Date(booking.startDate).valueOf() < new Date(booking.endDate).valueOf()) {
+            try {
+              let appointment = this.booking2event(booking);
+              this.myScheduler.addAppointment(appointment);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+      });
+      this.afterBookingFetched();
+      this.myScheduler.endAppointmentsUpdate();
+      this.waiter.removeTask(waiterTask);
+    }, err => {
+      alert(err);
+      this.waiter.removeTask(waiterTask);
+    });
 }
 
 booking2event(booking: Booking) {

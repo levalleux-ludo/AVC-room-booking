@@ -8,6 +8,7 @@ import { RoomService } from '../../_services/room.service';
 import { AbstractCalendarComponent } from '../abstract-calendar/abstract-calendar.component';
 import { OrganizationService } from 'src/app/_services/organization.service';
 import { BookingsConfigService } from 'src/app/_services/bookings-config.service';
+import { WaiterService } from 'src/app/_services/waiter.service';
 
 
 
@@ -39,10 +40,11 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
         protected bookingService: BookingService,
         protected organizationService: OrganizationService,
         protected roomService: RoomService,
-        protected bookingsConfigService: BookingsConfigService
+        protected bookingsConfigService: BookingsConfigService,
+        protected waiter: WaiterService
     )
     {
-        super(bookingService, organizationService, roomService);
+        super(bookingService, organizationService, roomService, waiter);
      }
 
     ngOnInit() {

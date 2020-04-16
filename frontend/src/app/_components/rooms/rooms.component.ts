@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { MatSidenav, MatBottomSheet } from '@angular/material';
 import { RoomDetailComponent } from '../room-detail/room-detail.component';
 import { AuthenticationService } from 'src/app/_services';
+import { WaiterService } from 'src/app/_services/waiter.service';
 
 @Component({
   selector: 'app-rooms',
@@ -26,7 +27,8 @@ export class RoomsComponent implements OnInit {
     private roomService: RoomService,
     private imagesService: ImagesService,
     private bottomSheet: MatBottomSheet,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private waiter: WaiterService
   ) { }
 
   ngOnInit() {
@@ -37,9 +39,15 @@ export class RoomsComponent implements OnInit {
   }
 
   getRooms(): void {
+    const waiterTask = this.waiter.addTask();
     this.roomService.getRooms().subscribe(
-      rooms => this.rooms = rooms.map(room => new Room(room))
-    );
+      rooms => {
+        this.rooms = rooms.map(room => new Room(room));
+        this.waiter.removeTask(waiterTask);
+      }, err => {
+        alert(err);
+        this.waiter.removeTask(waiterTask);
+      });
   }
 
   getImage(room: Room): Observable<string> {
