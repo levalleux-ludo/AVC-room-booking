@@ -21,7 +21,7 @@ function jwt() {
             '/api',
             '/website/background',
             /\/images\/[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/g, // use a regex to define all image id in '/images/:id'
-            '/website'
+            { url: '/website', methods: ['GET'] } // keep jwt required for PUT website requests
         ],
         useOriginalUrl: false
     });
