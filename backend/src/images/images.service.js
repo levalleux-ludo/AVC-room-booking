@@ -6,6 +6,8 @@ const { v4: uuid } = require('uuid');
 const aws_s3 = require('./aws_s3');
 const db = require('../_helpers/db');
 const Room = db.Room;
+const roomService = require('../rooms/room.service');
+const websiteService = require('../website/website.service');
 
 module.exports = {
     multer_upload,
@@ -145,7 +147,9 @@ async function removeUnusedImages() {
     console.log('Scheduled task imageService.removeUnusedImages');
     await getAllImages(async(list) => {
         let usedPictures = {};
-        let rooms = await Room.find();
+
+        // Check used pictures in ROOMS collection
+        let rooms = await roomService.getAll();
         rooms.forEach(room => {
             let newPictures = room.pictures.filter(pic => {
                 // console.log('image', pic, "is used for room", room.name)
@@ -153,6 +157,18 @@ async function removeUnusedImages() {
                 return usedPictures.hasOwnProperty(pic) ? false : (usedPictures[pic] = true)
             });
         });
+
+        // Check used pictures in WEBSITE config
+        let website = await websiteService.get();
+        website.pictures.filter(pic => {
+            // filter to avoid duplicates
+            return usedPictures.hasOwnProperty(pic) ? false : (usedPictures[pic] = true)
+        });
+        [website.backgroundPicture].filter(pic => {
+            // filter to avoid duplicates
+            return usedPictures.hasOwnProperty(pic) ? false : (usedPictures[pic] = true)
+        });
+
         list.forEach(async(imageId) => {
             // console.log('check image', imageId)
             if (!usedPictures.hasOwnProperty(imageId)) {
