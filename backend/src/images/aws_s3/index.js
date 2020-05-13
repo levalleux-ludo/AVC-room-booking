@@ -10,7 +10,7 @@ const s3_config = {
     region: config.awsS3Region
 };
 var s3 = new AWS.S3(s3_config);
-var bucketName = config.awsS3BucketName;
+var bucketName = process.env.awsS3BucketName || config.awsS3BucketName;
 
 function getEnv() {
     return s3_config;
