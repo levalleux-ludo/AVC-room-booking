@@ -51,7 +51,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   _selectedExtras: any[] = [];
 
   errorMatcher = new DateInPastErrorMatcher();
-
+  tacChecked = false;
 
 
   static editBooking(
@@ -158,8 +158,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
           date: new FormControl(this.data.date, [Validators.required]),
           startDate: new FormControl(this.data.startDate, [Validators.required]),
           endDate: new FormControl(this.data.endDate, [Validators.required]),
-          totalPrice: 0
-    }, { validators: this.dateInPastValidator });
+          totalPrice: 0,
+          tacChecked: false
+    }, { validators: [this.dateInPastValidator, this.tacIsChecked] });
     // this.onSelectedDateChanged();
     if (!this.data.id) {
       this.newBooking = true;
@@ -188,6 +189,13 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     // startDate.setMinutes(60 * (this.startTime - Math.floor(this.startTime)) );
     if (startDate.getTime() < Date.now()) {
       return { dateInPast: true };
+    }
+    return null;
+  }
+
+  tacIsChecked(form: FormGroup) {
+    if (!form.controls['tacChecked'].value) {
+      return { tacNotChecked: true };
     }
     return null;
   }
@@ -551,5 +559,11 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   bookingFilter = (booking) => {
     return (this.data.id === undefined) || (this.data.id !== booking.id);
   }
+
+  displayTaC() {
+    alert("terms and conditions");
+  }
+
+
 
 }

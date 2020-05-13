@@ -38,6 +38,9 @@
         </tr>
     </table>
     <div>
+        <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [(ngModel)]="edited.termsAndconditionsHTML"></angular-editor>
+    </div>
+    <div>
         <button [disabled]="!isModified() || !isValid()" mat-raised-button color="primary" title="submit changes" (click)="onClickSubmit()">Submit</button>
         <button [disabled]="!isModified()" mat-raised-button color="primary" title="cancel changes" (click)="onClickCancel()">Cancel</button>
     </div>

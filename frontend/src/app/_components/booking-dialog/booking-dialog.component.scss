@@ -16,3 +16,15 @@
 .readonly-block {
     visibility: hidden;
 }
+
+.tacLink {
+    padding: 4px;
+    position: relative;
+    top: -4px;
+    color: -webkit-link;
+    cursor: pointer;
+    text-decoration: underline;}
+
+.tacLink:hover {
+    top: -5px;
+}

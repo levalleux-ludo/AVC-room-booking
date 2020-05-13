@@ -42,7 +42,7 @@
                         <div *ngIf="readOnly">{{form.controls['room'].value.name}}</div>
                     </mat-form-field>
                     <mat-form-field style="width: 18em;">
-                        <input required readonly="readOnly" #dateInput matInput [min]="(readOnly) ? 0 : today" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()"  [matDatepickerFilter]="datePickerFilter"
+                        <input required readonly="readOnly" #dateInput matInput [min]="(readOnly) ? 0 : today" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()" [matDatepickerFilter]="datePickerFilter"
                             [errorStateMatcher]="(readOnly) ? null : errorMatcher">
                         <mat-datepicker-toggle matSuffix [for]="picker "></mat-datepicker-toggle>
                         <mat-datepicker #picker disabled="{{readOnly}}"></mat-datepicker>
@@ -66,6 +66,7 @@
             </div>
 
         </div>
+        <mat-checkbox disabled="{{readOnly}}" class="example-margin" formControlName="tacChecked">I agree to the </mat-checkbox><span (click)="displayTaC()" class="tacLink"> Ashford Volunteers Center Room Booking Terms of Service</span>
     </mat-dialog-content>
     <mat-dialog-actions>
         <button *ngIf="newBooking || !readOnly" mat-button type="submit" [disabled]="!form.valid || readOnly" mat-dialog-close>Submit</button>
