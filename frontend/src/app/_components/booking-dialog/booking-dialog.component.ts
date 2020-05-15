@@ -14,6 +14,7 @@ import { Observable, Subscription } from 'rxjs';
 import { Organization } from '../../_model/organization';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { BookingsConfigService } from 'src/app/_services/bookings-config.service';
+import { FilesService } from 'src/app/_services/files.service';
 
 class DateInPastErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -47,11 +48,12 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   readOnly = true;
   newBooking = false;
   canModify = false;
+  tacLink = 'https://ashfordvc.org.uk/';
 
   _selectedExtras: any[] = [];
 
   errorMatcher = new DateInPastErrorMatcher();
-
+  tacChecked = false;
 
 
   static editBooking(
@@ -140,6 +142,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     private extraService: ExtraService,
     private changeDetector: ChangeDetectorRef,
     private bookingsConfigService: BookingsConfigService,
+    private filesServices: FilesService,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
   ngOnInit() {
@@ -158,8 +161,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
           date: new FormControl(this.data.date, [Validators.required]),
           startDate: new FormControl(this.data.startDate, [Validators.required]),
           endDate: new FormControl(this.data.endDate, [Validators.required]),
-          totalPrice: 0
-    }, { validators: this.dateInPastValidator });
+          totalPrice: 0,
+          tacChecked: false
+    }, { validators: [this.dateInPastValidator, this.tacIsChecked] });
     // this.onSelectedDateChanged();
     if (!this.data.id) {
       this.newBooking = true;
@@ -179,6 +183,11 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
         this.minTime = Math.min(bookingsConfig.startTime, this.startTime);
         this.maxTime = Math.max(bookingsConfig.endTime, this.endTime);
       }
+      if (bookingsConfig.termsAndConditions && (bookingsConfig.termsAndConditions.fileId !== '')) {
+        this.filesServices.getFileUrl(bookingsConfig.termsAndConditions.fileId).subscribe((url) => {
+          this.tacLink = url;
+        })
+      }
     });
   }
 
@@ -188,6 +197,13 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     // startDate.setMinutes(60 * (this.startTime - Math.floor(this.startTime)) );
     if (startDate.getTime() < Date.now()) {
       return { dateInPast: true };
+    }
+    return null;
+  }
+
+  tacIsChecked(form: FormGroup) {
+    if (!form.controls['tacChecked'].value) {
+      return { tacNotChecked: true };
     }
     return null;
   }
@@ -551,5 +567,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   bookingFilter = (booking) => {
     return (this.data.id === undefined) || (this.data.id !== booking.id);
   }
+
+
 
 }

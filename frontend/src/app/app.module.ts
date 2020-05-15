@@ -35,7 +35,8 @@ import {
   MatBottomSheetModule,
   MatSidenavModule,
   MatProgressSpinnerModule,
-  MatMenuModule
+  MatMenuModule,
+  MatCheckboxModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './_components/time-picker/time-picker.component';
@@ -57,6 +58,8 @@ import { jqxSchedulerModule }    from 'jqwidgets-ng/jqxscheduler';
 import { TestJqxSchedulerComponent } from './_components/test-jqx-scheduler/test-jqx-scheduler.component';
 import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar';
 import { ChartistModule } from 'ng-chartist';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+
 import { BarChartComponent } from './_components/bar-chart/bar-chart.component';
 import { FooterComponent } from './_components/footer/footer.component';
 import { NgxScrollTopModule } from 'ngx-scrolltop';
@@ -168,7 +171,9 @@ import { ConfigureBookingsComponent } from './_components/configure-bookings/con
     NgbToastModule,
     AngularEditorModule,
     MatProgressSpinnerModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCheckboxModule,
+    PdfViewerModule
   ],
   exports: [
     MatNativeDateModule,

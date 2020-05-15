@@ -3,11 +3,14 @@ const config = require('../config.json');
 const multer = require('multer');
 const path = require('path');
 const { v4: uuid } = require('uuid');
-const aws_s3 = require('./aws_s3');
+const aws_s3 = require('../files/aws_s3');
 const db = require('../_helpers/db');
 const Room = db.Room;
 const roomService = require('../rooms/room.service');
 const websiteService = require('../website/website.service');
+const filesService = require('../files/files.service');
+
+const filePrefix = 'image';
 
 module.exports = {
     multer_upload,
@@ -17,67 +20,18 @@ module.exports = {
     getImage,
     setUploadsFolder,
     getAllImages,
-    removeUnusedImages
+    removeUnusedImages,
+    filePrefix
 }
 
 const imagesMap = new Map();
 
-var uploadsFolder = config.uploadsFolder;
-
-if (process.env.upload_folder) {
-    console.log("process.env.upload_folder", process.env.upload_folder);
-    try {
-        if (!fs.existsSync(process.env.upload_folder)) {
-            fs.mkdirSync(process.env.upload_folder);
-        }
-        uploadsFolder = process.env.upload_folder;
-    } catch (e) {}
-}
-
-if (!fs.existsSync(uploadsFolder)) {
-    fs.mkdirSync(uploadsFolder);
-}
-
 async function getAllImages(then, catch_err) {
-    await aws_s3.getImages((data) => {
-        // console.info(data);
-        if (data.Contents) {
-            let list = new Array();
-            data.Contents.forEach((content) => {
-                // console.log(content);
-                list.push(content.Key);
-            });
-            then(list);
-        } else {
-            catch_err("Wrong data format received", data);
-        }
-    }, (err) => {
-        catch_err(err);
-    });
+    return filesService.getAllFiles(filePrefix, then, catch_err);
 }
 
 function multer_upload() {
-    var storage = multer.diskStorage({
-        destination: function(req, file, cb) {
-            cb(null, uploadsFolder);
-        },
-        // By default, multer removes file extensions so let's add them back
-        filename: function(req, file, cb) {
-            cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-        }
-    });
-    return multer({
-        storage: storage,
-        // Required to work on Firebase Cloud Functions
-        startProcessing(req, busboy) {
-            console.log('start processing');
-            if (req.rawBody) { // indicates the request was pre-processed
-                busboy.end(req.rawBody)
-            } else {
-                req.pipe(busboy)
-            }
-        }
-    });
+    return filesService.multer_upload();
 }
 
 
@@ -88,52 +42,17 @@ function upload(filename) {
 }
 
 function after_upload(req, res) {
-    if (req.fileValidationError) {
-        res.send(req.fileValidationError);
-        // return next(req.fileValidationError);
-        return;
-    } else if (!req.file) {
-        console.error("after_upload:" + req + " " + res);
-        const error = new Error('Please upload a file')
-        error.httpStatusCode = 400;
-        error.uploadsFolder = uploadsFolder;
-        error.folderExists = fs.existsSync(uploadsFolder);
-        error.uploadFstat = fs.fstatSync(fs.openSync(uploadsFolder, fs.constants.O_RDONLY));
-        res.send(error);
-        // return next(error);
-        return;
-    }
-    console.log("successfully uploaded file", req.file.path);
-    let imageId = uuid();
-    let path = req.file.path;
-    // Upload to AWS S3
-    aws_s3.storeImage(imageId, path, (url) => {
-        imagesMap.set(imageId, url);
-        try {
-            fs.unlinkSync(path)
-                //file removed
-        } catch (err) {
-            console.error(err)
-        }
-        res.send({ imageId: imageId });
-    }, (err) => {
-        res.send(err);
-    });
+    filesService.after_upload(req, res);
     // imagesMap.set(imageId, encodeURI(req.file.path.replace(/\\/g, '/')));
     // res.send(imageId);
 }
 
 function deleteImage(imageId, then, catch_err) {
-    console.log("deleting image with id=", imageId);
-    aws_s3.deleteImage(imageId, () => {
-        then();
-    }, (err) => {
-        catch_err(err);
-    });
+    return filesService.deleteFile(imageId, then, catch_err);
 }
 
 async function getImage(imageId) {
-    return await aws_s3.getImage(imageId);
+    return filesService.getFile(imageId);
 }
 
 function setUploadsFolder(path) {
