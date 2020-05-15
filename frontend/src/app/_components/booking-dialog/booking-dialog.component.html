@@ -66,7 +66,7 @@
             </div>
 
         </div>
-        <mat-checkbox disabled="{{readOnly}}" class="example-margin" formControlName="tacChecked">I agree to the </mat-checkbox><span (click)="displayTaC()" class="tacLink"> Ashford Volunteers Center Room Booking Terms of Service</span>
+        <mat-checkbox disabled="{{readOnly}}" class="example-margin" formControlName="tacChecked">I agree to the </mat-checkbox><a href="{{tacLink}}" target="_blank" class="tacLink"> Ashford Volunteers Center Room Booking Terms of Service</a>
     </mat-dialog-content>
     <mat-dialog-actions>
         <button *ngIf="newBooking || !readOnly" mat-button type="submit" [disabled]="!form.valid || readOnly" mat-dialog-close>Submit</button>

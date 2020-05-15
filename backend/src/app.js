@@ -23,6 +23,7 @@ app.use('/booking', require('./bookings/booking.controller'));
 app.use('/extra', require('./extras/extras.controller'));
 app.use('/organization', require('./organizations/organization.controller'));
 app.get('/', require('./home/home.controller'));
+app.use('/files', require('./files/files.controller'));
 app.use('/images', require('./images/images.controller'));
 app.use('/website', require('./website/website.controller'));
 app.use('/bookings-config', require('./bookings-config/bookings-config.controller'));

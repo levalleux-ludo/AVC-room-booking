@@ -36,9 +36,31 @@
                 <button *ngIf="!endTimePicker.readOnly" mat-raised-button color="primary" title="edit ''" (click)="endTimePicker.readOnly = true;"><i class="fa fa-edit"></i>Cancel</button>
             </td> -->
         </tr>
+        <tr>
+            <td>
+                <div class="extra">Booking Terms & Conditions:</div>
+            </td>
+            <td>
+                <div class="tac">
+                    <div *ngIf="edited && edited.termsAndConditions">
+                        <div>
+                            <label>Filename: </label>
+                            <a href="{{getFileUrlFromId(edited.termsAndConditions.fileId) | async}}" target="_blank" download="{{edited.termsAndConditions.fileName}}">{{edited.termsAndConditions?.fileName}}</a>
+                            <div>
+                            </div>
+                            <label>Upload Date: </label>
+                            <input matInput readonly="true" value="{{edited.termsAndConditions?.uploadDate}}">
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="editable">
+                    <app-material-file-upload [ddarea]="true" (fileUpload)="uploadFile($event)" (complete)="onTACUploaded($event)"></app-material-file-upload>
+                </div>
+            </td>
+        </tr>
     </table>
     <div>
-        <angular-editor [placeholder]="'Write and shape text here...'" [config]="editorConfig" [(ngModel)]="edited.termsAndconditionsHTML"></angular-editor>
+
     </div>
     <div>
         <button [disabled]="!isModified() || !isValid()" mat-raised-button color="primary" title="submit changes" (click)="onClickSubmit()">Submit</button>

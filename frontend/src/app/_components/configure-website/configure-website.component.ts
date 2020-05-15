@@ -124,9 +124,9 @@ export class ConfigureWebsiteComponent implements OnInit {
     ));
   }
 
-  onImageUploaded(data: any) {
+  onImageUploaded(data: {fileId: string}) {
     console.log(`onImageUploaded(${JSON.stringify(data)})`);
-    const imageId = data.imageId;
+    const imageId = data.fileId;
     this.imagesService.getImageUrl(imageId).subscribe((url) => {
       if (this.edited && !this.edited.pictures.includes(imageId)) {
         this.edited.pictures.push(imageId);
@@ -159,9 +159,9 @@ export class ConfigureWebsiteComponent implements OnInit {
     }
   }
 
-  onBackgroundImageUploaded(data: any) {
+  onBackgroundImageUploaded(data: {fileId: string}) {
     console.log(`onImageUploaded(${JSON.stringify(data)})`);
-    const imageId = data.imageId;
+    const imageId = data.fileId;
     this.imagesService.getImageUrl(imageId).subscribe((url) => {
       if (this.edited) {
         this.edited.backgroundPicture = imageId;

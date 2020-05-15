@@ -55,7 +55,7 @@ export class MaterialFileUploadComponent implements OnInit {
   /** Allow you to configure drag and drop area shown or not. */
   @Input() ddarea = false;
   /** Allow you to add handler after its completion. Bubble up response text from remote. */
-  @Output() complete = new EventEmitter<string>();
+  @Output() complete = new EventEmitter<{fileId: string}>();
 
   @Output() fileUpload = new EventEmitter<FileUploadAction>();
 

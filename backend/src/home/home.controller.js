@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../_helpers/db');
-const aws_s3 = require('../images/aws_s3');
+const aws_s3 = require('../files/aws_s3');
 
 router.get('/', getHome);
 

@@ -284,9 +284,9 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
     });
   }
 
-  onImageUploaded(data: any) {
+  onImageUploaded(data: {fileId: string}) {
     console.log(`onImageUploaded(${JSON.stringify(data)})`);
-    const imageId = data.imageId;
+    const imageId = data.fileId;
     this.imagesService.getImageUrl(imageId).subscribe((url) => {
       const room = this.getEditedRoom();
       if (room && !room.pictures.includes(imageId)) {

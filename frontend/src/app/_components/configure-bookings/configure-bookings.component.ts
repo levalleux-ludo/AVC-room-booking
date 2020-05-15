@@ -3,6 +3,10 @@ import { BookingsConfigService } from 'src/app/_services/bookings-config.service
 import { BookingsConfig } from 'src/app/_model/bookingsConfig';
 import { WaiterService } from 'src/app/_services/waiter.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { FileUploadAction } from '../material-file-upload/material-file-upload.component';
+import { FilesService } from 'src/app/_services/files.service';
+import { Observable, of } from 'rxjs';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-configure-bookings',
@@ -56,9 +60,16 @@ export class ConfigureBookingsComponent implements OnInit {
     toolbarPosition: 'top',
 };
 
-  constructor(
+pdfSrc = {
+  url: ''
+};
+
+constructor(
     private bookingsConfigService: BookingsConfigService,
-    private waiter: WaiterService
+    private waiter: WaiterService,
+    private filesService: FilesService,
+    public sanitizer: DomSanitizer,
+
   ) { }
 
   ngOnInit() {
@@ -81,7 +92,7 @@ export class ConfigureBookingsComponent implements OnInit {
     return (this.edited && (
       (this.edited.startTime !== this.original.startTime) ||
       (this.edited.endTime !== this.original.endTime) ||
-      (this.edited.termsAndconditionsHTML !== this.original.termsAndconditionsHTML) ||
+      (this.edited.termsAndConditions && (!this.original.termsAndConditions || (this.edited.termsAndConditions.fileId !== this.original.termsAndConditions.fileId))) ||
       false // reserved for other fields
     ));
   }
@@ -109,6 +120,50 @@ export class ConfigureBookingsComponent implements OnInit {
 
   onClickEdit(itemNum: number) {
 
+  }
+
+  uploadFile(data: FileUploadAction) {
+    const file = data.fileModel;
+    console.log(`uploadFile(${file})`);
+    file.inProgress = true;
+    file.sub = this.filesService.uploadFile(file.data)
+      .subscribe((event: any) => {
+        if (typeof event === 'object') {
+          if (this.edited) {
+            this.edited.termsAndConditions = {
+              fileId: '',
+              fileName: file.data.name,
+              uploadDate: new Date(Date.now())
+            };
+          }
+          data.onSuccess(event);
+        }
+      }, (error: any) => {
+        data.onFailure(error);
+      });
+  }
+
+
+  onTACUploaded(data: {fileId: string}) {
+    console.log(`onFileUploaded(${JSON.stringify(data)})`);
+    const fileId = data.fileId;
+    this.filesService.getFileUrl(fileId).subscribe((url) => {
+      if (this.edited) {
+        this.edited.termsAndConditions.fileId = fileId;
+      }
+    });
+  }
+
+  getFileUrlFromId(fileId: string): Observable<any> {
+    if (!fileId || (fileId === '')) {
+      return of(null);
+    }
+    return new Observable(subscribe => {
+      this.filesService.getFileUrl(fileId).subscribe(url => {
+        subscribe.next(url);
+        subscribe.complete();
+      });
+    });
   }
 
 }

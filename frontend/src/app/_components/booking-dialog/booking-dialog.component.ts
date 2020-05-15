@@ -14,6 +14,7 @@ import { Observable, Subscription } from 'rxjs';
 import { Organization } from '../../_model/organization';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { BookingsConfigService } from 'src/app/_services/bookings-config.service';
+import { FilesService } from 'src/app/_services/files.service';
 
 class DateInPastErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -47,6 +48,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   readOnly = true;
   newBooking = false;
   canModify = false;
+  tacLink = 'https://ashfordvc.org.uk/';
 
   _selectedExtras: any[] = [];
 
@@ -140,6 +142,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     private extraService: ExtraService,
     private changeDetector: ChangeDetectorRef,
     private bookingsConfigService: BookingsConfigService,
+    private filesServices: FilesService,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
   ngOnInit() {
@@ -179,6 +182,11 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       } else {
         this.minTime = Math.min(bookingsConfig.startTime, this.startTime);
         this.maxTime = Math.max(bookingsConfig.endTime, this.endTime);
+      }
+      if (bookingsConfig.termsAndConditions && (bookingsConfig.termsAndConditions.fileId !== '')) {
+        this.filesServices.getFileUrl(bookingsConfig.termsAndConditions.fileId).subscribe((url) => {
+          this.tacLink = url;
+        })
       }
     });
   }
@@ -558,10 +566,6 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
   bookingFilter = (booking) => {
     return (this.data.id === undefined) || (this.data.id !== booking.id);
-  }
-
-  displayTaC() {
-    alert("terms and conditions");
   }
 
 

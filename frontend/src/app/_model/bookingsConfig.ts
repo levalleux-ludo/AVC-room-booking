@@ -1,12 +1,18 @@
+export interface termsAndConditions {
+  fileId: string;
+  fileName: string;
+  uploadDate: Date;
+}
+
 export class BookingsConfig {
   _startTime: number;
   _endTime: number;
-  _termsAndconditionsHTML: string;
+  _termsAndConditions: termsAndConditions;
 
   constructor(fetched_data: any) {
     this._startTime = (fetched_data.startTime) ? +fetched_data.startTime : -1;
     this._endTime = (fetched_data.endTime) ? +fetched_data.endTime : -1;
-    this._termsAndconditionsHTML = (fetched_data.termsAndConditionsHTML) ? fetched_data.termsAndConditionsHTML : '';
+    this._termsAndConditions = (fetched_data.termsAndConditions) ? fetched_data.termsAndConditions : undefined;
   }
 
   public get startTime(): number {
@@ -25,21 +31,20 @@ export class BookingsConfig {
     this._endTime = value;
   }
 
-  public get termsAndconditionsHTML(): string {
-    return this._termsAndconditionsHTML;
+  public get termsAndConditions(): termsAndConditions {
+    return this._termsAndConditions;
   }
 
-  public set termsAndconditionsHTML(value: string) {
-    this._termsAndconditionsHTML = value;
+  public set termsAndConditions(value: termsAndConditions) {
+    this._termsAndConditions = value;
   }
 
   public getData(): any {
     return {
         startTime: this.startTime,
         endTime: this.endTime,
-        termsAndConditionsHTML: this.termsAndconditionsHTML
+        termsAndConditions: this.termsAndConditions
     };
   }
-
 
 }
