@@ -2,18 +2,21 @@ import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { MatListOption, MatDialog } from '@angular/material';
 import { v4 as uuid } from 'uuid';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { Organization } from '../../_model/organization';
+import { Organization, eOrganizationType } from '../../_model/organization';
 import { OrganizationService } from '../../_services/organization.service';
 import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 class OrganizationContext implements IItemContext {
-  organization;
+  organization: Organization;
+  form: FormGroup;
 
-  constructor(organization: Organization) {
+  constructor(organization: Organization, form: FormGroup) {
     this.organization = organization;
+    this.form = form;
   }
   clone() {
-    return new OrganizationContext(this.organization.clone());
+    return new OrganizationContext(this.organization.clone(), this.form);
   }
   equals(item: IItemContext) {
     let organizationContext = item as OrganizationContext;
@@ -23,8 +26,9 @@ class OrganizationContext implements IItemContext {
     return {
       organization: this.organization,
       name: this.organization.name,
-      setName: (value) => {this.organization.name = value;},
-    }
+      setName: (value) => { this.organization.name = value; },
+      form: this.form
+    };
   }
 }
 @Component({
@@ -37,6 +41,7 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
   organizations = [];
   _editedItem: OrganizationContext;
   @ViewChild('itemEditTemplate', { static: true }) itemEditTemplateRef: TemplateRef<any>;
+  form: FormGroup;
 
    //////////////////////////////////////////////////////
   /// ConfigureAbstractComponent implementation
@@ -48,13 +53,29 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
   }
   createItem = (item: IItemContext) => {
   // createItem(item: IItemContext) {
-    this.organizationService.createOrganization((item as OrganizationContext).organization).subscribe(() => this.refreshList());
+    const form = (item as OrganizationContext).form;
+    const orga = new Organization({
+      name: form.value.name,
+      address: form.value.address,
+      email: form.value.email,
+      phone: form.value.phone,
+      type: form.value.isCharity ? eOrganizationType.CHARITY : eOrganizationType.OTHER
+    });
+    this.organizationService.createOrganization(orga).subscribe(() => this.refreshList());
   }
   updateItem = (item: IItemContext) => {
-    this.organizationService.updateOrganization((item as OrganizationContext).organization).subscribe(() => this.refreshList());
+    const form = (item as OrganizationContext).form;
+    const orga = new Organization({
+      name: form.value.name,
+      address: form.value.address,
+      email: form.value.email,
+      phone: form.value.phone,
+      type: form.value.isCharity ? eOrganizationType.CHARITY : eOrganizationType.OTHER
+    });
+    this.organizationService.updateOrganization(orga).subscribe(() => this.refreshList());
   }
   getNewItem(): IItemContext {
-    return new OrganizationContext(new Organization({}));
+    return new OrganizationContext(new Organization({}), this.createForm(undefined));
   }
   get editedItem(): IItemContext {
     return this._editedItem;
@@ -63,10 +84,11 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
     this._editedItem = item as OrganizationContext;
   }
   get submitEnabled(): boolean {
-    if (!this._editedItem)
+    if (!this._editedItem || !this._editedItem.form)
       return false;
-    let organization = (this.editedItem as OrganizationContext).organization;
-    return organization.name !== '';
+    // let organization = (this.editedItem as OrganizationContext).organization;
+    // return organization.name !== '';
+    return this._editedItem.form.valid;
   }
   itemToString(item: IItemContext): string {
     return (item as OrganizationContext).organization.name;
@@ -143,18 +165,33 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
 
   constructor(
     private organizationService: OrganizationService,
+    private fb: FormBuilder,
     private dialog: MatDialog
      ) {
        super();
+
      }
 
   ngOnInit() {
     this.refreshList();
   }
 
+  createForm(orga: Organization) {
+    return this.fb.group({
+      name: [orga ? orga.name : '', Validators.required],
+      address: [orga ? orga.address : '', Validators.required],
+      phone: [orga ? orga.phone : '', Validators.required],
+      email: [orga ? orga.email : '', Validators.required],
+      isCharity: [orga ? orga.type === eOrganizationType.CHARITY : false, Validators.nullValidator]
+     });
+  }
+
   refreshList() {
     this.organizationService.getOrganizations().subscribe(organizations => {
-      this.organizations = organizations.map(organization => new OrganizationContext(new Organization(organization)));
+      this.organizations = organizations.map(organization => {
+        const orga = new Organization(organization);
+        return new OrganizationContext(orga, this.createForm(orga));
+      });
     }, err => alert(err));
 
   }

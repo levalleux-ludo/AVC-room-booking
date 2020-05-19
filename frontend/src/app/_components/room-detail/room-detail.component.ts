@@ -17,6 +17,7 @@ import { ImagesService } from 'src/app/_services/images.service';
 import { inject } from '@angular/core/testing';
 import { DialogCarouselComponent } from '../dialog-carousel/dialog-carousel.component';
 import { AuthenticationService, AuthorizationRules } from 'src/app/_services';
+import { UserService } from 'src/app/_services/user.service';
 
 @Directive({
   selector: '[appSetImageToCenter]'
@@ -160,6 +161,7 @@ export class RoomDetailComponent implements OnInit {
     private organizationService: OrganizationService,
     private imagesService: ImagesService,
     private authenticationService: AuthenticationService,
+    private userService: UserService,
     private location: Location, // required to get back in navigation history
     private dialog: MatDialog, // required to open a dialog
     public bottomSheetRef: MatBottomSheetRef<RoomDetailComponent>, // required to integrate the component in the 'bottomSheet'
@@ -258,6 +260,25 @@ export class RoomDetailComponent implements OnInit {
     BookingDialogComponent.editBooking(
       this.dialog,
       (newBooking, privateData) => this.bookingService.createBooking(newBooking, privateData),
+      (orga) => {
+        return new Observable<Organization>(observer => {
+          this.organizationService.createOrganization(orga).subscribe((orga) => {
+            const user = this.authenticationService.currentUserValue;
+            if (user) {
+              if (!user.memberOf.includes(orga.id)) {
+                user.memberOf.push(orga.id);
+                this.userService.changeMemberOf(user).subscribe(() => {
+                  observer.next(orga);
+                  observer.complete();
+                });
+              }
+            } else {
+              observer.next(orga);
+              observer.complete();
+            }
+          });
+        });
+      },
       (bookingId) => of(null),
       (newBooking, privateData) =>  {
         console.log("booking has been created:", newBooking);

@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 
-import { eUserRole } from '../_model/user';
+import { eUserRole, User } from '../_model/user';
 
 export const AuthorizationRules = {
   MYBOOKINGS: [eUserRole.CUSTOMER],
@@ -15,25 +15,30 @@ export const AuthorizationRules = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-    private currentUserSubject: BehaviorSubject<any>;
-    public currentUser: Observable<any>;
+    private currentUserSubject: BehaviorSubject<User>;
+    public currentUser: Observable<User>;
 
     constructor(private http: HttpClient) {
         const localStoredUser = localStorage.getItem('currentUser');
-        const jsonUser = JSON.parse(localStoredUser);
-        this.currentUserSubject = new BehaviorSubject<any>(jsonUser);
+        let user = undefined;
+        if (localStoredUser) {
+          const jsonUserData = JSON.parse(localStoredUser);
+          user = new User(jsonUserData);
+        }
+        this.currentUserSubject = new BehaviorSubject<User>(user);
         this.currentUser = this.currentUserSubject.asObservable();
     }
 
-    public get currentUserValue() {
+    public get currentUserValue(): User {
         return this.currentUserSubject.value;
     }
 
     login(username, password) {
         return this.http.post<any>(`${environment.apiAuthentication}/users/authenticate`, { username, password })
-        .pipe(map(user => {
+        .pipe(map(userData => {
             // store user details and  jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            const user = new User(userData);
             this.currentUserSubject.next(user);
             return user;
         }));

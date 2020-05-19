@@ -7,11 +7,11 @@ export class Extra {
     constructor(fetched_data: any) {
         this._name = (fetched_data.name)?fetched_data.name:'';
         this._defaultRate = (fetched_data.defaultRate)?fetched_data.defaultRate:0;
-        this._id = (fetched_data.id)?fetched_data.id:uuid();
+        this._id = (fetched_data._id)?fetched_data._id:uuid();
     }
 
     clone(): Extra {
-        return new Extra({id: this.id, name: this.name, defaultRate: this.defaultRate});
+        return new Extra({_id: this.id, name: this.name, defaultRate: this.defaultRate});
     }
 
     equals(extra: Extra): boolean {

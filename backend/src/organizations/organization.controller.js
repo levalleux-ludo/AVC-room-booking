@@ -24,7 +24,7 @@ module.exports = router;
 
 function create(req, res, next) {
     organizationService.create(req.body)
-        .then(() => res.json({}))
+        .then((orga) => res.json(orga))
         .catch(err => next(err));
 }
 

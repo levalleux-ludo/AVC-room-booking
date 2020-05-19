@@ -35,7 +35,17 @@ var BookingPrivateSchema = new Schema({
     details: { type: String, required: false },
     organizationId: { type: Schema.Types.ObjectId, required: true },
     extras: { type: [Schema.Types.ObjectId], required: false },
-    totalPrice: { type: Number, required: false, default: 0 }
+    totalPrice: { type: Number, required: false, default: 0 },
+    hirersDetails: {
+        firstName: { type: String, required: true },
+        lastName: { type: String, required: true },
+        email: { type: String, required: true }
+    },
+    responsibleDetails: {
+        firstName: { type: String, required: true },
+        lastName: { type: String, required: true },
+        phone: { type: String, required: true }
+    }
 });
 
 BookingPrivateSchema.set('toJSON', { virtuals: true });

@@ -47,15 +47,18 @@ export class User {
   private _role: eUserRole;
   // tslint:disable-next-line: variable-name
   private _memberOf: any[];
+  // tslint:disable-next-line: variable-name
+  private _token: any;
 
   // tslint:disable-next-line: variable-name
   constructor(fetched_data: any) {
-    this._id = (fetched_data.id) ? fetched_data.id : uuid();
+    this._id = (fetched_data._id) ? fetched_data._id : uuid();
     this._username = (fetched_data.username) ? fetched_data.username : '';
     this._firstName = (fetched_data.firstName) ? fetched_data.firstName : '';
     this._lastName = (fetched_data.lastName) ? fetched_data.lastName : '';
     this._role = (fetched_data.role) ? fetched_data.role : undefined;
     this._memberOf = (fetched_data.memberOf) ? fetched_data.memberOf : [];
+    this._token = (fetched_data.token) ? fetched_data.token : undefined;
   }
 
   equals(user: User): boolean {
@@ -63,7 +66,7 @@ export class User {
 }
 
  clone(): User {
-    return new User({id: this.id, username: this.username, firstName: this.firstName, lastName: this.lastName, role: this.role, memberOf: this.memberOf});
+    return new User({_id: this.id, username: this.username, firstName: this.firstName, lastName: this.lastName, role: this.role, memberOf: this.memberOf});
   }
 
   get id() {
@@ -95,6 +98,10 @@ get username() {
   }
   set memberOf(value: any[]) {
       this._memberOf = value;
+  }
+
+  get token(): any {
+    return this._token;
   }
 
   getData() {

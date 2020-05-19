@@ -26,9 +26,10 @@
         <div class="organization">{{name}}</div>
     </td>
 </ng-template>
-<ng-template #itemEditTemplate let-name="name" let-setName="setName">
+<ng-template #itemEditTemplate let-name="name" let-setName="setName" let-form="form">
     <mat-form-field appearance="standard" required>
         <input #companyName matInput required placeholder="Enter Organization Name" [value]="name" (change)="setName($event.target.value)">
     </mat-form-field>
+    <app-organization-form *ngIf="form" [formGroup]="form"></app-organization-form>
 </ng-template>
 <app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplateRef" [configureComponent]="this"></app-configure-generic>

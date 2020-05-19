@@ -11,7 +11,7 @@ export class Room {
     private _pictures: string[];
 
     constructor(fetched_data: any) {
-        this._id = (fetched_data.id)?fetched_data.id:uuid();
+        this._id = (fetched_data._id)?fetched_data._id:uuid();
         this._name = (fetched_data.name)?fetched_data.name:'';
         this._descriptionHTML = (fetched_data.descriptionHTML)?fetched_data.descriptionHTML:'';
         this._capacity = (fetched_data.capacity)?fetched_data.capacity:0;
@@ -22,7 +22,7 @@ export class Room {
     }
 
     clone(): Room {
-        return new Room({id: this.id, name: this.name, descriptionHTML: this.descriptionHTML, capacity: this.capacity, rentRateDay: this.rentRateDay, rentRateHour: this.rentRateHour, availableExtras: this.availableExtras.map(value => value), pictures: this.pictures.map(value => value)});
+        return new Room({_id: this.id, name: this.name, descriptionHTML: this.descriptionHTML, capacity: this.capacity, rentRateDay: this.rentRateDay, rentRateHour: this.rentRateHour, availableExtras: this.availableExtras.map(value => value), pictures: this.pictures.map(value => value)});
     }
 
     equals(room: Room): boolean {

@@ -35,7 +35,7 @@ export class RoomsComponent implements OnInit {
     this.getRooms();
     this.loggedIn = (this.authenticationService.currentUserValue !== undefined)
      && (this.authenticationService.currentUserValue !== null)
-     && (this.authenticationService.currentUserValue !== '');
+     && (this.authenticationService.currentUserValue.username !== '');
   }
 
   getRooms(): void {

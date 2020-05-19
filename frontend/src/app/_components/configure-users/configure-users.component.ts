@@ -104,7 +104,8 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
     const currentUser = this.authenticationService.currentUserValue;
     return currentUser &&
      this.editedItem &&
-     ( compareRoles(currentUser.role, (this.editedItem as UserContext).user.role) >= 0 );
+      ((this.editedItem as UserContext).user.id !== currentUser.id) &&
+       ( compareRoles(currentUser.role, (this.editedItem as UserContext).user.role) >= 0 );
   }
 
   constructor(
@@ -154,8 +155,10 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
   isEditable(item) {
     const currentUser = this.authenticationService.currentUserValue;
     return currentUser &&
-     this.availableRoles().length > 1 &&
-     ((item as UserContext).user.id !== currentUser._id);
+     this.availableRoles().length > 1;
+    //  return currentUser &&
+    //  this.availableRoles().length > 1 &&
+    //  ((item as UserContext).user.id !== currentUser.id);
   }
 
   canDelete(item) {

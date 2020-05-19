@@ -11,17 +11,22 @@ import { PriceDisplayComponent } from '../price-display/price-display.component'
 import { ExtraService } from '../../_services/extra.service';
 import { Extra } from '../../_model/extra';
 import { Observable, Subscription } from 'rxjs';
-import { Organization } from '../../_model/organization';
+import { Organization, eOrganizationType } from '../../_model/organization';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { BookingsConfigService } from 'src/app/_services/bookings-config.service';
 import { FilesService } from 'src/app/_services/files.service';
+import { UserService } from 'src/app/_services/user.service';
+import { AuthenticationService } from 'src/app/_services';
 
+
+const NEW_ORGANIZATION = {name: 'New Organization ...'};
 class DateInPastErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     // return control.dirty && form.invalid;
     return form.invalid;
   }
 }
+
 @Component({
   selector: 'app-booking-dialog',
   templateUrl: './booking-dialog.component.html',
@@ -29,6 +34,10 @@ class DateInPastErrorMatcher implements ErrorStateMatcher {
 })
 export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewChecked {
   form: FormGroup;
+  firstFormGroup: FormGroup;
+  thirdFormGroup: FormGroup;
+  globalForm: FormGroup;
+
 
   @ViewChild('calendar', {static: false}) calendar: RoomCalendarComponent;
   @ViewChild('startTimePicker', {static: false}) startTimePicker: TimePickerComponent;
@@ -54,11 +63,13 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
   errorMatcher = new DateInPastErrorMatcher();
   tacChecked = false;
+  newOrganization = NEW_ORGANIZATION;
 
 
   static editBooking(
     dialog: MatDialog,
     createUpdateSrv: (booking: Booking, privateData: BookingPrivateData) => Observable<Booking>,
+    createOrgaSrv: (orga: Organization) => Observable<Organization>,
     deleteSrv: (bookingId: any) => Observable<any>,
     then: (Booking, privateData: BookingPrivateData) => void,
     organizations: Organization[],
@@ -98,6 +109,8 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       endDate: booking.endDate,
       organizations: organizations,
       rooms: rooms,
+      hirersDetails: privateData.hirersDetails,
+      responsibleDetails: privateData.responsibleDetails
       // rooms: this.rooms.map(room => room.name),
     }
 
@@ -107,19 +120,39 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
         if ((result.action === 'create') || (result.action === 'update')) {
           const data = result.data;
           console.log('Dialog output:', data);
-          booking.roomId = data.room.id;
-          booking.startDate = data.startDate;
-          booking.endDate = data.endDate;
-          // private data
-          privateData.title = data.title;
-          privateData.details = data.description;
-          privateData.organizationId = data.organization.id;
-          privateData.extras = data.extras;
-          privateData.totalPrice = data.totalPrice;
 
-          createUpdateSrv(booking, privateData).subscribe(
-            newBooking => then(newBooking, privateData)
-          );
+          const createUpdate = (organizationId) => {
+            booking.roomId = data.room.id;
+            booking.startDate = data.startDate;
+            booking.endDate = data.endDate;
+            // private data
+            privateData.title = data.title;
+            privateData.details = data.description;
+            privateData.organizationId = organizationId;
+            privateData.extras = data.extras;
+            privateData.totalPrice = data.totalPrice;
+
+            privateData.hirersDetails = data.hirersDetails;
+            privateData.responsibleDetails = data.responsibleDetails;
+
+            createUpdateSrv(booking, privateData).subscribe(
+              newBooking => then(newBooking, privateData)
+            );
+          };
+
+          if (NEW_ORGANIZATION.name === data.organization.name) {
+            console.log("Must create a new organization in database");
+            const organization = new Organization({
+              ...data.organizationDetails
+            });
+            createOrgaSrv(organization).subscribe((orga) => {
+              createUpdate(orga.id);
+            });
+
+          } else {
+            createUpdate(data.organization.id);
+          }
+
         } else if (result.action === 'delete') {
           deleteSrv(booking.id).subscribe(
             () => then(undefined, undefined)
@@ -143,27 +176,62 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     private changeDetector: ChangeDetectorRef,
     private bookingsConfigService: BookingsConfigService,
     private filesServices: FilesService,
+    private userService: UserService,
+    private authenticationService: AuthenticationService,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
   ngOnInit() {
-    this._selectedRoom = this.data.room;
+    this.selectedRoom = this.data.room;
     this.selectedExtras = this.data.extras;
     this.startTime = BookingDialogComponent.getTimeFromDate(this.data.startDate);
     this.endTime = BookingDialogComponent.getTimeFromDate(this.data.endDate);
 
+    this.firstFormGroup = this.fb.group({
+      organization: [this.data.organization, Validators.required],
+      organizationDetails: this.fb.group({
+        name: [ this.data.organization ? this.data.organization.name : '', Validators.required],
+        address: [this.data.organization ? this.data.organization.address : '', Validators.required],
+        phone: [this.data.organization ? this.data.organization.phone : '', Validators.required],
+        email: [this.data.organization ? this.data.organization.email : '', Validators.required],
+        isCharity: [this.data.organization ? (this.data.organization.type === eOrganizationType.CHARITY) : false]
+      }),
+      hirersDetails: this.fb.group({
+        firstName: [this.data.hirersDetails ? this.data.hirersDetails.firstName : this.authenticationService.currentUserValue.firstName, Validators.required],
+        lastName: [this.data.hirersDetails ? this.data.hirersDetails.lastName : this.authenticationService.currentUserValue.lastName, Validators.required],
+        email: [this.data.hirersDetails ? this.data.hirersDetails.email : '', Validators.required]
+      }),
+      responsibleDetails: this.fb.group({
+        firstName: [this.data.responsibleDetails ? this.data.responsibleDetails.firstName : this.authenticationService.currentUserValue.firstName, Validators.required],
+        lastName: this.data.responsibleDetails ? this.data.responsibleDetails.lastName : [this.authenticationService.currentUserValue.lastName, Validators.required],
+        phone: [this.data.responsibleDetails ? this.data.responsibleDetails.phone : '', Validators.required]
+      }),
+    }
+    );
+    this.thirdFormGroup = this.fb.group({
+      tacChecked: false
+    }, { validators: [this.tacIsChecked] });
     this.form = this.fb.group({
           id: this.data.id,
           title: this.data.title,
-          organization: this.data.organization,
           description: this.data.description,
           room: this.selectedRoom,
           extras: new FormControl(this.data.extras),
           date: new FormControl(this.data.date, [Validators.required]),
           startDate: new FormControl(this.data.startDate, [Validators.required]),
           endDate: new FormControl(this.data.endDate, [Validators.required]),
-          totalPrice: 0,
-          tacChecked: false
-    }, { validators: [this.dateInPastValidator, this.tacIsChecked] });
+          totalPrice: 0
+    }, { validators: [this.dateInPastValidator, (form: FormGroup) => {
+      if (this.form && this.checkConflicts(this.startDate, this.endDate)) {
+        return { timeSlotHasConflict: true };
+      }
+      return null;
+    }] });
+    this.globalForm = this.fb.group({
+      first: this.firstFormGroup,
+      second: this.form,
+      third: this.thirdFormGroup
+    });
+
     // this.onSelectedDateChanged();
     if (!this.data.id) {
       this.newBooking = true;
@@ -489,7 +557,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     let date: number = new Date(event.startDate).setHours(0, 0, 0, 0);
     if ((event.startDate.getTime() >= Date.now()) && !this.checkConflicts(event.startDate, event.endDate)) {
       let {valid, startTime, endTime} = this.validateHours(BookingDialogComponent.getTimeFromDate(event.startDate), BookingDialogComponent.getTimeFromDate(event.endDate));
-      if (valid) {
+      if (this.form && valid) {
         this.shallUpdateCalendar = false;
         this.form.patchValue({date: new Date(date)});
         this.onSelectedDateChanged();
@@ -509,10 +577,14 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   submit(form) {
-      form.patchValue({startDate: this.startDate});
-      form.patchValue({endDate: this.endDate});
-      form.patchValue({totalPrice: this.priceDisplay.totalPrice});
-      this.dialogRef.close({action: (this.newBooking) ? "create" : "update", data: form.value});
+      form.patchValue({second: {startDate: this.startDate}});
+      form.patchValue({second: {endDate: this.endDate}});
+      form.patchValue({second: {totalPrice: this.priceDisplay.totalPrice}});
+      this.dialogRef.close({action: (this.newBooking) ? "create" : "update", data: {
+        ...form.value.first,
+        ...form.value.second,
+        ...form.value.third
+      }});
   }
 
   compareRooms(room1: Room, room2: Room): boolean {
@@ -569,5 +641,21 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
 
-
+  onOrganizationSelectChange(orga: Organization) {
+    console.log('onOrganizationSelectChange', orga);
+    this.firstFormGroup.controls['organizationDetails'].patchValue(
+      (orga !== this.newOrganization) ? {
+        name: orga.name,
+        address: orga.address,
+        email: orga.email,
+        phone: orga.phone,
+        isCharity: orga.type === eOrganizationType.CHARITY
+      } : {
+        name: '',
+        address : '',
+        email: '',
+        phone: '',
+        isCharity: false
+      });
+  }
 }

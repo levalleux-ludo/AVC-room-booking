@@ -14,6 +14,16 @@ export class BookingPrivateData {
   organizationId: any;
   extras: Extra[];
   totalPrice: number;
+  hirersDetails: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  responsibleDetails: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
 }
 export class Booking {
     id: any;
@@ -27,11 +37,21 @@ export class Booking {
       details: '',
       organizationId: undefined,
       extras: [],
-      totalPrice: 0
+      totalPrice: 0,
+      hirersDetails: {
+        firstName: '',
+        lastName: '',
+        email: '',
+      },
+      responsibleDetails: {
+        firstName: '',
+        lastName: '',
+        phone: '',
+      },
     };
 
     constructor(fetched_data: any) {
-      this.id = fetched_data.id;
+      this.id = fetched_data._id;
       this.ref = fetched_data.ref;
       this.startDate = new Date(fetched_data.startDate);
       this.endDate = new Date(fetched_data.endDate);

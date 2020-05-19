@@ -66,43 +66,7 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
     return undefined
   }
 
-  editDialogOpen(arg?) {
-    // let args = event.args;
-    // let dialog = args.dialog;
-    // let appointment = args.appointment;
-    // let fields = args.fields;
-    console.log("onEditDialogOpen");
-    const dialogConfig = new MatDialogConfig();
-
-    dialogConfig.disableClose = true;
-    dialogConfig.autoFocus = true;
-    dialogConfig.data = {
-      // room: this.room.name,
-      room: undefined,
-      organizations: this.organizations,
-      rooms: this.rooms,
-      // rooms: this.rooms.map(room => room.name),
-    }
-    const dialogRef = this.dialog.open(BookingDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe(
-      data => {
-        console.log("Dialog output:", data);
-        let booking = this.bookingService.getEmptyBooking();
-        booking.privateDataRef.title = data.title;
-        booking.privateDataRef.details = data.description;
-        booking.privateDataRef.organizationId = data.organization.id;
-        booking.roomId = data.room.id;
-        booking.startDate = data.startDate;
-        booking.endDate = data.endDate;
-        booking.privateDataRef.extras = data.extras;
-        booking.privateDataRef.totalPrice = data.totalPrice;
-        // TODO call bookingService to create or update the booking
-        // TODO refresh calendar to show new or updated booking
-      }
-    );
-  }
-
-  configureScheduler() {
+    configureScheduler() {
     this.myScheduler.beginAppointmentsUpdate();
     super.configureScheduler(false);
 
@@ -118,6 +82,7 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
           BookingDialogComponent.editBooking(
             this.dialog,
             (booking, privateData) => this.bookingService.updateBooking(booking, privateData),
+            (orga) => this.organizationService.createOrganization(orga),
             (bookingId) => this.bookingService.deleteBooking(bookingId),
             (booking, privateData) => {
                 // TODO refresh calendar to show new or updated or deleted booking

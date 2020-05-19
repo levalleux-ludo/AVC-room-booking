@@ -36,7 +36,8 @@ import {
   MatSidenavModule,
   MatProgressSpinnerModule,
   MatMenuModule,
-  MatCheckboxModule
+  MatCheckboxModule,
+  MatStepperModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './_components/time-picker/time-picker.component';
@@ -86,6 +87,7 @@ import { WaiterComponent } from './_components/waiter/waiter.component';
 import { ErrorComponent } from './_components/error/error.component';
 import { RegisterComponent } from './_components/register/register.component';
 import { ConfigureBookingsComponent } from './_components/configure-bookings/configure-bookings.component';
+import { OrganizationFormComponent } from './_components/organization-form/organization-form.component';
 
 @NgModule({
   declarations: [
@@ -126,7 +128,8 @@ import { ConfigureBookingsComponent } from './_components/configure-bookings/con
     WaiterComponent,
     ErrorComponent,
     RegisterComponent,
-    ConfigureBookingsComponent
+    ConfigureBookingsComponent,
+    OrganizationFormComponent
   ],
   imports: [
     CommonModule,
@@ -173,7 +176,8 @@ import { ConfigureBookingsComponent } from './_components/configure-bookings/con
     MatProgressSpinnerModule,
     MatMenuModule,
     MatCheckboxModule,
-    PdfViewerModule
+    PdfViewerModule,
+    MatStepperModule
   ],
   exports: [
     MatNativeDateModule,

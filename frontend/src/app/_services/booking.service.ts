@@ -121,7 +121,9 @@ export class BookingService extends FetchService {
       details: '',
       organizationId: '',
       extras: [],
-      totalPrice: 0
+      totalPrice: 0,
+      hirersDetails: undefined,
+      responsibleDetails: undefined,
       }
     };
   }

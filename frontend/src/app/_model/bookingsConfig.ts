@@ -1,4 +1,4 @@
-export interface termsAndConditions {
+export interface TermsAndConditions {
   fileId: string;
   fileName: string;
   uploadDate: Date;
@@ -7,7 +7,7 @@ export interface termsAndConditions {
 export class BookingsConfig {
   _startTime: number;
   _endTime: number;
-  _termsAndConditions: termsAndConditions;
+  _termsAndConditions: TermsAndConditions;
 
   constructor(fetched_data: any) {
     this._startTime = (fetched_data.startTime) ? +fetched_data.startTime : -1;
@@ -31,11 +31,11 @@ export class BookingsConfig {
     this._endTime = value;
   }
 
-  public get termsAndConditions(): termsAndConditions {
+  public get termsAndConditions(): TermsAndConditions {
     return this._termsAndConditions;
   }
 
-  public set termsAndConditions(value: termsAndConditions) {
+  public set termsAndConditions(value: TermsAndConditions) {
     this._termsAndConditions = value;
   }
 
