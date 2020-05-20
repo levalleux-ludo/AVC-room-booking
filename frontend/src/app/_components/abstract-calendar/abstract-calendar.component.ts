@@ -14,7 +14,7 @@ import { WaiterService } from 'src/app/_services/waiter.service';
 
 class EventPrivateData {
   id: string;
-  title: string
+  title: string;
   organization: string;
   roomId: string;
   tag: string;

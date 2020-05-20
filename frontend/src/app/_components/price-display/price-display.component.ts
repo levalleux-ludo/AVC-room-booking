@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Extra } from 'src/app/_model/extra';
 
 @Component({
   selector: 'app-price-display',
@@ -15,7 +16,10 @@ export class PriceDisplayComponent implements OnInit {
   roomRatePerHour: number = 0;
 
   @Input()
-  extras: {[extra: string]: number} = {};
+  extras: Extra[] = [];
+
+  @Input()
+  nbPeopleExpected: number = 0;
 
   get rentalPrice(): number {
     return this.hourQuantity * this.roomRatePerHour;
@@ -35,36 +39,34 @@ export class PriceDisplayComponent implements OnInit {
       if (!this._showExtrasDetails) {
         this.extrasDetailsHeight = 16;
       } else {
-        this.extrasDetailsHeight = 14 + 14*Object.keys(this.extras).length;
+        this.extrasDetailsHeight = 14 + 14 * this.extras.length;
       }
     }
   }
   extrasDetailsHeight = 16;
   get nbExtras(): number {
-    return Object.keys(this.extras).length;
-  }
-  
-  get extrasDetails(): string {
-    let details = '<p>';
-    for (let extra in this.extras) {
-      details += `${extra}: £${this.extras[extra]}<br>`
-    }
-    details += '</p>'
-    return details;
+    return this.extras.length;
   }
 
   extraDetails(): string[] {
-    let details = [];
-    for (let extra in this.extras) {
-      details.push(`<div>${extra}: £${this.extras[extra]}<br></div>`);
+    const details = [];
+    for (const extra of this.extras) {
+      if (extra.perPerson) {
+        const price = extra.defaultRate * this.nbPeopleExpected;
+        const formula = `£${extra.defaultRate} x ${this.nbPeopleExpected} people`;
+        details.push(`<div>${extra.name}: £${price} (${formula})<br></div>`);
+      } else {
+        details.push(`<div>${extra.name}: £${extra.defaultRate}<br></div>`);
+      }
+
     }
     return details;
   }
 
   get extrasPrice(): number {
     let price = 0;
-    for (let extra in this.extras) {
-      price += this.extras[extra];
+    for (const extra of this.extras) {
+      price += extra.perPerson ? extra.defaultRate * this.nbPeopleExpected : extra.defaultRate;
     }
     return price;
   }

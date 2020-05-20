@@ -66,7 +66,7 @@
                     </mat-card-header>
                     <mat-card-content style="padding: 2em;">
                         <div fxLayout="row wrap" fxLayoutGap="40px" fxLayoutAlign="flex-start">
-                            <div *ngFor="let extra of getRoomExtras()" class="extra">{{extra.name}} ({{extra.defaultRate | currency:'GBP':'symbol-narrow'}})</div>
+                            <div *ngFor="let extra of getRoomExtras()" class="extra">{{extra.name}} ({{extra.defaultRate | currency:'GBP':'symbol-narrow'}}{{extra.perPerson ? '/person' : ''}})</div>
                         </div>
                     </mat-card-content>
                 </mat-card>

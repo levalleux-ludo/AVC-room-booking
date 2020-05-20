@@ -327,11 +327,11 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   get priceData(): {
     hourQuantity: number,
     roomRatePerHour: number,
-    extras: {[extra: string]: number}
+    extras: Extra[]
   } {
     let hourQuantity = 0;
     let roomRatePerHour = 0;
-    let extras = {};
+    let extras = [];
     roomRatePerHour = this.selectedRoom.getRentRateHour(
       (this.firstFormGroup.controls['organizationDetails'] &&
         this.firstFormGroup.controls['organizationDetails'].value.isCharity) ?
@@ -344,7 +344,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     }
     for (let extraId of this._selectedExtras) {
       let extra = this.getExtraFromId(extraId);
-      extras[extra.name] = extra.defaultRate;
+      extras.push(extra);
     }
     return {
       hourQuantity,

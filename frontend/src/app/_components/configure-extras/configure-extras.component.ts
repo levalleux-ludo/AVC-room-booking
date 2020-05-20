@@ -23,7 +23,8 @@ class ExtraContext implements IItemContext {
       extra: this.extra,
       name: this.extra.name,
       defaultRate: this.extra.defaultRate,
-      setName: (value) => {this.extra.name = value;},
+      perPerson: this.extra.perPerson,
+      setName: (value) => { this.extra.name = value; },
       setDefaultRate: (value) => {
         let regex = new RegExp(/\d[\d,\,, ]*[.|,]?\d*/);
         if (!regex.test(value)) {
@@ -32,8 +33,9 @@ class ExtraContext implements IItemContext {
         let results = regex.exec(value);
         console.log("setDefaultRate() value =", value, "regex.results = ", results[0]);
         this.extra.defaultRate = +results[0];
-      }
-    }
+      },
+      setPerPerson: (value) => { this.extra.perPerson = value; }
+    };
   }
 }
 @Component({

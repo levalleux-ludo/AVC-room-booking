@@ -2,21 +2,23 @@
     <th>Extra Service</th>
     <th>Rate</th>
 </ng-template>
-<ng-template #itemRowTemplate let-name="name" let-rate="defaultRate">
+<ng-template #itemRowTemplate let-name="name" let-rate="defaultRate" let-perPerson="perPerson">
     <td>
         <div class="extra">{{name}}</div>
     </td>
     <td>
-        <div class="rate">{{rate | currency:'GBP':'symbol-narrow'}}</div>
+        <div class="rate">{{rate | currency:'GBP':'symbol-narrow'}}{{perPerson ? '/person' : ''}}</div>
     </td>
 </ng-template>
-<ng-template #itemEditTemplate let-name="name" let-defaultRate="defaultRate" let-setName="setName" let-setDefaultRate="setDefaultRate">
+<ng-template #itemEditTemplate let-name="name" let-defaultRate="defaultRate" let-setName="setName" let-setDefaultRate="setDefaultRate" let-perPerson="perPerson" let-setPerPerson="setPerPerson">
     <mat-form-field appearance="outline" required>
         <input #extraName matInput required placeholder="Enter Extra Name" [value]="name" (change)="setName($event.target.value)">
     </mat-form-field>
     <mat-form-field appearance="outline" required>
         <!-- <input #extraRate matInput required type="number" placeholder="Enter Extra Rate" [value]="defaultRate" (change)="setDefaultRate($event.target.value)"> -->
         <input #extraRate matInput required type="text" placeholder="Enter Extra Rate" [ngModel]="defaultRate | currency:'GBP':'symbol-narrow'" [value]="{updateOn:'blur'}" (change)="setDefaultRate($event.target.value)" />
+        <span>{{perPerson ? '/person' : ''}}</span>
     </mat-form-field>
+    <mat-checkbox matInput [checked]="perPerson" (change)="setPerPerson($event.checked)">per Person</mat-checkbox>
 </ng-template>
 <app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>
