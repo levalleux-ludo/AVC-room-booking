@@ -20,16 +20,29 @@
 
 <ng-template #tableHeadersTemplate>
     <th>Organization</th>
+    <th>Address</th>
+    <th>Email</th>
+    <th>Phone</th>
+    <th>Type</th>
 </ng-template>
-<ng-template #itemRowTemplate let-name="name">
+<ng-template #itemRowTemplate let-name="name" let-address="address" let-email="email" let-phone="phone" let-type="type">
     <td>
         <div class="organization">{{name}}</div>
     </td>
+    <td>
+        <div class="organization">{{address}}</div>
+    </td>
+    <td>
+        <div class="organization">{{email}}</div>
+    </td>
+    <td>
+        <div class="organization">{{phone}}</div>
+    </td>
+    <td>
+        <div class="organization">{{type}}</div>
+    </td>
 </ng-template>
 <ng-template #itemEditTemplate let-name="name" let-setName="setName" let-form="form">
-    <mat-form-field appearance="standard" required>
-        <input #companyName matInput required placeholder="Enter Organization Name" [value]="name" (change)="setName($event.target.value)">
-    </mat-form-field>
     <app-organization-form *ngIf="form" [formGroup]="form"></app-organization-form>
 </ng-template>
 <app-configure-generic [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplateRef" [configureComponent]="this"></app-configure-generic>

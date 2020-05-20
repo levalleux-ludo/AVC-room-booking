@@ -27,7 +27,11 @@ class OrganizationContext implements IItemContext {
       organization: this.organization,
       name: this.organization.name,
       setName: (value) => { this.organization.name = value; },
-      form: this.form
+      form: this.form,
+      address: this.organization.address,
+      email: this.organization.email,
+      phone: this.organization.phone,
+      type: this.organization.type
     };
   }
 }
@@ -65,7 +69,8 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
   }
   updateItem = (item: IItemContext) => {
     const form = (item as OrganizationContext).form;
-    const orga = new Organization({
+    const orga = (item as OrganizationContext).organization;
+    Object.assign(orga, {
       name: form.value.name,
       address: form.value.address,
       email: form.value.email,

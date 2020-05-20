@@ -23,7 +23,14 @@ export class Organization {
     }
 
     clone(): Organization {
-        return new Organization({_id: this.id, name: this.name});
+        return new Organization({
+          _id: this.id,
+          name: this.name,
+          address: this.address,
+          email: this.email,
+          phone: this.phone,
+          type: this.type
+        });
     }
 
     equals(organization: Organization): boolean {
