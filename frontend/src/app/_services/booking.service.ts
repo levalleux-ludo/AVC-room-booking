@@ -115,6 +115,7 @@ export class BookingService extends FetchService {
       startDate: new Date(tomorrow.getUTCFullYear(), tomorrow.getUTCMonth(), tomorrow.getUTCDate(), this._minBookingTime),
       endDate: new Date(tomorrow.getUTCFullYear(), tomorrow.getUTCMonth(), tomorrow.getUTCDate(), this._minBookingTime + 2),
       roomId: 0,
+      nbPeopleExpected: 1,
       privateData: undefined,
       privateDataRef: {
       title: '',

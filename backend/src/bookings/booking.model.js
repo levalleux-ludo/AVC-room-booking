@@ -21,6 +21,7 @@ var BookingSchema = new Schema({
     endDate: { type: Date, required: true },
     roomId: { type: Schema.Types.ObjectId, required: true },
     cancelled: { type: Boolean, default: false },
+    nbPeopleExpected: { type: Number, required: true },
     privateData: { type: Schema.Types.ObjectId }
 });
 

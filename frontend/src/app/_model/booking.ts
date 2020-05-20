@@ -31,6 +31,7 @@ export class Booking {
     startDate: Date;
     endDate: Date;
     roomId: any;
+    nbPeopleExpected: number;
     privateData: any;
     privateDataRef: BookingPrivateData = {
       title: '',
@@ -56,6 +57,7 @@ export class Booking {
       this.startDate = new Date(fetched_data.startDate);
       this.endDate = new Date(fetched_data.endDate);
       this.roomId = fetched_data.roomId;
+      this.nbPeopleExpected = fetched_data.nbPeopleExpected;
       this.privateData = fetched_data.privateData;
   }
 }

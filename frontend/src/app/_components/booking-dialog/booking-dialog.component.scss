@@ -23,8 +23,14 @@
     top: -4px;
     color: -webkit-link;
     cursor: pointer;
-    text-decoration: underline;}
+    text-decoration: underline;
+}
 
 .tacLink:hover {
     top: -5px;
+}
+
+.smallLabel {
+    font-size: smaller;
+    align-self: center;
 }
