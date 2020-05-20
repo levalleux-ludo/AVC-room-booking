@@ -45,15 +45,18 @@ export class BookingService extends FetchService {
             }
           });
           observer.next(bookings);
+          observer.complete();
         },
         (err) => {
           console.error(err);
           observer.error(err);
+          observer.complete();
         });
       },
       (err) => {
         console.error(err);
         observer.error(err);
+        observer.complete();
       });
     });
   }

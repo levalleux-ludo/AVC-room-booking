@@ -11,6 +11,7 @@ import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { FileUploadAction } from '../material-file-upload/material-file-upload.component';
 import { ImagesService } from 'src/app/_services/images.service';
 import { Observable } from 'rxjs';
+import { eOrganizationType } from 'src/app/_model/organization';
 
 var allAvailableExtras: Extra[] = [];
 
@@ -47,7 +48,8 @@ class RoomContext implements IItemContext {
       room: this.room,
       name: this.room.name,
       descriptionHTML: atob(this.room.descriptionHTML),
-      defaultRate: this.room.rentRateHour,
+      defaultRate: this.room.getRentRateHour(eOrganizationType.OTHER),
+      charityRate: this.room.getRentRateHour(eOrganizationType.CHARITY),
       capacity: this.room.capacity,
       availableExtras: this.room.availableExtras.map(extraId => getExtraFromId(extraId)).filter(extra => (extra !== undefined)),
       // availableExtras: [allAvailableExtras[0], allAvailableExtras[2]],
@@ -64,7 +66,16 @@ class RoomContext implements IItemContext {
         }
         let results = regex.exec(value);
         console.log("setDefaultRate() value =", value, "regex.results = ", results[0]);
-        this.room.rentRateHour = results[0];
+        this.room.setRentRateHour('default', results[0]);
+      },
+      setCharityRate: (value) => {
+        let regex = new RegExp(/\d[\d,\,, ]*[.|,]?\d*/);
+        if (!regex.test(value)) {
+          throw new Error(`Unable to parse entry '${value}' from currency format to a number.`);
+        }
+        let results = regex.exec(value);
+        console.log("setCharityRate() value =", value, "regex.results = ", results[0]);
+        this.room.setRentRateHour(eOrganizationType.CHARITY, results[0]);
       },
       setCapacity: (value) => {this.room.capacity = value;},
       setAvailableExtras: (value) => {
@@ -164,8 +175,11 @@ export class ConfigureRoomsComponent extends ConfigureAbstractComponent implemen
     if (!room) {
       return false;
     }
-    // return room.name !== '' && room.capacity !== 0 && room.descriptionHTML !== '' && room.rentRateHour !== 0 && room.pictures.length > 0;
-    return room.name !== '' && room.capacity !== 0 && room.descriptionHTML !== '' && room.rentRateHour !== 0;
+    return room.name !== ''
+    && room.capacity !== 0
+    && room.descriptionHTML !== ''
+    && room.getRentRateHour(eOrganizationType.OTHER) !== 0
+    && room.getRentRateHour(eOrganizationType.CHARITY) !== 0;
   }
   itemToString(item: IItemContext): string {
     return (item as RoomContext).room.name;

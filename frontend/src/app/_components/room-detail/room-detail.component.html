@@ -38,7 +38,15 @@
                                     <div class="specTitle">Rate:</div>
                                 </td>
                                 <td>
-                                    <div class="specValue">{{room.rentRateHour | currency:'GBP':'symbol-narrow'}}</div>
+                                    <div class="specValue">{{room.getRentRateHour('default') | currency:'GBP':'symbol-narrow'}}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="specTitle">Rate (Charity):</div>
+                                </td>
+                                <td>
+                                    <div class="specValue">{{room.getRentRateHour('Non Profit') | currency:'GBP':'symbol-narrow'}}</div>
                                 </td>
                             </tr>
                             <tr>
@@ -102,7 +110,7 @@
         </li>
     </ul> -->
     <div [matTooltip]="bookingAllowed ? 'book now' : 'your account is not allowed to book yet. Please contact Ashford Volunteers Center staff'">
-      <button class="doctor" mat-button mat-flat-button color="primary" (click)='bookNow()' style="height: 3em; width: 10em;" [disabled]="!bookingAllowed" >
+        <button class="doctor" mat-button mat-flat-button color="primary" (click)='bookNow()' style="height: 3em; width: 10em;" [disabled]="!bookingAllowed">
        <i class="fa fa-calendar-check-o"></i> Book Now
       </button>
     </div>

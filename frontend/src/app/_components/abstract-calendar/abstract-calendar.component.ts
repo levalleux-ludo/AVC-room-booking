@@ -165,7 +165,7 @@ async getRooms(room?: Room) {
   } else {
     const waiterTask = this.waiter.addTask();
     await this.roomService.getRooms().toPromise().then((rooms) => {
-      this.rooms = rooms;
+      this.rooms = rooms.map(roomData => new Room(roomData));
       this.waiter.removeTask(waiterTask);
     }).catch(err => {
       this.waiter.removeTask(waiterTask);

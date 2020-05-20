@@ -5,8 +5,13 @@ const schema = new Schema({
     name: { type: String, unique: true, required: true },
     descriptionHTML: { type: String, required: false },
     capacity: { type: Number, required: true },
-    rentRateHour: { type: Number, required: true },
-    rentRateDay: { type: Number, required: false },
+    // rentRateHour: { type: Number, required: true },
+    // rentRateDay: { type: Number, required: false },
+    rates: [{
+        rateType: { type: String, required: true },
+        rentRateHour: { type: Number, required: true },
+        rentRateDay: { type: Number, required: false },
+    }],
     availableExtras: { type: [Schema.Types.ObjectId], default: [] },
     pictures: { type: [String], default: [] }
 });

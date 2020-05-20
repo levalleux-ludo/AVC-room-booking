@@ -304,21 +304,56 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   updatePrice() {
-    if (this.priceDisplay) {
-      this.priceDisplay.roomRatePerHour = this.selectedRoom.rentRateHour;
+    // if (this.priceDisplay) {
+    //   this.priceDisplay.roomRatePerHour = this.selectedRoom.getRentRateHour(
+    //     (this.firstFormGroup.controls['organizationDetails'] &&
+    //       this.firstFormGroup.controls['organizationDetails'].value.isCharity) ?
+    //         eOrganizationType.CHARITY : eOrganizationType.OTHER
+    //       );
 
-      let durationMS = this.endDate.valueOf() - this.startDate.valueOf();
-      let durationHour = durationMS / (1000 * 60 * 60);
-      this.priceDisplay.hourQuantity = durationHour;
+    //   let durationMS = this.endDate.valueOf() - this.startDate.valueOf();
+    //   let durationHour = durationMS / (1000 * 60 * 60);
+    //   this.priceDisplay.hourQuantity = durationHour;
 
-      this.priceDisplay.extras = {};
-      for (let extraId of this._selectedExtras) {
-        let extra = this.getExtraFromId(extraId);
-        this.priceDisplay.extras[extra.name] = extra.defaultRate;
-      }
-    }
+    //   this.priceDisplay.extras = {};
+    //   for (let extraId of this._selectedExtras) {
+    //     let extra = this.getExtraFromId(extraId);
+    //     this.priceDisplay.extras[extra.name] = extra.defaultRate;
+    //   }
+    // }
 
   }
+
+  get priceData(): {
+    hourQuantity: number,
+    roomRatePerHour: number,
+    extras: {[extra: string]: number}
+  } {
+    let hourQuantity = 0;
+    let roomRatePerHour = 0;
+    let extras = {};
+    roomRatePerHour = this.selectedRoom.getRentRateHour(
+      (this.firstFormGroup.controls['organizationDetails'] &&
+        this.firstFormGroup.controls['organizationDetails'].value.isCharity) ?
+        eOrganizationType.CHARITY : 'default'
+    );
+    if (this.endDate && this.startDate) {
+      let durationMS = this.endDate.valueOf() - this.startDate.valueOf();
+      let durationHour = durationMS / (1000 * 60 * 60);
+      hourQuantity = durationHour;
+    }
+    for (let extraId of this._selectedExtras) {
+      let extra = this.getExtraFromId(extraId);
+      extras[extra.name] = extra.defaultRate;
+    }
+    return {
+      hourQuantity,
+      roomRatePerHour,
+      extras
+    };
+  }
+
+
 
   getExtraFromId(extraId): Extra {
     return this.extraService.getExtraFromId(extraId);
@@ -439,12 +474,15 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
   shallUpdateCalendar = true;
   updateCalendar() {
-    if (this.calendar && this.shallUpdateCalendar) {
+    if (this.calendar && this.shallUpdateCalendar && this.startDate && this.endDate) {
       this.calendar.previewEvent(this.form.value.title, this.startDate, this.endDate);
     }
   }
 
   get startDate(): Date {
+    if (!this.startTime) {
+      return undefined;
+    }
     let date: Date = new Date(this.form.value.date);
     date.setHours(Math.floor(this.startTime));
     date.setMinutes(60 * (this.startTime - Math.floor(this.startTime)) );
@@ -452,6 +490,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   get endDate(): Date {
+    if (!this.endTime) {
+      return undefined;
+    }
     let date: Date = new Date(this.form.value.date);
     date.setHours(Math.floor(this.endTime));
     date.setMinutes(60 * (this.endTime - Math.floor(this.endTime)) );

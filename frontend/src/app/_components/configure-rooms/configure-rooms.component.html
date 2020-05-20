@@ -1,8 +1,9 @@
 <ng-template #tableHeadersTemplate>
     <th>Rooms</th>
 </ng-template>
-<ng-template #roomFields let-editable="editable" let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="rate" let-setRate="setRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML"
-    let-availableExtras="availableExtras" let-setAvailableExtras="setAvailableExtras" let-allAvailableExtras="allAvailableExtras" let-compareExtras="compareExtras" let-pictures="pictures" let-setPictures="setPictures">
+<ng-template #roomFields let-editable="editable" let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-defaultRate="defaultRate" let-charityRate="charityRate" let-setDefaultRate="setDefaultRate" let-setCharityRate="setCharityRate"
+    let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML" let-availableExtras="availableExtras" let-setAvailableExtras="setAvailableExtras" let-allAvailableExtras="allAvailableExtras" let-compareExtras="compareExtras" let-pictures="pictures"
+    let-setPictures="setPictures">
     <div fxFlex fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
         <div fxFlex>
             <mat-card *ngIf="editable">
@@ -41,10 +42,23 @@
                                 <div class="specTitle">Rate:</div>
                             </td>
                             <td>
-                                <div *ngIf="!editable" class="specValue">{{rate | currency:'GBP':'symbol-narrow'}}</div>
+                                <div *ngIf="!editable" class="specValue">{{defaultRate | currency:'GBP':'symbol-narrow'}}</div>
                                 <div *ngIf="editable">
                                     <!-- <input class="specValue" currencyMask required placeholder="Enter Room Rate" type="number" [value]="rate" (change)="setRate($event.target.value)"> -->
-                                    <input matInput type="text" placeholder="Enter Room Rate" [ngModel]="rate | currency:'GBP':'symbol-narrow'" [value]="{updateOn:'blur'}" (change)="setRate($event.target.value)" />
+                                    <input matInput type="text" placeholder="Enter Room Rate" [ngModel]="defaultRate | currency:'GBP':'symbol-narrow'" [value]="{updateOn:'blur'}" (change)="setDefaultRate($event.target.value)" />
+                                    <!-- https://stackoverflow.com/questions/48321610/angular-4-how-to-use-currency-pipe-in-input-type -->
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="specTitle">Rate (Charity):</div>
+                            </td>
+                            <td>
+                                <div *ngIf="!editable" class="specValue">{{charityRate | currency:'GBP':'symbol-narrow'}}</div>
+                                <div *ngIf="editable">
+                                    <!-- <input class="specValue" currencyMask required placeholder="Enter Room Rate" type="number" [value]="rate" (change)="setRate($event.target.value)"> -->
+                                    <input matInput type="text" placeholder="Enter Room Rate" [ngModel]="charityRate | currency:'GBP':'symbol-narrow'" [value]="{updateOn:'blur'}" (change)="setCharityRate($event.target.value)" />
                                     <!-- https://stackoverflow.com/questions/48321610/angular-4-how-to-use-currency-pipe-in-input-type -->
                                 </div>
                             </td>
@@ -97,8 +111,8 @@
         </div>
     </div>
 </ng-template>
-<ng-template #itemRowTemplate let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="defaultRate" let-setRate="setDefaultRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML"
-    let-availableExtras="availableExtras" let-pictures="pictures">
+<ng-template #itemRowTemplate let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-defaultRate="defaultRate" let-charityRate="charityRate" let-setDefaultRate="setDefaultRate" let-setCharityRate="setCharityRate"
+    let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML" let-availableExtras="availableExtras" let-pictures="pictures">
     <!-- <mat-expansion-panel> -->
     <!-- <mat-expansion-panel-header>
         <mat-panel-title>
@@ -107,11 +121,12 @@
         <mat-panel-description>
         </mat-panel-description>
     </mat-expansion-panel-header> -->
-    <ng-container *ngTemplateOutlet="roomFields;context:{editable: false, name: name, descriptionHTML: descriptionHTML, rate:rate, capacity:capacity, availableExtras:availableExtras, pictures:pictures}"></ng-container>
+    <ng-container *ngTemplateOutlet="roomFields;context:{editable: false, name: name, descriptionHTML: descriptionHTML, defaultRate:defaultRate, charityRate:charityRate, capacity:capacity, availableExtras:availableExtras, pictures:pictures}"></ng-container>
     <!-- </mat-expansion-panel> -->
 </ng-template>
-<ng-template #itemEditTemplate let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-rate="defaultRate" let-setRate="setDefaultRate" let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML"
-    let-availableExtras="availableExtras" let-setAvailableExtras="setAvailableExtras" let-allAvailableExtras="allAvailableExtras" let-compareExtras="compareExtras" let-pictures="pictures" let-setPictures="setPictures">
-    <ng-container *ngTemplateOutlet="roomFields;context:{editable: true, name: name, descriptionHTML: descriptionHTML, rate:rate, capacity:capacity, availableExtras:availableExtras, pictures:pictures, setName:setName, setDescriptionHTML:setDescriptionHTML, setRate:setRate, setCapacity:setCapacity, allAvailableExtras:allAvailableExtras, setAvailableExtras:setAvailableExtras, compareExtras:compareExtras, setPictures:setPictures}"></ng-container>
+<ng-template #itemEditTemplate let-name="name" let-setName="setName" let-capacity="capacity" let-setCapacity="setCapacity" let-defaultRate="defaultRate" let-charityRate="charityRate" let-setDefaultRate="setDefaultRate" let-setCharityRate="setCharityRate"
+    let-descriptionHTML="descriptionHTML" let-setDescriptionHTML="setDescriptionHTML" let-availableExtras="availableExtras" let-setAvailableExtras="setAvailableExtras" let-allAvailableExtras="allAvailableExtras" let-compareExtras="compareExtras" let-pictures="pictures"
+    let-setPictures="setPictures">
+    <ng-container *ngTemplateOutlet="roomFields;context:{editable: true, name: name, descriptionHTML: descriptionHTML, defaultRate:defaultRate, charityRate:charityRate, capacity:capacity, availableExtras:availableExtras, pictures:pictures, setName:setName, setDescriptionHTML:setDescriptionHTML, setDefaultRate:setDefaultRate, setCharityRate:setCharityRate, setCapacity:setCapacity, allAvailableExtras:allAvailableExtras, setAvailableExtras:setAvailableExtras, compareExtras:compareExtras, setPictures:setPictures}"></ng-container>
 </ng-template>
 <app-configure-generic [listStyle]="'accordion'" [tableHeadersTemplate]="tableHeadersTemplate" [itemRowTemplate]="itemRowTemplate" [itemEditTemplateRef]="itemEditTemplate" [configureComponent]="this"></app-configure-generic>

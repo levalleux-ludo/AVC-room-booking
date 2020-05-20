@@ -139,3 +139,27 @@ async function onDeleteExtra(removedExtraId) {
         return;
     });
 }
+
+async function onUpdateSchema() {
+    await Room.find(async(err, rooms) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        rooms.forEach((room) => {
+            room.set('rentRateHour', undefined, { strict: false, remove: true, overwrite: true });
+            room.set('rentRateDay', undefined, { strict: false, remove: true, overwrite: true });
+            if (!room.get('rates') || (room.get('rates').length === 0)) {
+                room.set('rates', [{
+                    rateType: "default",
+                    rentRateHour: 0,
+                    rentRateDay: 0
+                }], { strict: false, overwrite: true });
+            }
+            room.save();
+        });
+        return;
+    });
+}
+
+onUpdateSchema();

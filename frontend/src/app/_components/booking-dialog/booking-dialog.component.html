@@ -108,7 +108,7 @@
                             </div>
                         </mat-form-field>
                         <div fxFlex fxLayout="column" style="margin: 1em;">
-                            <app-price-display #price></app-price-display>
+                            <app-price-display #price [hourQuantity]="priceData.hourQuantity" [roomRatePerHour]="priceData.roomRatePerHour" [extras]="priceData.extras"></app-price-display>
                         </div>
                     </div>
                     <div fxFlex fxLayout="column" style="margin: 1em;">
