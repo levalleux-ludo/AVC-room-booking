@@ -10,6 +10,11 @@ router.post('/create', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff
 router.put('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), update);
 // TODO : router.put('/cancel/:id', cancel);
 router.get('/private', get_organizations_for_user(), getAllPrivateData);
+router.get('/recurrence', getAllRecurrencePatterns);
+router.post('/recurrence', createRecurrencePattern);
+router.get('/recurrence/:id', getRecurrencePatternById);
+router.put('/recurrence/:id', updateRecurrencePattern);
+router.delete('/recurrence/:id', deleteRecurrencePattern);
 router.get('/:id', getById);
 router.get('/', get_organizations_for_user(), function(req, res, next) {
     if (req.query.ref) return getByRef(req, res, next);
@@ -56,6 +61,38 @@ function getAllPrivateData(req, res, next) {
         .catch(err => next(err));
 }
 
+function getAllRecurrencePatterns(req, res, next) {
+    bookingService.getAllRecurrencePatterns().then((patterns) => {
+            res.json(patterns);
+        })
+        .catch(err => next(err));
+}
+
+function getRecurrencePatternById(req, res, next) {
+    bookingService.getRecurrencePatternById(req.params.id).then((pattern) => {
+        pattern ? res.json(pattern) : res.sendStatus(404)
+    }).catch(err => next(err));
+}
+
+function createRecurrencePattern(req, res, next) {
+    bookingService.createRecurrencePattern(req.body)
+        .then((pattern) => res.json(pattern))
+        .catch(err => next(err));
+}
+
+function updateRecurrencePattern(req, res, next) {
+    bookingService.updateRecurrencePattern(req.params.id, req.body)
+        .then((pattern) => res.json(pattern))
+        .catch(err => next(err));
+}
+
+function deleteRecurrencePattern(req, res, next) {
+    bookingService.deleteRecurrencePattern(req.params.id)
+        .then(() => res.json({}))
+        .catch(err => next(err));
+}
+
+
 // function getAllForRoom(req, res, next) {
 //     bookingService.getAllForRoom(
 //         roomId=req.query.roomId,
@@ -86,7 +123,7 @@ function getBookingState(req, res, next) {
 
 function update(req, res, next) {
     bookingService.update(req.params.id, req.body)
-        .then(() => res.json({}))
+        .then((booking) => res.json(booking))
         .catch(err => next(err));
 }
 

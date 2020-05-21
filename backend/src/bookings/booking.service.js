@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const db = require('../_helpers/db');
 const Booking = db.Booking;
 const BookingPrivateData = db.BookingPrivateData;
+const RecurrencePattern = db.RecurrencePattern;
 const date_helper = require('../_helpers/date_helper');
 const roomService = require('../rooms/room.service');
 const States = require('./booking.model').states;
@@ -16,7 +17,12 @@ module.exports = {
     getById,
     getByRef,
     getAllPrivateData,
-    getBookingState
+    getBookingState,
+    getAllRecurrencePatterns,
+    getRecurrencePatternById,
+    createRecurrencePattern,
+    updateRecurrencePattern,
+    deleteRecurrencePattern
     // getAllForRoom
 };
 
@@ -197,4 +203,36 @@ async function getBookingState(bookingId) {
     } else {
         return States.Completed;
     }
+}
+
+
+async function getAllRecurrencePatterns() {
+    return await RecurrencePattern.find();
+}
+
+async function getRecurrencePatternById(id) {
+    return await RecurrencePattern.findById(id);
+}
+
+async function createRecurrencePattern(patternData) {
+    const pattern = new RecurrencePattern(patternData);
+    return await pattern.save();
+}
+
+async function updateRecurrencePattern(id, patternData) {
+    const pattern = await RecurrencePattern.findById(id);
+    // validate
+    if (!pattern) throw 'Pattern not found';
+    // copy userParam properties to user
+    Object.assign(pattern, patternData);
+    return await pattern.save();
+}
+
+async function deleteRecurrencePattern(id) {
+    // check it is not possible to delete a pattern if some bookings still reference it
+    const bookings = await Booking.find({ recurrencePatternId: id });
+    if (bookings.length > 0) {
+        throw Error("Unable to delete the pattern because some existing bookings still reference it");
+    }
+    await RecurrencePattern.findByIdAndRemove(id);
 }

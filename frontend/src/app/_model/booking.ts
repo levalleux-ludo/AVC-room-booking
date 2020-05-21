@@ -8,6 +8,16 @@ import { Extra } from './extra';
 //     comments: string;
 // }
 
+export interface RecurrencePattern {
+  frequency: string;
+  recurrence: number;
+  weekMask: number;
+  dayInMonth: number;
+  weekInMonth: number;
+  weekDayInMonth: string;
+  endDate: Date;
+}
+
 export class BookingPrivateData {
   title: string;
   details: string;
@@ -50,6 +60,7 @@ export class Booking {
         phone: '',
       },
     };
+    recurrencePatternId: any;
 
     constructor(fetched_data: any) {
       this.id = fetched_data._id;
@@ -59,6 +70,7 @@ export class Booking {
       this.roomId = fetched_data.roomId;
       this.nbPeopleExpected = fetched_data.nbPeopleExpected;
       this.privateData = fetched_data.privateData;
+      this.recurrencePatternId = fetched_data.recurrencePatternId;
   }
 }
 

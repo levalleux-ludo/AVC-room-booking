@@ -11,6 +11,7 @@ module.exports = {
     Room: require('../rooms/room.model').model,
     Booking: require('../bookings/booking.model').model,
     BookingPrivateData: require('../bookings/booking.model').privateModel,
+    RecurrencePattern: require('../bookings/booking.model').recurrencePatternModel,
     Extra: require('../extras/extras.model').model,
     Website: require('../website/website.model').model,
     Organization: require('../organizations/organization.model').model,

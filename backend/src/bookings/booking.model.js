@@ -22,7 +22,8 @@ var BookingSchema = new Schema({
     roomId: { type: Schema.Types.ObjectId, required: true },
     cancelled: { type: Boolean, default: false },
     nbPeopleExpected: { type: Number, required: true },
-    privateData: { type: Schema.Types.ObjectId }
+    privateData: { type: Schema.Types.ObjectId },
+    recurrencePatternId: { type: Schema.Types.ObjectId }
 });
 
 BookingSchema.set('toJSON', { virtuals: true });
@@ -51,9 +52,29 @@ var BookingPrivateSchema = new Schema({
 
 BookingPrivateSchema.set('toJSON', { virtuals: true });
 
+
+const EventFrequency = Object.freeze({
+    Daily: 'Daily',
+    Weekly: 'Weekly',
+    Monthly: 'Monthly'
+});
+
+var RecurrencePatternSchema = new Schema({
+    frequency: { type: String, enum: Object.values(EventFrequency), required: true },
+    recurrence: { type: Number, required: true, default: 1 },
+    weekMask: { type: Number },
+    dayInMonth: { type: Number },
+    weekInMonth: { type: Number },
+    weekDayInMonth: { type: String },
+    endDate: { type: Date, required: true }
+});
+
+RecurrencePatternSchema.set('toJSON', { virtuals: true });
+
 module.exports = {
     model: mongoose.model('Booking', BookingSchema),
     privateModel: mongoose.model('BookingPrivateData', BookingPrivateSchema),
+    recurrencePatternModel: mongoose.model('RecurrencePattern', RecurrencePatternSchema),
     collection: mongoose.connection.collections.bookings,
     states: BookingStates
 };

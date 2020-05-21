@@ -2,6 +2,7 @@
     <button class="close" mat-button [mat-dialog-close]="false">X</button>
     <h1 mat-dialog-title>Booking Form</h1>
     <mat-horizontal-stepper [linear]="!readOnly" #stepper>
+        <!-- <mat-horizontal-stepper [linear]="false" #stepper> -->
         <mat-step [stepControl]="firstFormGroup">
             <form [formGroup]="firstFormGroup">
                 <ng-template matStepLabel>Hirer's Details</ng-template>
@@ -121,6 +122,13 @@
                                 </mat-select>
                                 <div *ngIf="readOnly && form">{{form.controls['room'].value.name}}</div>
                             </mat-form-field>
+                            <div>
+                                <mat-slide-toggle [disabled]="readOnly" #recurrent (change)="onchangeRecurrent($event.checked)" formControlName="isRecurrent">Recurrent</mat-slide-toggle>
+                                <div>{{recurrencePattern2String()}}</div>
+                                <div *ngIf="recurrent.checked && !readOnly">
+                                    <button (click)="editRecurrence()">Configure Recurrence</button>
+                                </div>
+                            </div>
                             <mat-form-field style="width: 18em;">
                                 <input required readonly="readOnly" #dateInput matInput [min]="(readOnly) ? 0 : today" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()" [matDatepickerFilter]="datePickerFilter"
                                     [errorStateMatcher]="(readOnly) ? null : errorMatcher">

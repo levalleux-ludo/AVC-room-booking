@@ -37,7 +37,9 @@ import {
   MatProgressSpinnerModule,
   MatMenuModule,
   MatCheckboxModule,
-  MatStepperModule
+  MatStepperModule,
+  MatSlideToggleModule,
+  MatRadioModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './_components/time-picker/time-picker.component';
@@ -88,6 +90,7 @@ import { ErrorComponent } from './_components/error/error.component';
 import { RegisterComponent } from './_components/register/register.component';
 import { ConfigureBookingsComponent } from './_components/configure-bookings/configure-bookings.component';
 import { OrganizationFormComponent } from './_components/organization-form/organization-form.component';
+import { RecurrencePatternDialogComponent } from './_components/recurrence-pattern-dialog/recurrence-pattern-dialog.component';
 
 @NgModule({
   declarations: [
@@ -129,7 +132,8 @@ import { OrganizationFormComponent } from './_components/organization-form/organ
     ErrorComponent,
     RegisterComponent,
     ConfigureBookingsComponent,
-    OrganizationFormComponent
+    OrganizationFormComponent,
+    RecurrencePatternDialogComponent
   ],
   imports: [
     CommonModule,
@@ -177,7 +181,9 @@ import { OrganizationFormComponent } from './_components/organization-form/organ
     MatMenuModule,
     MatCheckboxModule,
     PdfViewerModule,
-    MatStepperModule
+    MatStepperModule,
+    MatSlideToggleModule,
+    MatRadioModule
   ],
   exports: [
     MatNativeDateModule,
@@ -193,7 +199,8 @@ import { OrganizationFormComponent } from './_components/organization-form/organ
     BookingDialogComponent, // required to use the component as a dialog body
     ConfirmDialogComponent,
     EditDialogComponent,
-    DialogCarouselComponent
+    DialogCarouselComponent,
+    RecurrencePatternDialogComponent
   ]
 })
 export class AppModule { }

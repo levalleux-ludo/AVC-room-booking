@@ -5,7 +5,7 @@ import { Room } from '../../_model';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
 import { BookingService } from '../../_services/booking.service';
-import { Booking, BookingPrivateData } from '../../_model/booking';
+import { Booking, BookingPrivateData, RecurrencePattern } from '../../_model/booking';
 import { TimePickerComponent } from '../time-picker/time-picker.component';
 import { PriceDisplayComponent } from '../price-display/price-display.component';
 import { ExtraService } from '../../_services/extra.service';
@@ -17,10 +17,11 @@ import { BookingsConfigService } from 'src/app/_services/bookings-config.service
 import { FilesService } from 'src/app/_services/files.service';
 import { UserService } from 'src/app/_services/user.service';
 import { AuthenticationService } from 'src/app/_services';
+import { RecurrencePatternDialogComponent, recurrencePattern2String } from '../recurrence-pattern-dialog/recurrence-pattern-dialog.component';
 
 
 const NEW_ORGANIZATION = {name: 'New Organization ...'};
-class DateInPastErrorMatcher implements ErrorStateMatcher {
+export class DateInPastErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     // return control.dirty && form.invalid;
     return form.invalid;
@@ -65,6 +66,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   tacChecked = false;
   newOrganization = NEW_ORGANIZATION;
 
+  recurrencePattern: RecurrencePattern = undefined;
 
   static editBooking(
     dialog: MatDialog,
@@ -111,7 +113,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       organizations: organizations,
       rooms: rooms,
       hirersDetails: privateData.hirersDetails,
-      responsibleDetails: privateData.responsibleDetails
+      responsibleDetails: privateData.responsibleDetails,
+      isRecurrent: booking.recurrencePatternId !== null,
+      recurrencePatternId: booking.recurrencePatternId
       // rooms: this.rooms.map(room => room.name),
     }
 
@@ -126,6 +130,12 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
             booking.roomId = data.room.id;
             booking.startDate = data.startDate;
             booking.endDate = data.endDate;
+            if ((booking.recurrencePatternId !== null) && !data.isRecurrent) {
+              // TODO: remove recurrence means delete all future events with the same recurrence
+            } else if ((booking.recurrencePatternId === null) && data.isRecurrent) {
+              // TODO add recurrence means create all future events with the same recurrence
+            }
+            booking.recurrencePatternId = data.isRecurrent ? data.recurrencePatternId : null;
             // private data
             privateData.title = data.title;
             privateData.details = data.description;
@@ -187,6 +197,13 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     this.startTime = BookingDialogComponent.getTimeFromDate(this.data.startDate);
     this.endTime = BookingDialogComponent.getTimeFromDate(this.data.endDate);
 
+    if ((this.data.recurrencePatternId !== undefined) && (this.data.recurrencePatternId !== null)){
+      this.bookingService.getRecurrencePattern(this.data.recurrencePatternId).subscribe(pattern => {
+        pattern.endDate = new Date(pattern.endDate);
+        this.recurrencePattern = pattern;
+      });
+    }
+
     this.firstFormGroup = this.fb.group({
       organization: [this.data.organization, Validators.required],
       organizationDetails: this.fb.group({
@@ -221,7 +238,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
           date: new FormControl(this.data.date, [Validators.required]),
           startDate: new FormControl(this.data.startDate, [Validators.required]),
           endDate: new FormControl(this.data.endDate, [Validators.required]),
-          totalPrice: 0
+          totalPrice: new FormControl(0),
+          isRecurrent: new FormControl(this.data.isRecurrent),
+          recurrencePatternId: new FormControl(this.data.recurrencePatternId)
     }, { validators: [this.dateInPastValidator, (form: FormGroup) => {
       if (this.form && this.checkConflicts(this.startDate, this.endDate)) {
         return { timeSlotHasConflict: true };
@@ -276,6 +295,16 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       return { tacNotChecked: true };
     }
     return null;
+  }
+
+  recurrencePattern2String(): string {
+    if (!this.recurrencePattern) {
+      return '';
+    }
+    const monthlyMode = this.recurrencePattern.dayInMonth > 0 ? 'day' : 'week';
+    return recurrencePattern2String(
+      this.recurrencePattern,
+      monthlyMode);
   }
 
   ngAfterViewInit(): void {
@@ -686,7 +715,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
   onOrganizationSelectChange(orga: Organization) {
     console.log('onOrganizationSelectChange', orga);
-    this.firstFormGroup.controls['organizationDetails'].patchValue(
+    this.firstFormGroup.controls.organizationDetails.patchValue(
       (orga !== this.newOrganization) ? {
         name: orga.name,
         address: orga.address,
@@ -700,5 +729,27 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
         phone: '',
         isCharity: false
       });
+  }
+
+  onchangeRecurrent(isRecurrent: boolean) {
+    // if (this.readOnly) {
+    //   this.form.controls.isRecurrent.patchValue(!isRecurrent);
+    // }
+  }
+
+  editRecurrence() {
+    RecurrencePatternDialogComponent.editPattern(
+      this.dialog,
+      this.form.controls.recurrencePatternId.value,
+      this.bookingService,
+      (pattern) => {
+        this.recurrencePattern = pattern;
+        if (pattern) {
+          this.form.controls.recurrencePatternId.patchValue(pattern.id);
+        } else {
+          this.form.controls.recurrencePatternId.patchValue(null);
+        }
+      }
+    );
   }
 }

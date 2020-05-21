@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
-import { Booking, BookingPrivateData } from '../_model/booking';
+import { Booking, BookingPrivateData, RecurrencePattern } from '../_model/booking';
 import { FetchService } from '../_helpers';
 import { tap, catchError, delayWhen, map } from 'rxjs/operators';
 
@@ -127,8 +127,9 @@ export class BookingService extends FetchService {
       extras: [],
       totalPrice: 0,
       hirersDetails: undefined,
-      responsibleDetails: undefined,
-      }
+      responsibleDetails: undefined
+      },
+      recurrencePatternId: null
     };
   }
 
@@ -145,6 +146,29 @@ export class BookingService extends FetchService {
     return this.http.get<string>(url, this.httpOptions).pipe(
       tap((state: string) => this.log(`get state of booking event w/ ref=${bookingId}: ${state}`)),
       catchError(this.handleError<string>('getBookingState'))
+    );
+  }
+
+  getRecurrencePattern(patternId: any): Observable<RecurrencePattern> {
+    const url = `${this.apiBookings}/recurrence/${patternId}`;
+    return this.http.get<RecurrencePattern>(url, this.httpOptions).pipe(
+      tap((pattern) => this.log(`get recurrence pattern  w/ ref=${patternId}: ${pattern}`)),
+      catchError(this.handleError<RecurrencePattern>('getRecurrencePattern'))
+    );
+  }
+
+  createRecurrencePattern(pattern: RecurrencePattern): Observable<RecurrencePattern> {
+    return this.http.post<RecurrencePattern>(`${this.apiBookings}/recurrence/`, pattern, this.httpOptions).pipe(
+      tap((newPattern) => this.log(`created pattern ${newPattern}`)),
+      catchError(this.handleError<RecurrencePattern>('createRecurrencePattern'))
+    );
+  }
+
+  updateRecurrencePattern(patternId: any, pattern: RecurrencePattern): Observable<RecurrencePattern> {
+    const url = `${this.apiBookings}/recurrence/${patternId}`;
+    return this.http.put(url, pattern, this.httpOptions).pipe(
+      tap(_ => this.log(`updated pattern ${patternId}`)),
+      catchError(this.handleError<any>('updateRecurrencePattern'))
     );
   }
 

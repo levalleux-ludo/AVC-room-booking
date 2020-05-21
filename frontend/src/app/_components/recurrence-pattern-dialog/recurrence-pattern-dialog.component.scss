@@ -1,0 +1,32 @@
+.input-number {
+    bottom: 4px;
+    position: relative;
+    margin-left: 8px;
+    margin-right: 8px;
+    height: 2em;
+    width: 3em;
+    text-align: center;
+}
+
+.radio-button {
+    align-items: center;
+    height: 3em;
+}
+
+.combo-weekInMonth {
+    width: 5em;
+    margin-left: 4px;
+    position: relative;
+    bottom: -3px;
+}
+
+.combo-dayInWeek {
+    width: 8em;
+    margin-left: 4px;
+    position: relative;
+    bottom: -3px;
+}
+
+.recur-row {
+    height: 3em;
+}
