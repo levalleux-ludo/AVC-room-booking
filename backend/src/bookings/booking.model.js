@@ -65,7 +65,7 @@ var RecurrencePatternSchema = new Schema({
     weekMask: { type: Number },
     dayInMonth: { type: Number },
     weekInMonth: { type: Number },
-    weekDayInMonth: { type: String },
+    weekDayInMonth: { type: Number },
     endDate: { type: Date, required: true }
 });
 

@@ -10,7 +10,8 @@ const roomService = require('../rooms/room.service');
 const States = require('./booking.model').states;
 
 module.exports = {
-    create,
+    createOne,
+    createMulti,
     update,
     delete: _delete,
     getAll,
@@ -121,8 +122,7 @@ async function getAllForRoomSameDay(roomId, day) {
     return await Booking.find({ roomId: roomId, startDate: day });
 }
 
-async function create(bookingParam) {
-    // TODO don't allow to clash with other bookings of the same room at the same date  
+async function createOne(bookingParam) {
     await checkConflict(bookingParam);
 
     const booking = new Booking(bookingParam);
@@ -130,10 +130,21 @@ async function create(bookingParam) {
     const privateData = new BookingPrivateData(bookingParam.private);
     await privateData.save();
     booking.privateData = privateData.id;
-
     // save booking
     return await booking.save();
-    // return booking;
+}
+
+async function createMulti(bookingsParams) {
+    const bookings = [];
+    const errors = []
+    for (let bookingParam of bookingsParams) {
+        try {
+            bookings.push(createOne(bookingParam));
+        } catch (err) {
+            errors.push({ message: `unable to create booking of room ${booking.roomId} at ${booking.startDate}. Reason:${err}` });
+        }
+    }
+    return { bookings, errors };
 }
 
 async function update(id, bookingParam) {

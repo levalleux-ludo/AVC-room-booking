@@ -110,6 +110,7 @@
                         </mat-form-field>
                         <div fxFlex fxLayout="column" style="margin: 1em;">
                             <app-price-display #price [hourQuantity]="priceData.hourQuantity" [roomRatePerHour]="priceData.roomRatePerHour" [extras]="priceData.extras" [nbPeopleExpected]="form.controls['nbPeopleExpected'].value"></app-price-display>
+                            <div *ngIf="recurrent.checked">Price per occurrence ({{nbOccurrences}} occurrences planned)</div>
                         </div>
                     </div>
                     <div fxFlex fxLayout="column" style="margin: 1em;">
@@ -129,7 +130,7 @@
                                     <button (click)="editRecurrence()">Configure Recurrence</button>
                                 </div>
                             </div>
-                            <mat-form-field style="width: 18em;">
+                            <mat-form-field *ngIf="!recurrent.checked" style="width: 18em;">
                                 <input required readonly="readOnly" #dateInput matInput [min]="(readOnly) ? 0 : today" [matDatepicker]="picker" placeholder="Choose Date" formControlName="date" (dateInput)="onSelectedDateChanged()" (dateChange)="onSelectedDateChanged()" [matDatepickerFilter]="datePickerFilter"
                                     [errorStateMatcher]="(readOnly) ? null : errorMatcher">
                                 <mat-datepicker-toggle matSuffix [for]="picker "></mat-datepicker-toggle>
@@ -148,8 +149,8 @@
                             </div>
                         </div>
                         <div [ngStyle.xs]="{'overflow-x': 'auto', 'white-space': 'nowrap', 'width': '20em'}">
-                            <app-room-calendar #calendar [bookingFilter]="bookingFilter" [room]="selectedRoom " [height]="350 " [width]="400 " [scaleStartHour]="minTime " [scaleEndHour]="maxTime-1 " [readOnly]="true " [previewReadOnly]="readOnly" [showViews]="[ 'weekView'] " (selectionValidated)="OnCalendarPreviewUpdated($event)"
-                                (previewUpdated)="OnCalendarPreviewUpdated($event) "></app-room-calendar>
+                            <app-room-calendar #calendar [bookingFilter]="bookingFilter" [room]="selectedRoom " [height]="350 " [width]="400 " [scaleStartHour]="minTime " [scaleEndHour]="maxTime-1 " [readOnly]="true " [previewReadOnly]="readOnly || recurrent.checked" [showViews]="[ 'weekView'] "
+                                (selectionValidated)="OnCalendarPreviewUpdated($event)" (previewUpdated)="OnCalendarPreviewUpdated($event) "></app-room-calendar>
                         </div>
                     </div>
 

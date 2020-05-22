@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { RestURLBuilder } from 'rest-url-builder';
 
@@ -25,16 +25,12 @@ export class FetchService {
     }
 
     protected handleError<T> (operation = 'operation', result?: T) {
-        return (error: any): Observable<T> => {
-            // TODO: send the error to remote logging infrastructure
-            console.error(error);
-
-            // TODO: better job of transforming error for user consumption
-            this.log_error(`${operation} failed: ${error.message}`);
+        return (errorResponse: HttpErrorResponse): Observable<T> => {
+            this.log_error(`${operation} failed: ${errorResponse.message} ${errorResponse.error ? JSON.stringify(errorResponse.error) : ''}`);
 
             // // Let the app keep running by returning an empty result
             // return of(result as T);
-            return throwError(`${operation} failed: ${error.message}`);
+            return throwError(`${operation} failed: ${errorResponse.message} ${errorResponse.error ? JSON.stringify(errorResponse.error) : ''}`);
         }
     }
 }

@@ -18,6 +18,7 @@ import { FilesService } from 'src/app/_services/files.service';
 import { UserService } from 'src/app/_services/user.service';
 import { AuthenticationService } from 'src/app/_services';
 import { RecurrencePatternDialogComponent, recurrencePattern2String } from '../recurrence-pattern-dialog/recurrence-pattern-dialog.component';
+import { RecurrentEventService } from 'src/app/_services/recurrent-event.service';
 
 
 const NEW_ORGANIZATION = {name: 'New Organization ...'};
@@ -73,6 +74,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     createUpdateSrv: (booking: Booking, privateData: BookingPrivateData) => Observable<Booking>,
     createOrgaSrv: (orga: Organization) => Observable<Organization>,
     deleteSrv: (bookingId: any) => Observable<any>,
+    recurrentEventService: RecurrentEventService,
     then: (Booking, privateData: BookingPrivateData) => void,
     organizations: Organization[],
     rooms: Room[],
@@ -130,25 +132,45 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
             booking.roomId = data.room.id;
             booking.startDate = data.startDate;
             booking.endDate = data.endDate;
-            if ((booking.recurrencePatternId !== null) && !data.isRecurrent) {
-              // TODO: remove recurrence means delete all future events with the same recurrence
-            } else if ((booking.recurrencePatternId === null) && data.isRecurrent) {
-              // TODO add recurrence means create all future events with the same recurrence
-            }
-            booking.recurrencePatternId = data.isRecurrent ? data.recurrencePatternId : null;
-            // private data
-            privateData.title = data.title;
-            privateData.details = data.description;
-            privateData.organizationId = organizationId;
-            privateData.extras = data.extras;
-            privateData.totalPrice = data.totalPrice;
+            const recurrencePromise = new Promise((resolve, reject) => {
+              if ((booking.recurrencePatternId !== null) && !data.isRecurrent) {
+                // TODO: remove recurrence means delete all future events with the same recurrence
+                console.log(`Must delete recurrencePattern ${booking.recurrencePatternId} and all future events`);
+                recurrentEventService.delete(booking.recurrencePatternId, booking.id).then(() => {
+                  booking.recurrencePatternId = null;
+                  resolve();
+                }).catch(err => reject(err));
+              } else if ((booking.recurrencePatternId === null) && data.isRecurrent) {
+                // TODO add recurrence means create all future events with the same recurrence
+                console.log(`Must create new recurrencePattern and all future events`);
+                recurrentEventService.create(booking, data.recurrencePattern).then(recurrencePattern => {
+                  booking.recurrencePatternId = recurrencePattern.id;
+                  resolve();
+                }).catch(err => reject(err));
+              } else if (data.isRecurrent) {
+                recurrentEventService.update(booking, data.recurrencePattern).then(() => {
+                  resolve();
+                }).catch(err => reject(err));
+              } else {
+                resolve();
+              }
+            });
+            recurrencePromise.then(() => {
+              // private data
+              privateData.title = data.title;
+              privateData.details = data.description;
+              privateData.organizationId = organizationId;
+              privateData.extras = data.extras;
+              privateData.totalPrice = data.totalPrice;
 
-            privateData.hirersDetails = data.hirersDetails;
-            privateData.responsibleDetails = data.responsibleDetails;
+              privateData.hirersDetails = data.hirersDetails;
+              privateData.responsibleDetails = data.responsibleDetails;
 
-            createUpdateSrv(booking, privateData).subscribe(
-              newBooking => then(newBooking, privateData)
-            );
+              createUpdateSrv(booking, privateData).subscribe(
+                newBooking => then(newBooking, privateData),
+                err => alert(err)
+              );
+            }).catch(err => console.error(err));
           };
 
           if (NEW_ORGANIZATION.name === data.organization.name) {
@@ -183,6 +205,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<BookingDialogComponent>,
     private bookingService: BookingService,
+    private recurrencePatternService: RecurrentEventService,
     private extraService: ExtraService,
     private changeDetector: ChangeDetectorRef,
     private bookingsConfigService: BookingsConfigService,
@@ -304,6 +327,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     const monthlyMode = this.recurrencePattern.dayInMonth > 0 ? 'day' : 'week';
     return recurrencePattern2String(
       this.recurrencePattern,
+      new Date(this.form.controls.date.value),
       monthlyMode);
   }
 
@@ -655,7 +679,8 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       this.dialogRef.close({action: (this.newBooking) ? "create" : "update", data: {
         ...form.value.first,
         ...form.value.second,
-        ...form.value.third
+        ...form.value.third,
+        recurrencePattern: this.recurrencePattern
       }});
   }
 
@@ -740,16 +765,30 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   editRecurrence() {
     RecurrencePatternDialogComponent.editPattern(
       this.dialog,
-      this.form.controls.recurrencePatternId.value,
-      this.bookingService,
-      (pattern) => {
+      this.recurrencePattern,
+      this.startDate ? this.startDate : this.form.controls.date.value,
+      ({startDate, ...pattern}) => {
         this.recurrencePattern = pattern;
         if (pattern) {
           this.form.controls.recurrencePatternId.patchValue(pattern.id);
+          this.form.controls.date.patchValue(startDate);
+          this.onSelectedDateChanged();
         } else {
           this.form.controls.recurrencePatternId.patchValue(null);
         }
       }
     );
+  }
+
+  get nbOccurrences(): number {
+    if (!this.recurrencePattern) {
+      return 0;
+    }
+    const monthlyMode = this.recurrencePattern.dayInMonth > 0 ? 'day' : 'week';
+    return this.recurrencePatternService.computeOccurences(
+      this.recurrencePattern,
+      this.startDate ? this.startDate : this.form.controls.date.value,
+      monthlyMode
+    ).length;
   }
 }

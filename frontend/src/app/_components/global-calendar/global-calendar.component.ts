@@ -8,6 +8,7 @@ import { BookingDialogComponent } from '../booking-dialog/booking-dialog.compone
 import { OrganizationService } from '../../_services/organization.service';
 import { Organization } from '../../_model/organization';
 import { WaiterService } from 'src/app/_services/waiter.service';
+import { RecurrentEventService } from 'src/app/_services/recurrent-event.service';
 
 @Component({
   selector: 'app-global-calendar',
@@ -21,7 +22,8 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
     protected roomService: RoomService,
     protected organizationService: OrganizationService,
     protected dialog: MatDialog,
-    protected waiter: WaiterService
+    protected waiter: WaiterService,
+    protected recurrentEventService: RecurrentEventService
   )
   {
       super(bookingService, organizationService, roomService, waiter);
@@ -84,6 +86,7 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
             (booking, privateData) => this.bookingService.updateBooking(booking, privateData),
             (orga) => this.organizationService.createOrganization(orga),
             (bookingId) => this.bookingService.deleteBooking(bookingId),
+            this.recurrentEventService,
             (booking, privateData) => {
                 // TODO refresh calendar to show new or updated or deleted booking
                 this.getBookings();

@@ -18,6 +18,7 @@ import { inject } from '@angular/core/testing';
 import { DialogCarouselComponent } from '../dialog-carousel/dialog-carousel.component';
 import { AuthenticationService, AuthorizationRules } from 'src/app/_services';
 import { UserService } from 'src/app/_services/user.service';
+import { RecurrentEventService } from 'src/app/_services/recurrent-event.service';
 
 @Directive({
   selector: '[appSetImageToCenter]'
@@ -161,6 +162,7 @@ export class RoomDetailComponent implements OnInit {
     private organizationService: OrganizationService,
     private imagesService: ImagesService,
     private authenticationService: AuthenticationService,
+    private recurrentEventService: RecurrentEventService,
     private userService: UserService,
     private location: Location, // required to get back in navigation history
     private dialog: MatDialog, // required to open a dialog
@@ -280,6 +282,7 @@ export class RoomDetailComponent implements OnInit {
         });
       },
       (bookingId) => of(null),
+      this.recurrentEventService,
       (newBooking, privateData) =>  {
         console.log("booking has been created:", newBooking);
         if (newBooking.roomId === this.room.id) {

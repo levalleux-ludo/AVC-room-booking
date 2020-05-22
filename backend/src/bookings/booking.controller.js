@@ -32,9 +32,20 @@ router.delete('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff,
 module.exports = router;
 
 function create(req, res, next) {
-    bookingService.create(req.body)
-        .then((booking) => res.json(booking))
-        .catch(err => next(err));
+    if (Array.isArray(req.body)) {
+        bookingService.createMulti(req.body)
+            .then(({ bookings, errors }) => {
+                const status = (errors.length > 0) ? 500 : 201;
+                return res.status(status).json({ bookings, errors });
+            })
+            .catch(err => next(err));
+    } else {
+        bookingService.createOne(req.body)
+            .then(booking => {
+                return res.status(201).json(booking);
+            })
+            .catch(err => next(err));
+    }
 }
 
 function getAll(req, res, next) {

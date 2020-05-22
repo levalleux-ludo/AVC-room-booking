@@ -1,6 +1,6 @@
 <form [formGroup]="form" (ngSubmit)="submit(form)">
     <mat-dialog-content>
-        <div fxLayout="row" style="height: 20em;">
+        <div fxLayout="row" style="height: 30em;">
             <div style="width: 20em;">
                 <div>Periodicity Scheme:
                     <mat-radio-group required #frequency aria-label="Select an option" [value]="selectedFrequency" formControlName="frequency" (change)="selectedFrequency = $event.value" fxLayout="column">
@@ -10,11 +10,21 @@
                     </mat-radio-group>
                 </div>
                 <div>
+                    By:
+                    <mat-form-field style="width: 18em;">
+                        <input required #startDateInput matInput [min]="today" [matDatepicker]="startDatePicker" placeholder="Choose Start Date" formControlName="startDate" [errorStateMatcher]="errorMatcher" (dateChange)="(form.controls['endDate'].value < $event.value) ? form.controls['endDate'].patchValue(startDate) : ''">
+                        <mat-datepicker-toggle matSuffix [for]="startDatePicker "></mat-datepicker-toggle>
+                        <mat-datepicker #startDatePicker></mat-datepicker>
+                        <mat-error *ngIf="form && form.hasError('dateInPast')">Start date/time can not be past</mat-error>
+                    </mat-form-field>
+
+                </div>
+                <div>
                     Until:
                     <mat-form-field style="width: 18em;">
-                        <input required #dateInput matInput [min]="today" [matDatepicker]="picker" placeholder="Choose End Date" formControlName="endDate" [errorStateMatcher]="errorMatcher">
-                        <mat-datepicker-toggle matSuffix [for]="picker "></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
+                        <input required #endDateInput matInput [min]="startDate" [matDatepicker]="endDatePicker" placeholder="Choose End Date" formControlName="endDate" [errorStateMatcher]="errorMatcher">
+                        <mat-datepicker-toggle matSuffix [for]="endDatePicker "></mat-datepicker-toggle>
+                        <mat-datepicker #endDatePicker></mat-datepicker>
                         <mat-error *ngIf="form && form.hasError('dateInPast')">Start date/time can not be past</mat-error>
                     </mat-form-field>
 
@@ -23,19 +33,17 @@
                     {{recurrencePattern2String()}}
                 </diV>
             </div>
-            <div fxLayout="column" style="width: 30em;" *ngIf="selectedFrequency !== ''">
-                <div fxLayout="row" class="recur-row">
+            <div fxLayout="column" style="width: 20em;">
+                <div fxLayout="row" class="recur-row" *ngIf="selectedFrequency !== ''">
                     <div>Recur every</div>
                     <input class="input-number" #recurrence type="number" value="1" min="1" max="30" formControlName="recurrence">
                     <div *ngIf="selectedFrequency === 'Daily'">day(s)</div>
                     <div *ngIf="selectedFrequency === 'Weekly'">week(s) on:</div>
                     <div *ngIf="selectedFrequency === 'Monthly'">month(s) on:</div>
                 </div>
-                <div fxLayout="column">
-                    <div *ngIf="selectedFrequency === 'Weekly'">
-                        <div *ngFor="let day of days; let idx = index">
-                            <mat-checkbox [checked]="isDayChecked(day.value)" (change)="checkDay(day.value, $event.checked)">{{day.day}}</mat-checkbox>
-                        </div>
+                <div *ngIf="selectedFrequency === 'Weekly'">
+                    <div *ngFor="let day of days; let idx = index">
+                        <mat-checkbox [checked]="isDayChecked(day.value)" (change)="checkDay(day.value, $event.checked)">{{day.day}}</mat-checkbox>
                     </div>
                 </div>
                 <div *ngIf="selectedFrequency === 'Monthly'">
@@ -44,7 +52,7 @@
                             <div fxLayout="row" class="radio-button">
                                 <div>Day</div>
                                 <input class="input-number" type="number" min="1" max="31" formControlName="dayInMonth" (change)="onDayChange($event)">
-                                <div>of every {{recurrence.value}} month(s)</div>
+                                <div>of every {{form.controls['recurrence'].value}} month(s)</div>
                             </div>
                         </mat-radio-button>
                         <mat-radio-button fxFlex [checked]="monthlyMode === 'week'" value="week">
@@ -57,14 +65,18 @@
                                 </mat-form-field>
                                 <mat-form-field class="combo-dayInWeek">
                                     <mat-select formControlName="weekDayInMonth" (selectionChange)="selectDayInMonth($event)">
-                                        <mat-option *ngFor="let day of days" value="{{day.day}}">{{day.day}}</mat-option>
+                                        <mat-option *ngFor="let day of days" value="{{day.num}}">{{day.day}}</mat-option>
                                     </mat-select>
                                 </mat-form-field>
-                                <div>of every {{recurrence.value}} month(s)</div>
                             </div>
+                            <div>of every {{form.controls['recurrence'].value}} month(s)</div>
                         </mat-radio-button>
                     </mat-radio-group>
                 </div>
+            </div>
+            <div fxLayout="column" style="width: 20em;">
+                <div>Nb Occurrences: {{computeOccurrences().length}}</div>
+                <div *ngFor="let date of computeOccurrences()">{{date.toLocaleString()}}</div>
             </div>
         </div>
 

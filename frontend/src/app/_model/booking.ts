@@ -14,7 +14,7 @@ export interface RecurrencePattern {
   weekMask: number;
   dayInMonth: number;
   weekInMonth: number;
-  weekDayInMonth: string;
+  weekDayInMonth: number;
   endDate: Date;
 }
 
