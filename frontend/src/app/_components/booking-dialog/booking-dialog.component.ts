@@ -5,7 +5,7 @@ import { Room } from '../../_model';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
 import { BookingService } from '../../_services/booking.service';
-import { Booking, BookingPrivateData, RecurrencePattern } from '../../_model/booking';
+import { Booking, BookingPrivateData, RecurrencePatternParams } from '../../_model/booking';
 import { TimePickerComponent } from '../time-picker/time-picker.component';
 import { PriceDisplayComponent } from '../price-display/price-display.component';
 import { ExtraService } from '../../_services/extra.service';
@@ -67,7 +67,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   tacChecked = false;
   newOrganization = NEW_ORGANIZATION;
 
-  recurrencePattern: RecurrencePattern = undefined;
+  recurrencePattern: RecurrencePatternParams = undefined;
 
   static editBooking(
     dialog: MatDialog,
@@ -143,7 +143,16 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
               } else if ((booking.recurrencePatternId === null) && data.isRecurrent) {
                 // TODO add recurrence means create all future events with the same recurrence
                 console.log(`Must create new recurrencePattern and all future events`);
-                recurrentEventService.create(booking, data.recurrencePattern).then(recurrencePattern => {
+                privateData.title = data.title;
+                privateData.details = data.description;
+                privateData.organizationId = organizationId;
+                privateData.extras = data.extras;
+                privateData.totalPrice = data.totalPrice;
+
+                privateData.hirersDetails = data.hirersDetails;
+                privateData.responsibleDetails = data.responsibleDetails;
+
+                recurrentEventService.create(booking, privateData, data.recurrencePattern).then(recurrencePattern => {
                   booking.recurrencePatternId = recurrencePattern.id;
                   resolve();
                 }).catch(err => reject(err));

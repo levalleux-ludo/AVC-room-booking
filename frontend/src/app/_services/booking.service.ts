@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
-import { Booking, BookingPrivateData, RecurrencePattern } from '../_model/booking';
+import { Booking, BookingPrivateData, RecurrencePatternParams, RecurrencePattern } from '../_model/booking';
 import { FetchService } from '../_helpers';
 import { tap, catchError, delayWhen, map } from 'rxjs/operators';
 
@@ -11,8 +11,8 @@ import { tap, catchError, delayWhen, map } from 'rxjs/operators';
 })
 export class BookingService extends FetchService {
 
+  private static instancesCount = 0;
   private apiBookings = `${environment.apiRoomBooking}/booking`;
-
   private _minBookingTime = 8;
 
   constructor(
@@ -96,6 +96,17 @@ export class BookingService extends FetchService {
     );
   }
 
+  createBookings(bookings: Booking[], privateDatas: BookingPrivateData[]): Observable<{ bookings: Booking[], errors: any[] }> {
+    const bookingsParams = [];
+    for (let i = 0; i < bookings.length; i++) {
+      bookingsParams.push({...bookings[i], private: privateDatas[i]});
+    }
+    return this.http.post<any>(`${this.apiBookings}/create`, bookingsParams, this.httpOptions).pipe(
+      tap(({ bookings: newBookings, errors }) => this.log(`created bookings events w/ ref=${newBookings}, error=${errors}`)),
+      catchError(this.handleError<any>('createBookings'))
+    );
+  }
+
   updateBooking(booking: Booking, privateData: BookingPrivateData): Observable<Booking> {
     const bookingParams = {...booking, private: privateData};
     const url = `${this.apiBookings}/${booking.id}`;
@@ -106,7 +117,7 @@ export class BookingService extends FetchService {
   }
 
   getNewRef(): string {
-    return new Date().valueOf().toString();
+    return new Date().valueOf().toString() + BookingService.instancesCount++;
   }
 
   getEmptyBooking(): Booking {
@@ -157,14 +168,14 @@ export class BookingService extends FetchService {
     );
   }
 
-  createRecurrencePattern(pattern: RecurrencePattern): Observable<RecurrencePattern> {
+  createRecurrencePattern(pattern: RecurrencePatternParams): Observable<RecurrencePattern> {
     return this.http.post<RecurrencePattern>(`${this.apiBookings}/recurrence/`, pattern, this.httpOptions).pipe(
       tap((newPattern) => this.log(`created pattern ${newPattern}`)),
       catchError(this.handleError<RecurrencePattern>('createRecurrencePattern'))
     );
   }
 
-  updateRecurrencePattern(patternId: any, pattern: RecurrencePattern): Observable<RecurrencePattern> {
+  updateRecurrencePattern(patternId: any, pattern: RecurrencePatternParams): Observable<RecurrencePattern> {
     const url = `${this.apiBookings}/recurrence/${patternId}`;
     return this.http.put(url, pattern, this.httpOptions).pipe(
       tap(_ => this.log(`updated pattern ${patternId}`)),

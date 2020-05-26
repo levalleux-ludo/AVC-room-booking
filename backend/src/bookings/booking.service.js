@@ -23,7 +23,8 @@ module.exports = {
     getRecurrencePatternById,
     createRecurrencePattern,
     updateRecurrencePattern,
-    deleteRecurrencePattern
+    deleteRecurrencePattern,
+    cleanUndefinedRefs
     // getAllForRoom
 };
 
@@ -246,4 +247,35 @@ async function deleteRecurrencePattern(id) {
         throw Error("Unable to delete the pattern because some existing bookings still reference it");
     }
     await RecurrencePattern.findByIdAndRemove(id);
+}
+
+async function cleanUndefinedRefs() {
+    console.log('Scheduled task bookingService.cleanUndefinedRefs');
+    await BookingPrivateData.find(async(err, privateDatas) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        privateDatas.forEach(async(privateData) => {
+            let bookings = await Booking.find({ privateData: privateData._id }).select("_id");
+            if (bookings.length === 0) {
+                await BookingPrivateData.findByIdAndRemove(privateData._id);
+            }
+        });
+        return;
+    });
+    await RecurrencePattern.find(async(err, recurrencePatterns) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        recurrencePatterns.forEach(async(recurrencePattern) => {
+            let bookings = await Booking.find({ recurrencePatternId: recurrencePattern._id }).select("_id");
+            if (bookings.length === 0) {
+                console.log('remove recurrencePattern with id', recurrencePattern._id);
+                await RecurrencePattern.findByIdAndRemove(recurrencePattern._id);
+            }
+        });
+        return;
+    });
 }

@@ -3,7 +3,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef, MatRadioChange } from '@angular/material';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { Booking, RecurrencePattern } from 'src/app/_model/booking';
+import { Booking, RecurrencePatternParams } from 'src/app/_model/booking';
 import { DateInPastErrorMatcher } from '../booking-dialog/booking-dialog.component';
 import { RecurrentEventService } from 'src/app/_services/recurrent-event.service';
 
@@ -43,13 +43,13 @@ export function decodeDay(dayMask: number): {day: string, num: number}[] {
   return days;
 }
 
-export function computeOccurences(pattern: RecurrencePattern, startDate: Date, monthlyMode: string): Date[] {
+export function computeOccurences(pattern: RecurrencePatternParams, startDate: Date, monthlyMode: string): Date[] {
   const occurrences = [];
 
   return occurrences;
 }
 
-export function recurrencePattern2String(pattern: RecurrencePattern, startDate: Date, monthlyMode: string) {
+export function recurrencePattern2String(pattern: RecurrencePatternParams, startDate: Date, monthlyMode: string) {
   if (!pattern) {
     return '';
   }
@@ -119,7 +119,7 @@ export class RecurrencePatternDialogComponent implements OnInit {
 
   static editPattern(
     dialog: MatDialog,
-    recurrencePattern: RecurrencePattern,
+    recurrencePattern: RecurrencePatternParams,
     startDate: Date,
     onCompleted: (pattern: any) => void) {
       const dialogConfig = new MatDialogConfig();

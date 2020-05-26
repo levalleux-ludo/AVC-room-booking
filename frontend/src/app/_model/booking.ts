@@ -8,7 +8,7 @@ import { Extra } from './extra';
 //     comments: string;
 // }
 
-export interface RecurrencePattern {
+export interface RecurrencePatternParams {
   frequency: string;
   recurrence: number;
   weekMask: number;
@@ -16,6 +16,10 @@ export interface RecurrencePattern {
   weekInMonth: number;
   weekDayInMonth: number;
   endDate: Date;
+}
+
+export interface RecurrencePattern extends RecurrencePatternParams {
+  _id: any;
 }
 
 export class BookingPrivateData {
