@@ -83,10 +83,9 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
         if (appointment) {
           BookingDialogComponent.editBooking(
             this.dialog,
-            (booking, privateData) => this.bookingService.updateBooking(booking, privateData),
-            (orga) => this.organizationService.createOrganization(orga),
-            (bookingId) => this.bookingService.deleteBooking(bookingId),
+            this.bookingService,
             this.recurrentEventService,
+            (orga) => this.organizationService.createOrganization(orga),
             (booking, privateData) => {
                 // TODO refresh calendar to show new or updated or deleted booking
                 this.getBookings();

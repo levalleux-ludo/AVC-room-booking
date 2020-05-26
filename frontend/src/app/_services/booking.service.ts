@@ -183,4 +183,12 @@ export class BookingService extends FetchService {
     );
   }
 
+  deletePatternAndBookings(patternId: any, dateAfter: Date): Observable<void> {
+    const url = `${this.apiBookings}/recurrence/${patternId}?deletePattern=false&deleteBookings=true&startAfter=${dateAfter.toUTCString()}`;
+    return this.http.delete(url, this.httpOptions).pipe(
+      tap(_ => this.log(`deleted pattern ${patternId}`)),
+      catchError(this.handleError<any>('deletePatternAndBookings'))
+    );
+  }
+
 }

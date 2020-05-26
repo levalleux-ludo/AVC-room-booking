@@ -9,6 +9,7 @@ const get_organizations_for_user = require('../_helpers/get_organizations_for_us
 router.post('/create', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), create);
 router.put('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), update);
 // TODO : router.put('/cancel/:id', cancel);
+router.put('/check', checkConflicts);
 router.get('/private', get_organizations_for_user(), getAllPrivateData);
 router.get('/recurrence', getAllRecurrencePatterns);
 router.post('/recurrence', createRecurrencePattern);
@@ -43,6 +44,20 @@ function create(req, res, next) {
         bookingService.createOne(req.body)
             .then(booking => {
                 return res.status(201).json(booking);
+            })
+            .catch(err => next(err));
+    }
+}
+
+function checkConflicts(req, res, next) {
+    if (Array.isArray(req.body)) {
+        bookingService.checkConflicts(req.body).then(results => {
+                res.json(results);
+            })
+            .catch(err => next(err));
+    } else {
+        bookingService.checkConflicts([req.body]).then(results => {
+                res.json(results[0]);
             })
             .catch(err => next(err));
     }
@@ -98,7 +113,11 @@ function updateRecurrencePattern(req, res, next) {
 }
 
 function deleteRecurrencePattern(req, res, next) {
-    bookingService.deleteRecurrencePattern(req.params.id)
+    bookingService.deleteRecurrencePattern(
+            req.params.id,
+            deletePattern = req.query.deletePattern,
+            deleteBookings = req.query.deleteBookings,
+            startAfter = req.query.startAfter)
         .then(() => res.json({}))
         .catch(err => next(err));
 }

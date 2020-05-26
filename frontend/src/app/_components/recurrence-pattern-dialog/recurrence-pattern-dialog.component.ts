@@ -99,7 +99,7 @@ export function recurrencePattern2String(pattern: RecurrencePatternParams, start
       break;
     }
   }
-  return `Occurs every ${occurrence}${ondays} by ${startDate.toLocaleDateString()} until ${pattern.endDate ? pattern.endDate.toLocaleDateString() : '?'}`;
+  return `Occurs every ${occurrence}${ondays} until ${pattern.endDate ? pattern.endDate.toLocaleDateString() : '?'}`;
 }
 
 @Component({
@@ -231,7 +231,7 @@ export class RecurrencePatternDialogComponent implements OnInit {
   computeOccurrences(): Date[] {
     const pattern = { ...this.form.value };
     pattern.endDate = new Date (this.form.controls.endDate.value);
-    return this.recurrentEventService.computeOccurences(pattern, this.startDate, this.monthlyMode);
+    return this.recurrentEventService.computeOccurrences(pattern, this.startDate, this.monthlyMode);
   }
 
   isDayChecked(dayValue: number): boolean {

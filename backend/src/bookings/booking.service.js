@@ -24,7 +24,9 @@ module.exports = {
     createRecurrencePattern,
     updateRecurrencePattern,
     deleteRecurrencePattern,
-    cleanUndefinedRefs
+    cleanUndefinedRefs,
+    checkConflict,
+    checkConflicts
     // getAllForRoom
 };
 
@@ -140,7 +142,7 @@ async function createMulti(bookingsParams) {
     const errors = []
     for (let bookingParam of bookingsParams) {
         try {
-            bookings.push(createOne(bookingParam));
+            bookings.push(await createOne(bookingParam));
         } catch (err) {
             errors.push({ message: `unable to create booking of room ${booking.roomId} at ${booking.startDate}. Reason:${err}` });
         }
@@ -175,6 +177,19 @@ async function update(id, bookingParam) {
 async function _delete(id) {
     await BookingPrivateData.findByIdAndRemove(booking.privateData);
     await Booking.findByIdAndRemove(id);
+}
+
+async function checkConflicts(bookingParams) {
+    const results = [];
+    for (const bookingParam of bookingParams) {
+        try {
+            await bookingService.checkConflict(params);
+            results.push(false);
+        } catch {
+            results.push(true);
+        }
+    }
+    return results;
 }
 
 async function checkConflict(bookingParam) {
@@ -240,13 +255,20 @@ async function updateRecurrencePattern(id, patternData) {
     return await pattern.save();
 }
 
-async function deleteRecurrencePattern(id) {
-    // check it is not possible to delete a pattern if some bookings still reference it
-    const bookings = await Booking.find({ recurrencePatternId: id });
-    if (bookings.length > 0) {
-        throw Error("Unable to delete the pattern because some existing bookings still reference it");
+async function deleteRecurrencePattern(id, deletePattern = true, deleteBookings = false, startAfter = undefined) {
+
+    if (deleteBookings && startAfter) {
+        await Booking.deleteMany({ recurrencePatternId: id, startDate: { $gte: startAfter } });
     }
-    await RecurrencePattern.findByIdAndRemove(id);
+    if (deletePattern === true) {
+        console.log('deletePattern', deletePattern);
+        // check it is not possible to delete a pattern if some bookings still reference it
+        const bookings = await Booking.find({ recurrencePatternId: id });
+        if (bookings.length > 0 && !deleteBookings) {
+            throw Error("Unable to delete the pattern because some existing bookings still reference it");
+        }
+        await RecurrencePattern.findByIdAndRemove(id);
+    }
 }
 
 async function cleanUndefinedRefs() {

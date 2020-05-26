@@ -261,7 +261,8 @@ export class RoomDetailComponent implements OnInit {
   bookNow() {
     BookingDialogComponent.editBooking(
       this.dialog,
-      (newBooking, privateData) => this.bookingService.createBooking(newBooking, privateData),
+      this.bookingService,
+      this.recurrentEventService,
       (orga) => {
         return new Observable<Organization>(observer => {
           this.organizationService.createOrganization(orga).subscribe((orga) => {
@@ -281,8 +282,6 @@ export class RoomDetailComponent implements OnInit {
           });
         });
       },
-      (bookingId) => of(null),
-      this.recurrentEventService,
       (newBooking, privateData) =>  {
         console.log("booking has been created:", newBooking);
         if (newBooking.roomId === this.room.id) {

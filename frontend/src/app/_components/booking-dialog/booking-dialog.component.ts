@@ -5,7 +5,7 @@ import { Room } from '../../_model';
 import { NgbTimeStruct } from '@ng-bootstrap/ng-bootstrap';
 import { RoomCalendarComponent } from '../room-calendar/room-calendar.component';
 import { BookingService } from '../../_services/booking.service';
-import { Booking, BookingPrivateData, RecurrencePatternParams } from '../../_model/booking';
+import { Booking, BookingPrivateData, RecurrencePatternParams, RecurrencePattern } from '../../_model/booking';
 import { TimePickerComponent } from '../time-picker/time-picker.component';
 import { PriceDisplayComponent } from '../price-display/price-display.component';
 import { ExtraService } from '../../_services/extra.service';
@@ -35,6 +35,147 @@ export class DateInPastErrorMatcher implements ErrorStateMatcher {
   styleUrls: ['./booking-dialog.component.scss']
 })
 export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewChecked {
+
+
+  constructor(
+    private dialog: MatDialog,
+    private fb: FormBuilder,
+    private dialogRef: MatDialogRef<BookingDialogComponent>,
+    private bookingService: BookingService,
+    private recurrencePatternService: RecurrentEventService,
+    private extraService: ExtraService,
+    private changeDetector: ChangeDetectorRef,
+    private bookingsConfigService: BookingsConfigService,
+    private filesServices: FilesService,
+    private userService: UserService,
+    private authenticationService: AuthenticationService,
+    @Inject(MAT_DIALOG_DATA) public data: any) {
+  }
+
+
+  set selectedExtras(value: any[]) {
+    console.log('BookingDialogCOmponent::selectedExtras() ', value);
+    this._selectedExtras = value;
+    this.updatePrice();
+  }
+  get selectedExtras() {
+    return this._selectedExtras;
+  }
+
+  get priceData(): {
+    hourQuantity: number,
+    roomRatePerHour: number,
+    extras: Extra[]
+  } {
+    let hourQuantity = 0;
+    let roomRatePerHour = 0;
+    let extras = [];
+    roomRatePerHour = this.selectedRoom.getRentRateHour(
+      (this.firstFormGroup.controls['organizationDetails'] &&
+        this.firstFormGroup.controls['organizationDetails'].value.isCharity) ?
+        eOrganizationType.CHARITY : 'default'
+    );
+    if (this.endDate && this.startDate) {
+      let durationMS = this.endDate.valueOf() - this.startDate.valueOf();
+      let durationHour = durationMS / (1000 * 60 * 60);
+      hourQuantity = durationHour;
+    }
+    for (let extraId of this._selectedExtras) {
+      let extra = this.getExtraFromId(extraId);
+      extras.push(extra);
+    }
+    return {
+      hourQuantity,
+      roomRatePerHour,
+      extras
+    };
+  }
+
+  get selectedRoom(): Room {
+    return this._selectedRoom;
+  }
+  set selectedRoom(value: Room) {
+    this._selectedRoom = value;
+    if (this._selectedRoom) {
+      this.bookingService.getBookings({roomId: this._selectedRoom.id, endAfter: (new Date())}).subscribe(
+        bookings => {
+          this.actualBookings = bookings;
+          if (this.selectedDate) {
+            this.computeUnavailableHours();
+            if (this.checkConflicts(this.startDate, this.endDate)) {
+              console.log('BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities')
+              this.unsetTimePickers();
+            }
+            this.updateCalendar();
+            this.updatePrice();
+          }
+        }
+      )
+    }
+
+  }
+
+  get selectedDate(): Date {
+    return this.form.value.date;
+  }
+
+  get startDate(): Date {
+    if (!this.startTime) {
+      return undefined;
+    }
+    let date: Date = new Date(this.form.value.date);
+    date.setHours(Math.floor(this.startTime));
+    date.setMinutes(60 * (this.startTime - Math.floor(this.startTime)) );
+    return date;
+  }
+
+  get endDate(): Date {
+    if (!this.endTime) {
+      return undefined;
+    }
+    let date: Date = new Date(this.form.value.date);
+    date.setHours(Math.floor(this.endTime));
+    date.setMinutes(60 * (this.endTime - Math.floor(this.endTime)) );
+    return date;
+  }
+  get startTime() {
+    return this._startTime;
+  }
+  set startTime(value: number) {
+    if (this._startTime !== value) {
+      console.log('BookingDialogComponent::set startTime()', value);
+      let oldStartTime = this._startTime;
+      this._startTime = value;
+      let oldEndTime = this._endTime;
+      if (this._endTime <= this._startTime) {
+        this._endTime = this._startTime + (oldEndTime - oldStartTime);
+      }
+      this.updateCalendar();
+      if (this.startTimePicker) {
+        this.startTimePicker.setHourWithoutNotification(this._startTime);
+      }
+      if (this.endTimePicker) {
+        this.endTimePicker.setHourWithoutNotification(this._endTime);
+      }
+    }
+  }
+  get endTime() {
+    return this._endTime;
+  }
+  set endTime(value: number) {
+    if (this._endTime !== value) {
+      let oldEndTime = this._endTime;
+      this._endTime = value;
+      this.updateCalendar();
+      if (this.endTimePicker) {
+        this.endTimePicker.setHourWithoutNotification(this._endTime);
+      }
+    }
+  }
+
+  get nbOccurrences(): number {
+    return this.nextOccurrences.length;
+  }
   form: FormGroup;
   firstFormGroup: FormGroup;
   thirdFormGroup: FormGroup;
@@ -68,13 +209,19 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   newOrganization = NEW_ORGANIZATION;
 
   recurrencePattern: RecurrencePatternParams = undefined;
+  nextOccurrences: Date[] = [];
+
+  shallUpdateCalendar = true;
+
+  _startTime: number = 0;
+
+  _endTime: number = 0;
 
   static editBooking(
     dialog: MatDialog,
-    createUpdateSrv: (booking: Booking, privateData: BookingPrivateData) => Observable<Booking>,
-    createOrgaSrv: (orga: Organization) => Observable<Organization>,
-    deleteSrv: (bookingId: any) => Observable<any>,
+    bookingService: BookingService,
     recurrentEventService: RecurrentEventService,
+    createOrgaSrv: (orga: Organization) => Observable<Organization>,
     then: (Booking, privateData: BookingPrivateData) => void,
     organizations: Organization[],
     rooms: Room[],
@@ -119,86 +266,156 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       isRecurrent: booking.recurrencePatternId !== null,
       recurrencePatternId: booking.recurrencePatternId
       // rooms: this.rooms.map(room => room.name),
-    }
+    };
 
     const dialogRef = dialog.open(BookingDialogComponent, dialogConfig);
     return dialogRef.afterClosed().subscribe(
       result => {
+        const data = result.data;
         if ((result.action === 'create') || (result.action === 'update')) {
-          const data = result.data;
-          console.log('Dialog output:', data);
 
-          const createUpdate = (organizationId) => {
-            booking.roomId = data.room.id;
-            booking.startDate = data.startDate;
-            booking.endDate = data.endDate;
-            const recurrencePromise = new Promise((resolve, reject) => {
-              if ((booking.recurrencePatternId !== null) && !data.isRecurrent) {
-                // TODO: remove recurrence means delete all future events with the same recurrence
-                console.log(`Must delete recurrencePattern ${booking.recurrencePatternId} and all future events`);
-                recurrentEventService.delete(booking.recurrencePatternId, booking.id).then(() => {
-                  booking.recurrencePatternId = null;
-                  resolve();
-                }).catch(err => reject(err));
-              } else if ((booking.recurrencePatternId === null) && data.isRecurrent) {
-                // TODO add recurrence means create all future events with the same recurrence
-                console.log(`Must create new recurrencePattern and all future events`);
-                privateData.title = data.title;
-                privateData.details = data.description;
-                privateData.organizationId = organizationId;
-                privateData.extras = data.extras;
-                privateData.totalPrice = data.totalPrice;
+          booking.roomId = data.room.id;
+          booking.startDate = data.startDate;
+          booking.endDate = data.endDate;
+          privateData.title = data.title;
+          privateData.details = data.description;
+          privateData.extras = data.extras;
+          privateData.totalPrice = data.totalPrice;
+          privateData.hirersDetails = data.hirersDetails;
+          privateData.responsibleDetails = data.responsibleDetails;
 
-                privateData.hirersDetails = data.hirersDetails;
-                privateData.responsibleDetails = data.responsibleDetails;
+          // Create new organization if needed
+          new Promise<any>((resolve, reject) => {
+            if (NEW_ORGANIZATION.name === data.organization.name) {
+              console.log('Must create a new organization in database');
+              const newOrganization = new Organization({
+                ...data.organizationDetails
+              });
+              createOrgaSrv(newOrganization).subscribe((orga) => {
+                resolve(orga.id);
+              });
+            } else {
+              resolve(data.organization.id);
+            }
+          }).then((organizationId) => {
+            privateData.organizationId = organizationId;
 
-                recurrentEventService.create(booking, privateData, data.recurrencePattern).then(recurrencePattern => {
-                  booking.recurrencePatternId = recurrencePattern.id;
-                  resolve();
+            // Create Recurrence pattern if needed
+            new Promise<RecurrencePattern>((resolve, reject) => {
+              if (data.isRecurrent) {
+                new Promise<boolean>((resolve2, reject2) => {
+                  if (booking.recurrencePatternId === null) {
+                    resolve2(true);
+                  } else {
+                    bookingService.getRecurrencePattern(booking.recurrencePatternId).subscribe(pattern => {
+                      pattern.endDate = new Date(pattern.endDate);
+                      let isDifferent = (pattern.frequency !== data.recurrencePattern.frequency);
+                      isDifferent = isDifferent || (pattern.recurrence !== data.recurrencePattern.recurrence);
+                      isDifferent = isDifferent || (pattern.endDate.valueOf() !== data.recurrencePattern.endDate.valueOf());
+                      isDifferent = isDifferent
+                      || ((pattern.frequency === 'Weekly') && (pattern.weekMask !== data.recurrencePattern.weekMask));
+                      isDifferent = isDifferent
+                      || ((pattern.frequency === 'Monthly') && (pattern.dayInMonth !== data.recurrencePattern.dayInMonth));
+                      isDifferent = isDifferent
+                      || ((pattern.frequency === 'Monthly') && (pattern.weekDayInMonth !== data.recurrencePattern.weekDayInMonth));
+                      isDifferent = isDifferent
+                      || ((pattern.frequency === 'Monthly') && (pattern.weekInMonth !== data.recurrencePattern.weekInMonth));
+                      resolve2(isDifferent);
+                    }, err => reject2(err));
+                  }
+                }).then(shallCreateNewRecurrence => {
+                  if (shallCreateNewRecurrence) {
+                    console.log('create new occurrence pattern');
+                    recurrentEventService.create(booking, privateData, data.recurrencePattern).then(recurrencePattern => {
+                      resolve(recurrencePattern);
+                    }).catch(err => reject(err));
+                  } else {
+                    resolve(booking.recurrencePatternId);
+                  }
                 }).catch(err => reject(err));
-              } else if (data.isRecurrent) {
-                recurrentEventService.update(booking, data.recurrencePattern).then(() => {
+              } else {
+                resolve(null); // do not use undefined cause we need te reset the field in database
+              }
+            }).then((recurrencePatternId) => {
+              const oldRecurrencePatternId = booking.recurrencePatternId;
+              booking.recurrencePatternId = recurrencePatternId;
+
+              // Create or update the main event
+              let createOrUpdateSrv: Observable<Booking>;
+              if (result.action === 'create') {
+                console.log('create main event');
+                createOrUpdateSrv =  bookingService.createBooking(booking, privateData);
+              } else {
+                console.log('update main event');
+                createOrUpdateSrv = bookingService.updateBooking(booking, privateData);
+              }
+              createOrUpdateSrv.subscribe((updatedBooking) => {
+
+                // If recurrence is removed or updated, delete next occurrences
+                new Promise((resolve, reject) => {
+                  if (oldRecurrencePatternId !== null) {
+                    console.log('remove pattern and next occurrences');
+                    bookingService.deletePatternAndBookings(oldRecurrencePatternId, booking.endDate).subscribe(() => {
+                      resolve();
+                    }, err => reject(err));
+                  } else {
+                    resolve();
+                  }
+                }).then(() => {
+
+                  // If recurrent, create next occurrences
+                  new Promise((resolve, reject) => {
+                    if (data.isRecurrent) {
+                      const newBookingsParams = [];
+                      const privateDatas = [];
+                      const duration = booking.endDate.valueOf() - booking.startDate.valueOf();
+                      for (let i = 1; i < data.nextOccurrences.length; i++) {
+                        // Do not consider the first occurrence because it has already been created/updated above
+                        const newBookingParams = {...booking};
+                        newBookingParams.ref = bookingService.getNewRef();
+                        newBookingParams.id = undefined;
+                        newBookingParams.recurrencePatternId = recurrencePatternId;
+                        newBookingParams.startDate = data.nextOccurrences[i];
+                        newBookingParams.endDate = new Date(data.nextOccurrences[i].valueOf() + duration);
+                        newBookingsParams.push(newBookingParams);
+                        const newPrivateData = {...privateData};
+                        newPrivateData['id'] = undefined;
+                        newPrivateData['_id'] = undefined;
+                        privateDatas.push(newPrivateData);
+                      }
+                      console.log('create next occurrences');
+                      bookingService.createBookings(newBookingsParams, privateDatas).subscribe(({ bookings, errors }) => {
+                        if (errors.length) {
+                          alert(errors);
+                        }
+                        resolve();
+                      }, err => { reject(err); });
+                    } else {
+                      resolve();
+                    }
+                  }).then(() => {
+                    then(booking, privateData);
+                  }).catch(err => alert(err));
+                }).catch(err => alert(err));
+              }, err => { alert(err); });
+            }).catch(err => { alert(err); });
+          }).catch(err => { alert(err); });
+        } else if (result.action === 'delete') {
+
+          bookingService.deleteBooking(booking.id).subscribe(() => {
+            new Promise((resolve, reject) => {
+              if (booking.recurrencePatternId && data.deleteAllOccurrences) {
+                console.log('remove pattern and next occurrences');
+                bookingService.deletePatternAndBookings(booking.recurrencePatternId, booking.endDate).subscribe(() => {
                   resolve();
-                }).catch(err => reject(err));
+                }, err => reject(err));
               } else {
                 resolve();
               }
-            });
-            recurrencePromise.then(() => {
-              // private data
-              privateData.title = data.title;
-              privateData.details = data.description;
-              privateData.organizationId = organizationId;
-              privateData.extras = data.extras;
-              privateData.totalPrice = data.totalPrice;
-
-              privateData.hirersDetails = data.hirersDetails;
-              privateData.responsibleDetails = data.responsibleDetails;
-
-              createUpdateSrv(booking, privateData).subscribe(
-                newBooking => then(newBooking, privateData),
-                err => alert(err)
-              );
-            }).catch(err => console.error(err));
-          };
-
-          if (NEW_ORGANIZATION.name === data.organization.name) {
-            console.log("Must create a new organization in database");
-            const organization = new Organization({
-              ...data.organizationDetails
-            });
-            createOrgaSrv(organization).subscribe((orga) => {
-              createUpdate(orga.id);
-            });
-
-          } else {
-            createUpdate(data.organization.id);
-          }
-
-        } else if (result.action === 'delete') {
-          deleteSrv(booking.id).subscribe(
-            () => then(undefined, undefined)
-          );
+            }).then(() => {
+              then(undefined, undefined);
+            }).catch(err => alert(err));
+          }, err => alert(err));
         }
       }
     );
@@ -206,22 +423,6 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
   static getTimeFromDate(date: Date): number {
     return date.getHours() + (date.getMinutes() / 60);
-  }
-
-
-  constructor(
-    private dialog: MatDialog,
-    private fb: FormBuilder,
-    private dialogRef: MatDialogRef<BookingDialogComponent>,
-    private bookingService: BookingService,
-    private recurrencePatternService: RecurrentEventService,
-    private extraService: ExtraService,
-    private changeDetector: ChangeDetectorRef,
-    private bookingsConfigService: BookingsConfigService,
-    private filesServices: FilesService,
-    private userService: UserService,
-    private authenticationService: AuthenticationService,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
   }
   ngOnInit() {
     this.selectedRoom = this.data.room;
@@ -233,6 +434,8 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       this.bookingService.getRecurrencePattern(this.data.recurrencePatternId).subscribe(pattern => {
         pattern.endDate = new Date(pattern.endDate);
         this.recurrencePattern = pattern;
+        const monthlyMode = pattern.dayInMonth > 0 ? 'day' : 'week';
+        this.nextOccurrences = this.recurrencePatternService.computeOccurrences(pattern, this.startDate, monthlyMode);
       });
     }
 
@@ -355,16 +558,6 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   ngAfterViewChecked(): void {
   }
 
-
-  set selectedExtras(value: any[]) {
-    console.log('BookingDialogCOmponent::selectedExtras() ', value);
-    this._selectedExtras = value;
-    this.updatePrice();
-  }
-  get selectedExtras() {
-    return this._selectedExtras;
-  }
-
   updatePrice() {
     // if (this.priceDisplay) {
     //   this.priceDisplay.roomRatePerHour = this.selectedRoom.getRentRateHour(
@@ -386,63 +579,10 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
   }
 
-  get priceData(): {
-    hourQuantity: number,
-    roomRatePerHour: number,
-    extras: Extra[]
-  } {
-    let hourQuantity = 0;
-    let roomRatePerHour = 0;
-    let extras = [];
-    roomRatePerHour = this.selectedRoom.getRentRateHour(
-      (this.firstFormGroup.controls['organizationDetails'] &&
-        this.firstFormGroup.controls['organizationDetails'].value.isCharity) ?
-        eOrganizationType.CHARITY : 'default'
-    );
-    if (this.endDate && this.startDate) {
-      let durationMS = this.endDate.valueOf() - this.startDate.valueOf();
-      let durationHour = durationMS / (1000 * 60 * 60);
-      hourQuantity = durationHour;
-    }
-    for (let extraId of this._selectedExtras) {
-      let extra = this.getExtraFromId(extraId);
-      extras.push(extra);
-    }
-    return {
-      hourQuantity,
-      roomRatePerHour,
-      extras
-    };
-  }
-
 
 
   getExtraFromId(extraId): Extra {
     return this.extraService.getExtraFromId(extraId);
-  }
-
-  get selectedRoom(): Room {
-    return this._selectedRoom;
-  }
-  set selectedRoom(value: Room) {
-    this._selectedRoom = value;
-    if (this._selectedRoom) {
-      this.bookingService.getBookings({roomId: this._selectedRoom.id, endAfter: (new Date())}).subscribe(
-        bookings => {
-          this.actualBookings = bookings;
-          if (this.selectedDate) {
-            this.computeUnavailableHours();
-            if (this.checkConflicts(this.startDate, this.endDate)) {
-              console.log('BookingDialogComponent::onSelectedDateChanged() unset startTime/endTime because the new date dont match the availabilities')
-              this.unsetTimePickers();
-            }
-            this.updateCalendar();
-            this.updatePrice();
-          }
-        }
-      )
-    }
-
   }
 
   unsetTimePickers() {
@@ -457,10 +597,6 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     } catch (e) {
       console.error(e);
     }
-  }
-
-  get selectedDate(): Date {
-    return this.form.value.date;
   }
   onSelectedDateChanged() {
     this.computeUnavailableHours();
@@ -533,32 +669,10 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       }
     }
   }
-
-  shallUpdateCalendar = true;
   updateCalendar() {
     if (this.calendar && this.shallUpdateCalendar && this.startDate && this.endDate) {
       this.calendar.previewEvent(this.form.value.title, this.startDate, this.endDate);
     }
-  }
-
-  get startDate(): Date {
-    if (!this.startTime) {
-      return undefined;
-    }
-    let date: Date = new Date(this.form.value.date);
-    date.setHours(Math.floor(this.startTime));
-    date.setMinutes(60 * (this.startTime - Math.floor(this.startTime)) );
-    return date;
-  }
-
-  get endDate(): Date {
-    if (!this.endTime) {
-      return undefined;
-    }
-    let date: Date = new Date(this.form.value.date);
-    date.setHours(Math.floor(this.endTime));
-    date.setMinutes(60 * (this.endTime - Math.floor(this.endTime)) );
-    return date;
   }
 
   startTimeChanged(event: any) { // this event is raised when the user select another time in time-picker
@@ -592,49 +706,11 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     this.updatePrice();
   }
 
-  _startTime: number = 0;
-  get startTime() {
-    return this._startTime;
-  }
-  set startTime(value: number) {
-    if (this._startTime !== value) {
-      console.log('BookingDialogComponent::set startTime()', value);
-      let oldStartTime = this._startTime;
-      this._startTime = value;
-      let oldEndTime = this._endTime;
-      if (this._endTime <= this._startTime) {
-        this._endTime = this._startTime + (oldEndTime - oldStartTime);
-      }
-      this.updateCalendar();
-      if (this.startTimePicker) {
-        this.startTimePicker.setHourWithoutNotification(this._startTime);
-      }
-      if (this.endTimePicker) {
-        this.endTimePicker.setHourWithoutNotification(this._endTime);
-      }
-    }
-  }
-
-  _endTime: number = 0;
-  get endTime() {
-    return this._endTime;
-  }
-  set endTime(value: number) {
-    if (this._endTime !== value) {
-      let oldEndTime = this._endTime;
-      this._endTime = value;
-      this.updateCalendar();
-      if (this.endTimePicker) {
-        this.endTimePicker.setHourWithoutNotification(this._endTime);
-      }
-    }
-  }
-
   checkConflicts(startDate: Date, endDate: Date): boolean {
     let actualDateBookings = this.getActualDateBookings(startDate);
     for (let booking of actualDateBookings) {
       // exclude current booking from conflict check
-      if (this.data.id === booking.id) {
+      if ((this.data.id === booking.id) || (booking.recurrencePatternId === this.data.recurrencePatternId)) {
         continue;
       }
       if ((booking.startDate < endDate) && (booking.endDate > startDate)) {
@@ -689,7 +765,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
         ...form.value.first,
         ...form.value.second,
         ...form.value.third,
-        recurrencePattern: this.recurrencePattern
+        recurrencePattern: this.recurrencePattern,
+        deleteAllOccurrences: false,
+        nextOccurrences: this.nextOccurrences
       }});
   }
 
@@ -782,22 +860,33 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
           this.form.controls.recurrencePatternId.patchValue(pattern.id);
           this.form.controls.date.patchValue(startDate);
           this.onSelectedDateChanged();
+          const monthlyMode = pattern.dayInMonth > 0 ? 'day' : 'week';
+          this.nextOccurrences = this.recurrencePatternService.computeOccurrences(pattern, this.startDate, monthlyMode);
+          this.nextOccurrences = this.removeConflicts(this.nextOccurrences);
+
         } else {
           this.form.controls.recurrencePatternId.patchValue(null);
+          this.nextOccurrences = [];
         }
       }
     );
   }
 
-  get nbOccurrences(): number {
-    if (!this.recurrencePattern) {
-      return 0;
+  removeConflicts(occurrences: Date[]): Date[] {
+    let conflictsStr = '';
+    const occurrencesNoConflict = [];
+    for (const occurrence of occurrences) {
+      const duration = this.endDate.valueOf() - this.startDate.valueOf();
+      const conflict = this.checkConflicts(occurrence, new Date(occurrence.valueOf() + duration) );
+      if (conflict) {
+        conflictsStr += occurrence.toLocaleDateString() + '\n';
+      } else {
+        occurrencesNoConflict.push(occurrence);
+      }
     }
-    const monthlyMode = this.recurrencePattern.dayInMonth > 0 ? 'day' : 'week';
-    return this.recurrencePatternService.computeOccurences(
-      this.recurrencePattern,
-      this.startDate ? this.startDate : this.form.controls.date.value,
-      monthlyMode
-    ).length;
+    if (conflictsStr !== '') {
+      alert('The room can not be booked at the following dates:\n' + conflictsStr);
+    }
+    return occurrencesNoConflict;
   }
 }

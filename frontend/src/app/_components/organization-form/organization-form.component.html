@@ -1,22 +1,22 @@
 <form [formGroup]="formGroup">
     <div *ngIf='formGroup'>
         <!-- <div *ngIf="formGroupName && (formGroupName !== '')" formGroupName="{{formGroupName?formGroupName:''}}" fxLayout='column'> -->
-        <div fxLayout='row' class="row">
-            <div fxLayout='column' class="column">
+        <div fxLayout='row' class="form-row">
+            <div fxLayout='column' class="form-column">
                 <mat-form-field>
                     <mat-label>Name of organisation/group</mat-label>
                     <input matInput readonly="{{readOnly}}" formControlName="name" placeholder="Enter Organization Name" required>
                 </mat-form-field>
             </div>
         </div>
-        <div fxLayout='row' class="row">
-            <div fxLayout='column' class="column">
+        <div fxLayout='row' class="form-row">
+            <div fxLayout='column' class="form-column">
                 <mat-form-field>
                     <mat-label>Invoice Address</mat-label>
                     <textarea matInput readonly="{{readOnly}}" formControlName="address" placeholder="Enter Organization Address" required></textarea>
                 </mat-form-field>
             </div>
-            <div fxLayout='column' class="column">
+            <div fxLayout='column' class="form-column">
                 <mat-form-field>
                     <mat-label>Main Contact Person</mat-label>
                     <input matInput readonly="{{readOnly}}" formControlName="email" placeholder="Main Contact Name" required>
@@ -31,8 +31,8 @@
                 </mat-form-field>
             </div>
         </div>
-        <div fxLayout='row' class="row">
-            <div fxLayout='column' class="column">
+        <div fxLayout='row' class="form-row">
+            <div fxLayout='column' class="form-column">
                 <mat-checkbox matInput disabled="{{readOnly}}" formControlName="isCharity" placeholder="">Non Profit Organization</mat-checkbox>
             </div>
         </div>

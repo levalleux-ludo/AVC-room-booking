@@ -9,7 +9,7 @@
                 <h5>Person making booking:</h5>
                 <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
                     <div formGroupName="hirersDetails">
-                        <div fxFlex fxLayout="column" style="width: 20em;">
+                        <div fxFlex fxLayout="column" class="form-column">
                             <mat-form-field>
                                 <mat-label>Your First Name</mat-label>
                                 <input matInput formControlName="firstName" placeholder="" readonly="{{readOnly}}" required>
@@ -19,7 +19,7 @@
                                 <input matInput formControlName="email" placeholder="" readonly="{{readOnly}}" required>
                             </mat-form-field>
                         </div>
-                        <div fxFlex fxLayout="column" style="width: 20em;">
+                        <div fxFlex fxLayout="column" class="form-column">
                             <mat-form-field>
                                 <mat-label>Your Last Name</mat-label>
                                 <input matInput formControlName="lastName" placeholder="" readonly="{{readOnly}}" required>
@@ -30,7 +30,7 @@
                 <h5>Person who will be on site responsible for booking:</h5>
                 <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutAlign="top">
                     <div formGroupName="responsibleDetails">
-                        <div fxFlex fxLayout="column" style="width: 20em;">
+                        <div fxFlex fxLayout="column" class="form-column">
                             <mat-form-field>
                                 <mat-label>First Name</mat-label>
                                 <input matInput formControlName="firstName" placeholder="" readonly="{{readOnly}}" required>
@@ -40,7 +40,7 @@
                                 <input matInput formControlName="phone" placeholder="" readonly="{{readOnly}}" required>
                             </mat-form-field>
                         </div>
-                        <div fxFlex fxLayout="column" style="width: 20em;">
+                        <div fxFlex fxLayout="column" class="form-column">
                             <mat-form-field>
                                 <mat-label>Last Name</mat-label>
                                 <input matInput formControlName="lastName" placeholder="" readonly="{{readOnly}}" required>
@@ -49,8 +49,8 @@
                     </div>
                 </div>
                 <h5>Organization</h5>
-                <div fxLayout='row' class="row">
-                    <div fxLayout='column' class="column">
+                <div fxLayout='row' class="form-row">
+                    <div fxLayout='column' class="form-column">
                     </div>
                 </div>
                 <mat-form-field [ngClass]="{'readonly-wrapper' : readOnly}">

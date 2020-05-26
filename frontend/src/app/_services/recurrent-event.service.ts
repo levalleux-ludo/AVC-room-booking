@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Booking, RecurrencePatternParams, BookingPrivateData } from '../_model/booking';
+import { Booking, RecurrencePatternParams, BookingPrivateData, RecurrencePattern } from '../_model/booking';
 import { MILLISEC_PER_DAY, addDays, findNextDateByDayNum, findDateByDayNumAndWeekNum } from '../_helpers/dateUtils';
 import { BookingService } from './booking.service';
 import { decodeDay } from '../_components/recurrence-pattern-dialog/recurrence-pattern-dialog.component';
@@ -8,7 +8,6 @@ import { decodeDay } from '../_components/recurrence-pattern-dialog/recurrence-p
   providedIn: 'root'
 })
 export class RecurrentEventService {
-
   constructor(
     private bookingService: BookingService
   ) { }
@@ -19,31 +18,12 @@ export class RecurrentEventService {
     // --> delete
     // then delete recurrencePattern with id recurrencePatternId
   }
-  async create(booking: Booking, privateData: BookingPrivateData, recurrencePattern: RecurrencePatternParams): Promise<any> {
+
+  async create(booking: Booking, privateData: BookingPrivateData, recurrencePattern: RecurrencePatternParams): Promise<RecurrencePattern> {
     return new Promise((resolve, reject) => {
       // create the recurrencePattern, then create the events
       this.bookingService.createRecurrencePattern(recurrencePattern).subscribe(pattern => {
-        const monthlyMode = pattern.dayInMonth > 0 ? 'day' : 'week';
-        const occurrences = this.computeOccurences(pattern, booking.startDate, monthlyMode);
-        const newBookingsParams = [];
-        const privateDatas = [];
-        for (const occurrence of occurrences) {
-          // TODO create promise for each event and wait all
-          const newBookingParams = {...booking};
-          const duration = booking.endDate.valueOf() - booking.startDate.valueOf();
-          newBookingParams.ref = this.bookingService.getNewRef();
-          newBookingParams.recurrencePatternId = pattern._id;
-          newBookingParams.startDate = occurrence;
-          newBookingParams.endDate = new Date(occurrence.valueOf() + duration);
-          newBookingsParams.push(newBookingParams);
-          privateDatas.push({...privateData});
-        }
-        this.bookingService.createBookings(newBookingsParams, privateDatas).subscribe(({ bookings, errors }) => {
-          if (errors.length) {
-            alert(errors);
-          }
-          resolve(bookings);
-        }, err => alert(err));
+        resolve(pattern);
       }, err => reject(err));
     });
   }
@@ -51,7 +31,7 @@ export class RecurrentEventService {
     throw new Error("Method not implemented.");
   }
 
-  computeOccurences(pattern: RecurrencePatternParams, startDate: Date, monthlyMode: string): Date[] {
+  computeOccurrences(pattern: RecurrencePatternParams, startDate: Date, monthlyMode: string): Date[] {
     const occurrences = [];
     const endDate = new Date(pattern.endDate);
     endDate.setHours(23, 59, 59, 999); // end of day in local time
