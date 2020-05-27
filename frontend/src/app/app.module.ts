@@ -91,6 +91,10 @@ import { RegisterComponent } from './_components/register/register.component';
 import { ConfigureBookingsComponent } from './_components/configure-bookings/configure-bookings.component';
 import { OrganizationFormComponent } from './_components/organization-form/organization-form.component';
 import { RecurrencePatternDialogComponent } from './_components/recurrence-pattern-dialog/recurrence-pattern-dialog.component';
+import { AddressFormComponent } from './_components/address-form/address-form.component';
+import { BookingDialogStepOneComponent } from './_components/booking-dialog-step-one/booking-dialog-step-one.component';
+import { BookingDialogStepTwoComponent } from './_components/booking-dialog-step-two/booking-dialog-step-two.component';
+import { BookingDialogStepThreeComponent } from './_components/booking-dialog-step-three/booking-dialog-step-three.component';
 
 @NgModule({
   declarations: [
@@ -133,7 +137,11 @@ import { RecurrencePatternDialogComponent } from './_components/recurrence-patte
     RegisterComponent,
     ConfigureBookingsComponent,
     OrganizationFormComponent,
-    RecurrencePatternDialogComponent
+    RecurrencePatternDialogComponent,
+    AddressFormComponent,
+    BookingDialogStepOneComponent,
+    BookingDialogStepTwoComponent,
+    BookingDialogStepThreeComponent
   ],
   imports: [
     CommonModule,

@@ -19,6 +19,7 @@ import { UserService } from 'src/app/_services/user.service';
 import { AuthenticationService } from 'src/app/_services';
 import { RecurrencePatternDialogComponent, recurrencePattern2String } from '../recurrence-pattern-dialog/recurrence-pattern-dialog.component';
 import { RecurrentEventService } from 'src/app/_services/recurrent-event.service';
+import { BookingDialogStepOneComponent } from '../booking-dialog-step-one/booking-dialog-step-one.component';
 
 
 const NEW_ORGANIZATION = {name: 'New Organization ...'};
@@ -36,6 +37,8 @@ export class DateInPastErrorMatcher implements ErrorStateMatcher {
 })
 export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
+  @ViewChild('formStepOne', {static: false})
+  formStepOne: BookingDialogStepOneComponent;
 
   constructor(
     private dialog: MatDialog,
@@ -71,8 +74,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     let roomRatePerHour = 0;
     let extras = [];
     roomRatePerHour = this.selectedRoom.getRentRateHour(
-      (this.firstFormGroup.controls['organizationDetails'] &&
-        this.firstFormGroup.controls['organizationDetails'].value.isCharity) ?
+      (this.formStepOne && this.formStepOne.isCharity) ?
         eOrganizationType.CHARITY : 'default'
     );
     if (this.endDate && this.startDate) {
@@ -177,7 +179,6 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     return this.nextOccurrences.length;
   }
   form: FormGroup;
-  firstFormGroup: FormGroup;
   thirdFormGroup: FormGroup;
   globalForm: FormGroup;
 
@@ -440,28 +441,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       });
     }
 
-    this.firstFormGroup = this.fb.group({
-      organization: [this.data.organization, Validators.required],
-      organizationDetails: this.fb.group({
-        name: [ this.data.organization ? this.data.organization.name : '', Validators.required],
-        address: [this.data.organization ? this.data.organization.address : '', Validators.required],
-        phone: [this.data.organization ? this.data.organization.phone : '', Validators.required],
-        email: [this.data.organization ? this.data.organization.email : '', Validators.required],
-        isCharity: [this.data.organization ? (this.data.organization.type === eOrganizationType.CHARITY) : false]
-      }),
-      hirersDetails: this.fb.group({
-        firstName: [this.data.hirersDetails ? this.data.hirersDetails.firstName : this.authenticationService.currentUserValue.firstName, Validators.required],
-        lastName: [this.data.hirersDetails ? this.data.hirersDetails.lastName : this.authenticationService.currentUserValue.lastName, Validators.required],
-        email: [this.data.hirersDetails ? this.data.hirersDetails.email : '', Validators.required]
-      }),
-      responsibleDetails: this.fb.group({
-        firstName: [this.data.responsibleDetails ? this.data.responsibleDetails.firstName : this.authenticationService.currentUserValue.firstName, Validators.required],
-        lastName: this.data.responsibleDetails ? this.data.responsibleDetails.lastName : [this.authenticationService.currentUserValue.lastName, Validators.required],
-        phone: [this.data.responsibleDetails ? this.data.responsibleDetails.phone : '', Validators.required]
-      }),
-    }
-    );
-    this.thirdFormGroup = this.fb.group({
+        this.thirdFormGroup = this.fb.group({
       tacChecked: false
     }, { validators: [this.tacIsChecked] });
     this.form = this.fb.group({
@@ -484,7 +464,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       return null;
     }] });
     this.globalForm = this.fb.group({
-      first: this.firstFormGroup,
+      first: undefined,
       second: this.form,
       third: this.thirdFormGroup
     });
@@ -545,6 +525,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   ngAfterViewInit(): void {
+
+    this.globalForm.controls.first.setValue(this.formStepOne.form);
+
     if (this.startTimePicker) {
       this.startTimePicker.setHourWithoutNotification(this._startTime);
     }
@@ -763,7 +746,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       form.patchValue({second: {endDate: this.endDate}});
       form.patchValue({second: {totalPrice: this.priceDisplay.totalPrice}});
       this.dialogRef.close({action: (this.newBooking) ? "create" : "update", data: {
-        ...form.value.first,
+        ...this.formStepOne.form.value,
         ...form.value.second,
         ...form.value.third,
         recurrencePattern: this.recurrencePattern,
@@ -823,25 +806,6 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
   bookingFilter = (booking) => {
     return (this.data.id === undefined) || (this.data.id !== booking.id);
-  }
-
-
-  onOrganizationSelectChange(orga: Organization) {
-    console.log('onOrganizationSelectChange', orga);
-    this.firstFormGroup.controls.organizationDetails.patchValue(
-      (orga !== this.newOrganization) ? {
-        name: orga.name,
-        address: orga.address,
-        email: orga.email,
-        phone: orga.phone,
-        isCharity: orga.type === eOrganizationType.CHARITY
-      } : {
-        name: '',
-        address : '',
-        email: '',
-        phone: '',
-        isCharity: false
-      });
   }
 
   onchangeRecurrent(isRecurrent: boolean) {
