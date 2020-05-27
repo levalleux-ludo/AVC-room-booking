@@ -1,0 +1,12 @@
+<mat-dialog-content>
+    <div class="sign-area">
+        <signature-pad #signaturePad [options]="signaturePadOptions" (onBeginEvent)="drawStart()" (onEndEvent)="drawComplete()"></signature-pad>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <div>
+        <button mat-button type="button" (click)="validate()">Validate</button>
+        <button mat-button type="button" (click)="signaturePad.clear()">Clear</button>
+        <button mat-button type="button" (click)="cancel()">Cancel</button>
+    </div>
+</mat-dialog-actions>

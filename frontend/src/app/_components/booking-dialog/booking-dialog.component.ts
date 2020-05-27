@@ -142,6 +142,11 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
           privateData.hirersDetails = data.hirersDetails;
           privateData.responsibleDetails = data.responsibleDetails;
 
+          // TODO :
+          // 1. create a PDF with booking details
+          // 2. Upload PDF onto S3
+          // 3. Reference PDF url in booking params (update db model: new field bookingForm)
+
           // Create new organization if needed
           new Promise<any>((resolve, reject) => {
             if (NEW_ORGANIZATION.name === data.organization.name) {
@@ -209,6 +214,8 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
               }
               createOrUpdateSrv.subscribe((updatedBooking) => {
 
+                // TODO: store updatedBooking.id in creation report
+
                 // If recurrence is removed or updated, delete next occurrences
                 new Promise((resolve, reject) => {
                   if (oldRecurrencePatternId !== null) {
@@ -237,8 +244,8 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
                         newBookingParams.endDate = new Date(data.nextOccurrences[i].valueOf() + duration);
                         newBookingsParams.push(newBookingParams);
                         const newPrivateData = {...privateData};
-                        newPrivateData.id = undefined;
-                        newPrivateData._id = undefined;
+                        newPrivateData['id'] = undefined;
+                        newPrivateData['_id'] = undefined;
                         privateDatas.push(newPrivateData);
                       }
                       console.log('create next occurrences');
@@ -246,12 +253,17 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
                         if (errors.length) {
                           alert(errors);
                         }
-                        resolve();
+                        resolve(bookings);
                       }, err => { reject(err); });
                     } else {
-                      resolve();
+                      resolve([]);
                     }
-                  }).then(() => {
+                  }).then((bookings) => {
+
+                    // TODO store bookings.id in creation/update report
+
+                    // TODO call service for creation/update report creation (includes email notification)
+
                     then(booking, privateData);
                   }).catch(err => alert(err));
                 }).catch(err => alert(err));

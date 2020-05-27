@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SignaturePadModule } from 'angular2-signaturepad';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -95,6 +96,7 @@ import { AddressFormComponent } from './_components/address-form/address-form.co
 import { BookingDialogStepOneComponent } from './_components/booking-dialog-step-one/booking-dialog-step-one.component';
 import { BookingDialogStepTwoComponent } from './_components/booking-dialog-step-two/booking-dialog-step-two.component';
 import { BookingDialogStepThreeComponent } from './_components/booking-dialog-step-three/booking-dialog-step-three.component';
+import { SignDialogComponent } from './_components/sign-dialog/sign-dialog.component';
 
 @NgModule({
   declarations: [
@@ -141,7 +143,8 @@ import { BookingDialogStepThreeComponent } from './_components/booking-dialog-st
     AddressFormComponent,
     BookingDialogStepOneComponent,
     BookingDialogStepTwoComponent,
-    BookingDialogStepThreeComponent
+    BookingDialogStepThreeComponent,
+    SignDialogComponent
   ],
   imports: [
     CommonModule,
@@ -191,7 +194,8 @@ import { BookingDialogStepThreeComponent } from './_components/booking-dialog-st
     PdfViewerModule,
     MatStepperModule,
     MatSlideToggleModule,
-    MatRadioModule
+    MatRadioModule,
+    SignaturePadModule
   ],
   exports: [
     MatNativeDateModule,
@@ -208,7 +212,8 @@ import { BookingDialogStepThreeComponent } from './_components/booking-dialog-st
     ConfirmDialogComponent,
     EditDialogComponent,
     DialogCarouselComponent,
-    RecurrencePatternDialogComponent
+    RecurrencePatternDialogComponent,
+    SignDialogComponent
   ]
 })
 export class AppModule { }
