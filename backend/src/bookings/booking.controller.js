@@ -36,7 +36,8 @@ function create(req, res, next) {
     if (Array.isArray(req.body)) {
         bookingService.createMulti(req.body)
             .then(({ bookings, errors }) => {
-                const status = (errors.length > 0) ? 500 : 201;
+                // const status = (errors.length > 0) ? 500 : 201;
+                status = 201;
                 return res.status(status).json({ bookings, errors });
             })
             .catch(err => next(err));
