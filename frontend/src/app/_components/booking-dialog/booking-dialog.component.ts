@@ -246,6 +246,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
+    dialogConfig.panelClass = 'form-booking';
     dialogConfig.data = {
       id: booking.id,
       title: privateData.title,
