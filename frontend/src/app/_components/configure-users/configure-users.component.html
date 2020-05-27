@@ -2,10 +2,12 @@
     <th>User</th>
     <th>FirstName</th>
     <th>LastName</th>
+    <th>Email</th>
+    <th>Phone Number</th>
     <th>Role</th>
     <th>Member of</th>
 </ng-template>
-<ng-template #itemRowTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-role="role" let-memberOf="memberOf">
+<ng-template #itemRowTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-email="email" let-phone="phone" let-role="role" let-memberOf="memberOf">
     <td>
         <div class="username">{{username}}</div>
     </td>
@@ -16,13 +18,20 @@
         <div class="lastName">{{lastName}}</div>
     </td>
     <td>
+        <div class="lastName">{{email}}</div>
+    </td>
+    <td>
+        <div class="lastName">{{phone}}</div>
+    </td>
+    <td>
         <div class="role">{{role}}</div>
     </td>
     <td>
         <div class="memberOf" *ngFor="let orga of memberOf">{{orga.name}}</div>
     </td>
 </ng-template>
-<ng-template #itemEditTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-role="role" let-memberOf="memberOf" let-setRole="setRole" let-setMemberOf="setMemberOf" let-allOrganizations="allOrganizations" let-compareOrganizations="compareOrganizations">
+<ng-template #itemEditTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-email="email" let-phone="phone" let-role="role" let-memberOf="memberOf" let-setRole="setRole" let-setMemberOf="setMemberOf" let-allOrganizations="allOrganizations"
+    let-compareOrganizations="compareOrganizations">
     <mat-form-field appearance="outline">
         <mat-label>Role (current: {{role}})</mat-label>
         <mat-select [value]="role" (selectionChange)="setRole($event.value)" [disabled]="!canChangeRole()">

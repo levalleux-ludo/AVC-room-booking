@@ -3,7 +3,7 @@
         <!-- <div *ngIf="formGroupName && (formGroupName !== '')" formGroupName="{{formGroupName?formGroupName:''}}" fxLayout='column'> -->
         <div fxLayout='row' class="form-row">
             <div fxLayout='column' class="form-column">
-                <mat-form-field>
+                <mat-form-field class="full-width">
                     <mat-label>Name of organisation/group</mat-label>
                     <input matInput readonly="{{readOnly}}" formControlName="name" placeholder="Enter Organization Name" required>
                 </mat-form-field>
@@ -11,27 +11,59 @@
         </div>
         <div fxLayout='row' class="form-row">
             <div fxLayout='column' class="form-column">
-                <mat-form-field>
+                <mat-form-field class="full-width">
                     <mat-label>Invoice Address</mat-label>
-                    <textarea matInput readonly="{{readOnly}}" formControlName="address" placeholder="Enter Organization Address" required></textarea>
+                    <textarea matInput readonly="{{readOnly}}" formControlName="address" placeholder="Enter Organization Address" required style="height: 6em;"></textarea>
+                    <mat-error *ngIf="formGroup.controls['address'].hasError('required')">
+                        Address is <strong>required</strong>
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="City" formControlName="city">
+                    <mat-error *ngIf="formGroup.controls['city'].hasError('required')">
+                        City is <strong>required</strong>
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="full-width">
+                    <input matInput #postalCode placeholder="Post Code" formControlName="postcode">
+                    <mat-hint align="end">{{postalCode.value.length}} / 5</mat-hint>
+                    <mat-error *ngIf="formGroup.controls['postcode'].hasError('required')">
+                        Postcode is <strong>required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="formGroup.controls['postcode'].hasError('pattern')">
+                        Postcode is <strong>not valid</strong>
+                    </mat-error>
                 </mat-form-field>
             </div>
             <div fxLayout='column' class="form-column">
-                <mat-form-field>
+                <mat-form-field class="full-width">
                     <mat-label>Main Contact Person</mat-label>
-                    <input matInput readonly="{{readOnly}}" formControlName="email" placeholder="Main Contact Name" required>
+                    <input matInput readonly="{{readOnly}}" formControlName="contactName" placeholder="Main Contact Name" required>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="full-width">
                     <mat-label>Email</mat-label>
                     <input matInput readonly="{{readOnly}}" formControlName="email" placeholder="Main Contact Email" required>
+                    <mat-error *ngIf="formGroup.controls['email'].hasError('required')">
+                        Email is <strong>required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="formGroup.controls['email'].hasError('pattern')">
+                        Email is <strong>not valid</strong>
+                    </mat-error>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field class="full-width">
                     <mat-label>Phone</mat-label>
                     <input matInput readonly="{{readOnly}}" formControlName="phone" placeholder="Main Contact Phone" required>
+                    <mat-error *ngIf="formGroup.controls['phone'].hasError('required')">
+                        Phone is <strong>required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="formGroup.controls['phone'].hasError('pattern')">
+                        Phone is <strong>not valid</strong>
+                    </mat-error>
                 </mat-form-field>
             </div>
         </div>
         <div fxLayout='row' class="form-row">
+            <div>is charity : {{formGroup.controls['isCharity'].value}}</div>
             <div fxLayout='column' class="form-column">
                 <mat-checkbox matInput disabled="{{readOnly}}" formControlName="isCharity" placeholder="">Non Profit Organization</mat-checkbox>
             </div>

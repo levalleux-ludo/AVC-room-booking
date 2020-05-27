@@ -43,6 +43,8 @@ class UserContext implements IItemContext {
       username: this.user.username,
       firstName: this.user.firstName,
       lastName: this.user.lastName,
+      email: this.user.email,
+      phone: this.user.phone,
       role: this.user.role,
       memberOf: this.user.memberOf.map(orgaId => getOrganizationFromId(orgaId)).filter(orga => (orga != undefined)),
       allOrganizations: allOrganizations,

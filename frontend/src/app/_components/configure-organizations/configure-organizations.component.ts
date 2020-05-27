@@ -6,6 +6,7 @@ import { Organization, eOrganizationType } from '../../_model/organization';
 import { OrganizationService } from '../../_services/organization.service';
 import { IItemContext, ConfigureAbstractComponent } from '../configure-generic/configure-generic.component';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { POSTCODE_REGEX, PHONE_REGEX, EMAIL_REGEX } from '../organization-form/organization-form.component';
 
 class OrganizationContext implements IItemContext {
   organization: Organization;
@@ -26,9 +27,10 @@ class OrganizationContext implements IItemContext {
     return {
       organization: this.organization,
       name: this.organization.name,
+      contactName: this.organization.contactName,
       setName: (value) => { this.organization.name = value; },
       form: this.form,
-      address: this.organization.address,
+      address: this.organization.address + '\n' + this.organization.postcode + ' ' + this.organization.city,
       email: this.organization.email,
       phone: this.organization.phone,
       type: this.organization.type
@@ -60,7 +62,10 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
     const form = (item as OrganizationContext).form;
     const orga = new Organization({
       name: form.value.name,
+      contactName: form.value.contactName,
       address: form.value.address,
+      city: form.value.city,
+      postcode: form.value.postcode,
       email: form.value.email,
       phone: form.value.phone,
       type: form.value.isCharity ? eOrganizationType.CHARITY : eOrganizationType.OTHER
@@ -72,7 +77,10 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
     const orga = (item as OrganizationContext).organization;
     Object.assign(orga, {
       name: form.value.name,
+      contactName: form.value.contactName,
       address: form.value.address,
+      city: form.value.city,
+      postcode: form.value.postcode,
       email: form.value.email,
       phone: form.value.phone,
       type: form.value.isCharity ? eOrganizationType.CHARITY : eOrganizationType.OTHER
@@ -87,6 +95,9 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
   }
   set editedItem(item: IItemContext) {
     this._editedItem = item as OrganizationContext;
+    if (this._editedItem) {
+      this._editedItem.form = this.createForm(this._editedItem.organization);
+    }
   }
   get submitEnabled(): boolean {
     if (!this._editedItem || !this._editedItem.form)
@@ -184,9 +195,18 @@ export class ConfigureOrganizationsComponent extends ConfigureAbstractComponent 
   createForm(orga: Organization) {
     return this.fb.group({
       name: [orga ? orga.name : '', Validators.required],
+      contactName: [orga ? orga.contactName : '', Validators.required],
       address: [orga ? orga.address : '', Validators.required],
-      phone: [orga ? orga.phone : '', Validators.required],
-      email: [orga ? orga.email : '', Validators.required],
+      city: [orga ? orga.city : '', Validators.required],
+      postcode: [orga ? orga.postcode : '', Validators.compose([
+        Validators.required, Validators.pattern(POSTCODE_REGEX)
+      ])],
+      phone: [orga ? orga.phone : '', Validators.compose([
+        Validators.required, Validators.pattern(PHONE_REGEX)
+      ])],
+      email: [orga ? orga.email : '', Validators.compose([
+        Validators.required, Validators.pattern(EMAIL_REGEX)
+      ])],
       isCharity: [orga ? orga.type === eOrganizationType.CHARITY : false, Validators.nullValidator]
      });
   }

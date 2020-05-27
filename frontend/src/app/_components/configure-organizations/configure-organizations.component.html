@@ -20,17 +20,18 @@
 
 <ng-template #tableHeadersTemplate>
     <th>Organization</th>
-    <th>Address</th>
+    <th>Contact</th>
     <th>Email</th>
     <th>Phone</th>
     <th>Type</th>
+    <th>Address</th>
 </ng-template>
-<ng-template #itemRowTemplate let-name="name" let-address="address" let-email="email" let-phone="phone" let-type="type">
+<ng-template #itemRowTemplate let-name="name" let-contactName="contactName" let-address="address" let-email="email" let-phone="phone" let-type="type">
     <td>
         <div class="organization">{{name}}</div>
     </td>
     <td>
-        <div class="organization">{{address}}</div>
+        <div class="organization">{{contactName}}</div>
     </td>
     <td>
         <div class="organization">{{email}}</div>
@@ -40,6 +41,9 @@
     </td>
     <td>
         <div class="organization">{{type}}</div>
+    </td>
+    <td>
+        <div class="organization">{{address}}</div>
     </td>
 </ng-template>
 <ng-template #itemEditTemplate let-name="name" let-setName="setName" let-form="form">

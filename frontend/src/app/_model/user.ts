@@ -44,6 +44,10 @@ export class User {
   // tslint:disable-next-line: variable-name
   private _lastName: string;
   // tslint:disable-next-line: variable-name
+  private _phone: string;
+  // tslint:disable-next-line: variable-name
+  private _email: string;
+  // tslint:disable-next-line: variable-name
   private _role: eUserRole;
   // tslint:disable-next-line: variable-name
   private _memberOf: any[];
@@ -56,6 +60,8 @@ export class User {
     this._username = (fetched_data.username) ? fetched_data.username : '';
     this._firstName = (fetched_data.firstName) ? fetched_data.firstName : '';
     this._lastName = (fetched_data.lastName) ? fetched_data.lastName : '';
+    this._phone = (fetched_data.phone) ? fetched_data.phone : '';
+    this._email = (fetched_data.email) ? fetched_data.email : '';
     this._role = (fetched_data.role) ? fetched_data.role : undefined;
     this._memberOf = (fetched_data.memberOf) ? fetched_data.memberOf : [];
     this._token = (fetched_data.token) ? fetched_data.token : undefined;
@@ -66,7 +72,16 @@ export class User {
 }
 
  clone(): User {
-    return new User({_id: this.id, username: this.username, firstName: this.firstName, lastName: this.lastName, role: this.role, memberOf: this.memberOf});
+    return new User({
+      _id: this.id,
+      username: this.username,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      phone: this.phone,
+      email: this.email,
+      role: this.role,
+      memberOf: this.memberOf
+    });
   }
 
   get id() {
@@ -83,6 +98,14 @@ get username() {
 
   get lastName() {
     return this._lastName;
+  }
+
+  get phone() {
+    return this._phone;
+  }
+
+  get email() {
+    return this._email;
   }
 
   get role() {
@@ -109,6 +132,8 @@ get username() {
         username: this.username,
         firstName: this.firstName,
         lastName: this.lastName,
+        phone: this.phone,
+        email: this.email,
         role: this.role,
         memberOf: this.memberOf
     };

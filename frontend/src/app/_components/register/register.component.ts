@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthenticationService, AlertService } from 'src/app/_services';
 import { UserService } from 'src/app/_services/user.service';
 import { first } from 'rxjs/operators';
+import { EMAIL_REGEX, PHONE_REGEX } from '../organization-form/organization-form.component';
 
 @Component({
   selector: 'app-register',
@@ -32,6 +33,12 @@ export class RegisterComponent implements OnInit {
       this.registerForm = this.formBuilder.group({
           firstName: ['enter your name' /* initial value */, Validators.required /* synchronous validator or validators */],
           lastName: ['', Validators.required],
+          email: ['', Validators.compose([
+            Validators.required, Validators.pattern(EMAIL_REGEX)
+          ])],
+          phone: ['', Validators.compose([
+            Validators.required, Validators.pattern(PHONE_REGEX)
+          ])],
           username: ['', Validators.required],
           password: ['', [ Validators.required, Validators.minLength(6) ]]
       });

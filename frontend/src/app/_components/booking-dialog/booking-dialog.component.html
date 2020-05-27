@@ -15,7 +15,8 @@
                 <app-booking-dialog-step-two #formStepTwo [readOnly]="readOnly" [isCharity]="formStepOne.isCharity"></app-booking-dialog-step-two>
             </mat-dialog-content>
         </mat-step>
-        <mat-step *ngIf="!readOnly" [stepControl]="formStepThree.form">
+        <mat-step [stepControl]="formStepThree.form">
+            <ng-template matStepLabel>Sign & Verify</ng-template>
             <mat-dialog-content class="mat-typography">
                 <app-booking-dialog-step-three #formStepThree [readOnly]="readOnly"></app-booking-dialog-step-three>
             </mat-dialog-content>
