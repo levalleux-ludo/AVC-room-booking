@@ -19,6 +19,10 @@ import { DialogCarouselComponent } from '../dialog-carousel/dialog-carousel.comp
 import { AuthenticationService, AuthorizationRules } from 'src/app/_services';
 import { UserService } from 'src/app/_services/user.service';
 import { RecurrentEventService } from 'src/app/_services/recurrent-event.service';
+import { PdfCreatorService } from 'src/app/_services/pdf-creator.service';
+import { CryptoService } from 'src/app/_services/crypto.service';
+import { FilesService } from 'src/app/_services/files.service';
+import { NotificationService } from 'src/app/_services/notification.service';
 
 @Directive({
   selector: '[appSetImageToCenter]'
@@ -164,6 +168,10 @@ export class RoomDetailComponent implements OnInit {
     private authenticationService: AuthenticationService,
     private recurrentEventService: RecurrentEventService,
     private userService: UserService,
+    private pdfCreatorService: PdfCreatorService,
+    private cryptoService: CryptoService,
+    private filesService: FilesService,
+    private notificationService: NotificationService,
     private location: Location, // required to get back in navigation history
     private dialog: MatDialog, // required to open a dialog
     public bottomSheetRef: MatBottomSheetRef<RoomDetailComponent>, // required to integrate the component in the 'bottomSheet'
@@ -263,25 +271,13 @@ export class RoomDetailComponent implements OnInit {
       this.dialog,
       this.bookingService,
       this.recurrentEventService,
-      (orga) => {
-        return new Observable<Organization>(observer => {
-          this.organizationService.createOrganization(orga).subscribe((orga) => {
-            const user = this.authenticationService.currentUserValue;
-            if (user) {
-              if (!user.memberOf.includes(orga.id)) {
-                user.memberOf.push(orga.id);
-                this.userService.changeMemberOf(user).subscribe(() => {
-                  observer.next(orga);
-                  observer.complete();
-                });
-              }
-            } else {
-              observer.next(orga);
-              observer.complete();
-            }
-          });
-        });
-      },
+      this.pdfCreatorService,
+      this.cryptoService,
+      this.filesService,
+      this.notificationService,
+      this.organizationService,
+      this.authenticationService,
+      this.userService,
       (newBooking, privateData) =>  {
         console.log("booking has been created:", newBooking);
         if (newBooking.roomId === this.room.id) {

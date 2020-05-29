@@ -86,6 +86,7 @@ import { MaterialFileUploadComponent } from './_components/material-file-upload/
 import { DialogCarouselComponent } from './_components/dialog-carousel/dialog-carousel.component';
 import { ConfigureUsersComponent } from './_components/configure-users/configure-users.component';
 import { ConfigureWebsiteComponent } from './_components/configure-website/configure-website.component';
+import { ConfigureNotifierComponent } from './_components/configure-notifier/configure-notifier.component';
 import { WaiterComponent } from './_components/waiter/waiter.component';
 import { ErrorComponent } from './_components/error/error.component';
 import { RegisterComponent } from './_components/register/register.component';
@@ -97,6 +98,8 @@ import { BookingDialogStepOneComponent } from './_components/booking-dialog-step
 import { BookingDialogStepTwoComponent } from './_components/booking-dialog-step-two/booking-dialog-step-two.component';
 import { BookingDialogStepThreeComponent } from './_components/booking-dialog-step-three/booking-dialog-step-three.component';
 import { SignDialogComponent } from './_components/sign-dialog/sign-dialog.component';
+import { PdfPreviewComponent } from './_components/pdf-preview/pdf-preview.component';
+import { BookingFormPdfPreviewComponent } from './_components/booking-form-pdf-preview/booking-form-pdf-preview.component';
 
 @NgModule({
   declarations: [
@@ -134,6 +137,7 @@ import { SignDialogComponent } from './_components/sign-dialog/sign-dialog.compo
     DialogCarouselComponent,
     ConfigureUsersComponent,
     ConfigureWebsiteComponent,
+    ConfigureNotifierComponent,
     WaiterComponent,
     ErrorComponent,
     RegisterComponent,
@@ -144,7 +148,9 @@ import { SignDialogComponent } from './_components/sign-dialog/sign-dialog.compo
     BookingDialogStepOneComponent,
     BookingDialogStepTwoComponent,
     BookingDialogStepThreeComponent,
-    SignDialogComponent
+    SignDialogComponent,
+    PdfPreviewComponent,
+    BookingFormPdfPreviewComponent
   ],
   imports: [
     CommonModule,

@@ -22,6 +22,10 @@ import { RecurrentEventService } from 'src/app/_services/recurrent-event.service
 import { BookingDialogStepOneComponent } from '../booking-dialog-step-one/booking-dialog-step-one.component';
 import { BookingDialogStepTwoComponent } from '../booking-dialog-step-two/booking-dialog-step-two.component';
 import { BookingDialogStepThreeComponent } from '../booking-dialog-step-three/booking-dialog-step-three.component';
+import { PdfCreatorService } from 'src/app/_services/pdf-creator.service';
+import { CryptoService } from 'src/app/_services/crypto.service';
+import { NotificationService } from 'src/app/_services/notification.service';
+import { OrganizationService } from 'src/app/_services/organization.service';
 
 
 const NEW_ORGANIZATION = {name: 'New Organization ...'};
@@ -57,6 +61,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     private extraService: ExtraService,
     private changeDetector: ChangeDetectorRef,
     private bookingsConfigService: BookingsConfigService,
+    private pdfCreatorService: PdfCreatorService,
     private filesServices: FilesService,
     private userService: UserService,
     private authenticationService: AuthenticationService,
@@ -78,7 +83,13 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     dialog: MatDialog,
     bookingService: BookingService,
     recurrentEventService: RecurrentEventService,
-    createOrgaSrv: (orga: Organization) => Observable<Organization>,
+    pdfCreatorService: PdfCreatorService,
+    cryptoService: CryptoService,
+    filesService: FilesService,
+    notificationService: NotificationService,
+    organizationService: OrganizationService,
+    authenticationService: AuthenticationService,
+    userService: UserService,
     then: (Booking, privateData: BookingPrivateData) => void,
     organizations: Organization[],
     rooms: Room[],
@@ -130,6 +141,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     return dialogRef.afterClosed().subscribe(
       result => {
         const data = result.data;
+        const report = {encryptionKey: '', formId: '', bookingId: '', nextOccurrencesId: []};
         if ((result.action === 'create') || (result.action === 'update')) {
 
           booking.roomId = data.room.id;
@@ -142,11 +154,6 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
           privateData.hirersDetails = data.hirersDetails;
           privateData.responsibleDetails = data.responsibleDetails;
 
-          // TODO :
-          // 1. create a PDF with booking details
-          // 2. Upload PDF onto S3
-          // 3. Reference PDF url in booking params (update db model: new field bookingForm)
-
           // Create new organization if needed
           new Promise<any>((resolve, reject) => {
             if (NEW_ORGANIZATION.name === data.organization.name) {
@@ -154,122 +161,174 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
               const newOrganization = new Organization({
                 ...data.organizationDetails
               });
-              createOrgaSrv(newOrganization).subscribe((orga) => {
-                resolve(orga.id);
-              });
+              organizationService.createOrganization(newOrganization).subscribe((orga) => {
+                const user = authenticationService.currentUserValue;
+                if (user) {
+                  if (!user.memberOf.includes(orga.id)) {
+                    user.memberOf.push(orga.id);
+                    userService.changeMemberOf(user).subscribe(() => {
+                      resolve(orga.id);
+                    });
+                  }
+                } else {
+                  resolve(orga.id);
+                }
+              }, err => reject(err));
             } else {
               resolve(data.organization.id);
             }
           }).then((organizationId) => {
             privateData.organizationId = organizationId;
 
-            // Create Recurrence pattern if needed
-            new Promise<RecurrencePattern>((resolve, reject) => {
-              if (data.isRecurrent) {
-                new Promise<boolean>((resolve2, reject2) => {
-                  if (booking.recurrencePatternId === null) {
-                    resolve2(true);
-                  } else {
-                    bookingService.getRecurrencePattern(booking.recurrencePatternId).subscribe(pattern => {
-                      pattern.endDate = new Date(pattern.endDate);
-                      let isDifferent = (pattern.frequency !== data.recurrencePattern.frequency);
-                      isDifferent = isDifferent || (pattern.recurrence !== data.recurrencePattern.recurrence);
-                      isDifferent = isDifferent || (pattern.endDate.valueOf() !== data.recurrencePattern.endDate.valueOf());
-                      isDifferent = isDifferent
-                      || ((pattern.frequency === 'Weekly') && (pattern.weekMask !== data.recurrencePattern.weekMask));
-                      isDifferent = isDifferent
-                      || ((pattern.frequency === 'Monthly') && (pattern.dayInMonth !== data.recurrencePattern.dayInMonth));
-                      isDifferent = isDifferent
-                      || ((pattern.frequency === 'Monthly') && (pattern.weekDayInMonth !== data.recurrencePattern.weekDayInMonth));
-                      isDifferent = isDifferent
-                      || ((pattern.frequency === 'Monthly') && (pattern.weekInMonth !== data.recurrencePattern.weekInMonth));
-                      resolve2(isDifferent);
-                    }, err => reject2(err));
-                  }
-                }).then(shallCreateNewRecurrence => {
-                  if (shallCreateNewRecurrence) {
-                    console.log('create new occurrence pattern');
-                    recurrentEventService.create(booking, privateData, data.recurrencePattern).then(recurrencePattern => {
-                      resolve(recurrencePattern);
-                    }).catch(err => reject(err));
-                  } else {
-                    resolve(booking.recurrencePatternId);
-                  }
-                }).catch(err => reject(err));
-              } else {
-                resolve(null); // do not use undefined cause we need te reset the field in database
-              }
-            }).then((recurrencePatternId) => {
-              const oldRecurrencePatternId = booking.recurrencePatternId;
-              booking.recurrencePatternId = recurrencePatternId;
+            // 1. create a PDF with booking details
+            new Promise<any>((resolve, reject) => {
+              const pdfData = pdfCreatorService.createBookingForm(booking, privateData, data.signatureURL);
+              // 2. Upload PDF onto S3
+              pdfData.getBlob().then((blob: Blob) => {
+                filesService.uploadFile(new File([blob], booking.id + '.pdf')).subscribe(({fileId}) => {
+                  // 3. Reference PDF url in booking params (update db model: new field bookingForm)
+                  booking.bookingFormId = fileId;
+                  report.formId = fileId;
+                  resolve();
+                }, err => reject(err));
+                //  TODO  encrypt the PDF to preserve privacy (public access on S3 storage)
+                // keep the key in booking.privateData
+                // cryptoService.AES.generateKey().then((key: string) => {
+                //   privateData.encryptionKey = key;
+                //   report.encryptionKey = key;
+                //   new Response(blob).arrayBuffer().then(buffer => {
+                //     cryptoService.AES.encrypt(buffer, key).then((cypherPdfData: ArrayBuffer) => {
+                //       filesService.uploadFile(new Blob([cypherPdfData]) ).subscribe((fileId) => {
+                //         // 3. Reference PDF url in booking params (update db model: new field bookingForm)
+                //         booking.bookingFormId = fileId;
+                //         report.formId = fileId;
+                //       }, err => alert(err));
+                //     }).catch(err => alert(err));
+                //   }).catch(err => alert(err));
+                // }).catch(err => alert(err));
+              }).catch(err => reject(err));
+            }).then(() => {
 
-              // Create or update the main event
-              let createOrUpdateSrv: Observable<Booking>;
-              if (result.action === 'create') {
-                console.log('create main event');
-                createOrUpdateSrv =  bookingService.createBooking(booking, privateData);
-              } else {
-                console.log('update main event');
-                createOrUpdateSrv = bookingService.updateBooking(booking, privateData);
-              }
-              createOrUpdateSrv.subscribe((updatedBooking) => {
-
-                // TODO: store updatedBooking.id in creation report
-
-                // If recurrence is removed or updated, delete next occurrences
-                new Promise((resolve, reject) => {
-                  if (oldRecurrencePatternId !== null) {
-                    console.log('remove pattern and next occurrences');
-                    bookingService.deletePatternAndBookings(oldRecurrencePatternId, booking.endDate).subscribe(() => {
-                      resolve();
-                    }, err => reject(err));
-                  } else {
-                    resolve();
-                  }
-                }).then(() => {
-
-                  // If recurrent, create next occurrences
-                  new Promise((resolve, reject) => {
-                    if (data.isRecurrent) {
-                      const newBookingsParams = [];
-                      const privateDatas = [];
-                      const duration = booking.endDate.valueOf() - booking.startDate.valueOf();
-                      for (let i = 1; i < data.nextOccurrences.length; i++) {
-                        // Do not consider the first occurrence because it has already been created/updated above
-                        const newBookingParams = {...booking};
-                        newBookingParams.ref = bookingService.getNewRef();
-                        newBookingParams.id = undefined;
-                        newBookingParams.recurrencePatternId = recurrencePatternId;
-                        newBookingParams.startDate = data.nextOccurrences[i];
-                        newBookingParams.endDate = new Date(data.nextOccurrences[i].valueOf() + duration);
-                        newBookingsParams.push(newBookingParams);
-                        const newPrivateData = {...privateData};
-                        newPrivateData['id'] = undefined;
-                        newPrivateData['_id'] = undefined;
-                        privateDatas.push(newPrivateData);
-                      }
-                      console.log('create next occurrences');
-                      bookingService.createBookings(newBookingsParams, privateDatas).subscribe(({ bookings, errors }) => {
-                        if (errors.length) {
-                          alert(errors);
-                        }
-                        resolve(bookings);
-                      }, err => { reject(err); });
+              // Create Recurrence pattern if needed
+              new Promise<RecurrencePattern>((resolve, reject) => {
+                if (data.isRecurrent) {
+                  new Promise<boolean>((resolve2, reject2) => {
+                    if (booking.recurrencePatternId === null) {
+                      resolve2(true);
                     } else {
-                      resolve([]);
+                      bookingService.getRecurrencePattern(booking.recurrencePatternId).subscribe(pattern => {
+                        pattern.endDate = new Date(pattern.endDate);
+                        let isDifferent = (pattern.frequency !== data.recurrencePattern.frequency);
+                        isDifferent = isDifferent || (pattern.recurrence !== data.recurrencePattern.recurrence);
+                        isDifferent = isDifferent || (pattern.endDate.valueOf() !== data.recurrencePattern.endDate.valueOf());
+                        isDifferent = isDifferent
+                        || ((pattern.frequency === 'Weekly') && (pattern.weekMask !== data.recurrencePattern.weekMask));
+                        isDifferent = isDifferent
+                        || ((pattern.frequency === 'Monthly') && (pattern.dayInMonth !== data.recurrencePattern.dayInMonth));
+                        isDifferent = isDifferent
+                        || ((pattern.frequency === 'Monthly') && (pattern.weekDayInMonth !== data.recurrencePattern.weekDayInMonth));
+                        isDifferent = isDifferent
+                        || ((pattern.frequency === 'Monthly') && (pattern.weekInMonth !== data.recurrencePattern.weekInMonth));
+                        resolve2(isDifferent);
+                      }, err => reject2(err));
                     }
-                  }).then((bookings) => {
+                  }).then(shallCreateNewRecurrence => {
+                    if (shallCreateNewRecurrence) {
+                      console.log('create new occurrence pattern');
+                      recurrentEventService.create(booking, privateData, data.recurrencePattern).then(recurrencePattern => {
+                        resolve(recurrencePattern);
+                      }).catch(err => reject(err));
+                    } else {
+                      resolve(booking.recurrencePatternId);
+                    }
+                  }).catch(err => reject(err));
+                } else {
+                  resolve(null); // do not use undefined cause we need te reset the field in database
+                }
+              }).then((recurrencePatternId) => {
+                const oldRecurrencePatternId = booking.recurrencePatternId;
+                booking.recurrencePatternId = recurrencePatternId;
 
-                    // TODO store bookings.id in creation/update report
+                // Create or update the main event
+                let createOrUpdateSrv: Observable<Booking>;
+                if (result.action === 'create') {
+                  console.log('create main event');
+                  createOrUpdateSrv =  bookingService.createBooking(booking, privateData);
+                } else {
+                  console.log('update main event');
+                  createOrUpdateSrv = bookingService.updateBooking(booking, privateData);
+                }
+                createOrUpdateSrv.subscribe((updatedBooking) => {
 
-                    // TODO call service for creation/update report creation (includes email notification)
+                  // store updatedBooking.id in creation report
+                  report.bookingId = updatedBooking.id;
 
-                    then(booking, privateData);
+                  // If recurrence is removed or updated, delete next occurrences
+                  new Promise((resolve, reject) => {
+                    if (oldRecurrencePatternId !== null) {
+                      console.log('remove pattern and next occurrences');
+                      bookingService.deletePatternAndBookings(oldRecurrencePatternId, booking.endDate).subscribe(() => {
+                        resolve();
+                      }, err => reject(err));
+                    } else {
+                      resolve();
+                    }
+                  }).then(() => {
+
+                    // If recurrent, create next occurrences
+                    new Promise((resolve, reject) => {
+                      if (data.isRecurrent) {
+                        const newBookingsParams = [];
+                        const privateDatas = [];
+                        const duration = booking.endDate.valueOf() - booking.startDate.valueOf();
+                        for (let i = 1; i < data.nextOccurrences.length; i++) {
+                          // Do not consider the first occurrence because it has already been created/updated above
+                          const newBookingParams = {...booking};
+                          newBookingParams.ref = bookingService.getNewRef();
+                          newBookingParams.id = undefined;
+                          newBookingParams.recurrencePatternId = recurrencePatternId;
+                          newBookingParams.startDate = data.nextOccurrences[i];
+                          newBookingParams.endDate = new Date(data.nextOccurrences[i].valueOf() + duration);
+                          newBookingsParams.push(newBookingParams);
+                          const newPrivateData = {...privateData};
+                          newPrivateData['id'] = undefined;
+                          newPrivateData['_id'] = undefined;
+                          privateDatas.push(newPrivateData);
+                        }
+                        console.log('create next occurrences');
+                        bookingService.createBookings(newBookingsParams, privateDatas).subscribe(({ bookings, errors }) => {
+                          if (errors.length) {
+                            alert(errors);
+                          }
+                          resolve(bookings);
+                        }, err => { reject(err); });
+                      } else {
+                        resolve([]);
+                      }
+                    }).then((bookings: Booking[]) => {
+
+                      // store bookings.id in creation/update report
+                      bookings.map(aBooking => report.nextOccurrencesId.push(aBooking.id));
+
+                      // call service for creation/update report creation (includes email notification)
+                      if (result.action === 'create') {
+                        notificationService.onCreateBooking(report).subscribe(() => {
+                        }, err => {
+                          alert(err);
+                        });
+                      } else {
+                        notificationService.onUpdateBooking(report).subscribe(() => {
+                        }, err => alert(err));
+                      }
+
+                      then(booking, privateData);
+                    }).catch(err => alert(err));
                   }).catch(err => alert(err));
-                }).catch(err => alert(err));
-              }, err => { alert(err); });
+                }, err => { alert(err); });
+              }).catch(err => { alert(err); });
             }).catch(err => { alert(err); });
-          }).catch(err => { alert(err); });
+          }).catch(err => alert(err));
+
         } else if (result.action === 'delete') {
 
           bookingService.deleteBooking(booking.id).subscribe(() => {
@@ -283,6 +342,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
                 resolve();
               }
             }).then(() => {
+              report.bookingId = booking.id;
+              notificationService.onDeleteBooking(report).subscribe(() => {
+              }, err => alert(err));
               then(undefined, undefined);
             }).catch(err => alert(err));
           }, err => alert(err));
@@ -372,7 +434,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       this.dialogRef.close({action: (this.newBooking) ? 'create' : 'update', data: {
         ...this.formStepOne.form.value,
         ...this.formStepTwo.form.value,
-        ...form.value.third,
+        ...this.formStepThree.form.value,
         recurrencePattern: this.formStepTwo.recurrencePattern,
         deleteAllOccurrences: false,
         nextOccurrences: this.formStepTwo.nextOccurrences
@@ -381,34 +443,34 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
   deleteEvent() {
     // check if the event is not already started or completed
-    this.bookingService.getBookingState(this.form.value.id).subscribe((state) => {
+    this.bookingService.getBookingState(this.data.id).subscribe((state) => {
       let confirmDialogRef;
       let deletedAllowed = false;
       if (state === 'InProgress') {
         confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
           width: '350px',
-          data: {title: 'Error', message: `booking event '${this.form.value.title}' cannot be deleted because it is already started`}
+          data: {title: 'Error', message: `booking event '${this.formStepTwo.form.value.title}' cannot be deleted because it is already started`}
         });
       } else if (state === 'Completed') {
         confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
           width: '350px',
-          data: {title: 'Error', message: `booking event '${this.form.value.title}' cannot be deleted because it is already completed`}
+          data: {title: 'Error', message: `booking event '${this.formStepTwo.form.value.title}' cannot be deleted because it is already completed`}
         });
       } else if (state === 'Cancelled') {
         confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
           width: '350px',
-          data: {title: 'Error', message: `booking event '${this.form.value.title}' cannot be deleted because it is already cancelled`}
+          data: {title: 'Error', message: `booking event '${this.formStepTwo.form.value.title}' cannot be deleted because it is already cancelled`}
         });
       } else {
         deletedAllowed = true;
         confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
           width: '350px',
-          data: {title: 'Delete Confirmation', message: `Are you sure you want to delete the booking event '${this.form.value.title}' ?`}
+          data: {title: 'Delete Confirmation', message: `Are you sure you want to delete the booking event '${this.formStepTwo.form.value.title}' ?`}
         });
       }
       confirmDialogRef.afterClosed().subscribe(result => {
         if (result && deletedAllowed) {
-          this.dialogRef.close({action: 'delete', data: this.form.value.id});
+          this.dialogRef.close({action: 'delete', data: this.data.id});
         }
       });
     });
@@ -420,5 +482,9 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     //   this.form.controls.isRecurrent.patchValue(!isRecurrent);
     // }
   // }
+
+  generateBookingForm() {
+    this.pdfCreatorService.createBookingForm(this.data.booking, this.data.booking.privateDataRef, '').open();
+  }
 
 }

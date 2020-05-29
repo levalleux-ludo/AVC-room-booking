@@ -132,15 +132,17 @@ export class BookingService extends FetchService {
       nbPeopleExpected: 1,
       privateData: undefined,
       privateDataRef: {
-      title: '',
-      details: '',
-      organizationId: '',
-      extras: [],
-      totalPrice: 0,
-      hirersDetails: undefined,
-      responsibleDetails: undefined
+        title: '',
+        details: '',
+        organizationId: '',
+        extras: [],
+        totalPrice: 0,
+        hirersDetails: undefined,
+        responsibleDetails: undefined,
+        encryptionKey: ''
       },
-      recurrencePatternId: null
+      recurrencePatternId: null,
+      bookingFormId: ''
     };
   }
 

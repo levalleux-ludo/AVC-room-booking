@@ -7,7 +7,7 @@ const Roles = require('../users/user.model').roles;
 const formDataField = fileService.filePrefix;
 
 // routes
-router.post('/upload', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), fileService.multer_upload().single(formDataField), fileService.after_upload);
+router.post('/upload', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), fileService.multer_upload().single(formDataField), fileService.after_upload);
 router.delete('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), _delete);
 router.get('/:id', getById);
 

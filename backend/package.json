@@ -30,6 +30,7 @@
         "aws-sdk": "^2.638.0",
         "bcryptjs": "^2.4.3",
         "cors": "^2.8.5",
+        "crypto-js": "^4.0.0",
         "dotenv": "^8.2.0",
         "express": "^4.17.1",
         "express-jwt": "^5.3.1",
@@ -40,6 +41,7 @@
         "mongoose": "^5.9.4",
         "multer": "github:emadalam/multer#cf67af6",
         "node-schedule": "^1.3.2",
+        "nodemailer": "^6.4.8",
         "request": "^2.88.2",
         "rootpath": "^0.1.2",
         "uuid": "^7.0.3"

@@ -9,6 +9,12 @@ import { OrganizationService } from '../../_services/organization.service';
 import { Organization } from '../../_model/organization';
 import { WaiterService } from 'src/app/_services/waiter.service';
 import { RecurrentEventService } from 'src/app/_services/recurrent-event.service';
+import { PdfCreatorService } from 'src/app/_services/pdf-creator.service';
+import { CryptoService } from 'src/app/_services/crypto.service';
+import { FilesService } from 'src/app/_services/files.service';
+import { NotificationService } from 'src/app/_services/notification.service';
+import { UserService } from 'src/app/_services/user.service';
+import { AuthenticationService } from 'src/app/_services';
 
 @Component({
   selector: 'app-global-calendar',
@@ -20,9 +26,15 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
   constructor(
     protected bookingService: BookingService,
     protected roomService: RoomService,
+    protected userService: UserService,
     protected organizationService: OrganizationService,
+    protected authenticationService: AuthenticationService,
     protected dialog: MatDialog,
     protected waiter: WaiterService,
+    protected pdfCreatorService: PdfCreatorService,
+    protected cryptoService: CryptoService,
+    protected filesService: FilesService,
+    protected notificationService: NotificationService,
     protected recurrentEventService: RecurrentEventService
   )
   {
@@ -85,7 +97,13 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
             this.dialog,
             this.bookingService,
             this.recurrentEventService,
-            (orga) => this.organizationService.createOrganization(orga),
+            this.pdfCreatorService,
+            this.cryptoService,
+            this.filesService,
+            this.notificationService,
+            this.organizationService,
+            this.authenticationService,
+            this.userService,
             (booking, privateData) => {
                 // TODO refresh calendar to show new or updated or deleted booking
                 this.getBookings();

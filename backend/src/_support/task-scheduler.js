@@ -15,4 +15,4 @@ var j = schedule.scheduleJob(schedulePattern, roomService.cleanUndefinedRefs);
 var k = schedule.scheduleJob(schedulePattern, userService.cleanUndefinedRefs);
 var l = schedule.scheduleJob(schedulePattern, imageService.removeUnusedImages);
 var m = schedule.scheduleJob(schedulePattern, fileService.removeUnusedFiles);
-var m = schedule.scheduleJob(schedulePatternTest, bookingService.cleanUndefinedRefs);
+var m = schedule.scheduleJob(schedulePattern, bookingService.cleanUndefinedRefs);

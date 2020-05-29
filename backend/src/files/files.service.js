@@ -6,6 +6,7 @@ const { v4: uuid } = require('uuid');
 const aws_s3 = require('./aws_s3');
 const db = require('../_helpers/db');
 const bookingsConfigService = require('../bookings-config/bookings-config.service');
+const bookingService = require('../bookings/booking.service');
 
 const filePrefix = 'file';
 
@@ -157,6 +158,14 @@ async function removeUnusedFiles() {
                 const fileId = bookingsConfig.termsAndConditions.fileId;
                 usedFiles.hasOwnProperty(fileId) ? false : (usedFiles[fileId] = true)
             }
+
+            let bookings = await bookingService.getAll();
+            bookings.forEach(booking => {
+                const fileId = booking.bookingFormId;
+                if (fileId && (fileId !== '')) {
+                    usedFiles.hasOwnProperty(fileId) ? false : (usedFiles[fileId] = true)
+                }
+            });
 
             list.forEach(async(fileId) => {
                 // console.log('check image', imageId)

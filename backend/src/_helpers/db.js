@@ -16,6 +16,7 @@ module.exports = {
     Website: require('../website/website.model').model,
     Organization: require('../organizations/organization.model').model,
     BookingsConfig: require('../bookings-config/bookings-config.model').model,
+    Notifier: require('../notifier/notifier.model').model,
     getStatus,
     eventEmitter
     // rooms: require('../rooms/room.model').collection,

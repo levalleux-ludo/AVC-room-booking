@@ -1,0 +1,54 @@
+<div style="width: 360px;">
+    <div fxFlex fxLayout="column" fxLayoutWrap fxLayoutAlign="top">
+        <mat-form-field appearance="outline" required class="field" *ngIf="editable && edited">
+            <mat-label>Host</mat-label>
+            <input matInput required placeholder="Host" [(ngModel)]="edited.host">
+        </mat-form-field>
+        <mat-form-field appearance="outline" required class="field" *ngIf="editable && edited">
+            <mat-label>Host</mat-label>
+            <input matInput required type="number" placeholder="Port" [(ngModel)]="edited.port">
+        </mat-form-field>
+        <mat-checkbox matInput [checked]="edited.secure" (change)="edited.secure = $event.checked">
+            <mat-label>Secure</mat-label>
+        </mat-checkbox>
+        <mat-form-field appearance="outline" required class="field" *ngIf="editable && edited">
+            <mat-label>User</mat-label>
+            <input matInput required placeholder="User" [(ngModel)]="edited.auth.user">
+        </mat-form-field>
+        <mat-checkbox matInput [checked]="resetPassword" (change)="resetPassword = $event.checked">
+            <mat-label>Reset Password</mat-label>
+        </mat-checkbox>
+        <div *ngIf="resetPassword">
+            <mat-form-field appearance="outline" required class="field" *ngIf="editable && edited">
+                <mat-label>Old Password</mat-label>
+                <input matInput required type="password" placeholder="Old Password" [(ngModel)]="edited.oldPassword">
+            </mat-form-field>
+            <mat-form-field appearance="outline" required class="field" *ngIf="editable && edited">
+                <mat-label>New Password</mat-label>
+                <input matInput required type="password" placeholder="New Password" [(ngModel)]="edited.newPassword">
+            </mat-form-field>
+        </div>
+        <div>
+            <div>Receivers</div>
+            <div *ngFor="let receiver of edited.receivers; let idx = index;" style="border: solid;">
+                {{receiver}}
+                <button (click)="edited.receivers.splice(idx, 1);">Remove</button>
+            </div>
+            <mat-form-field class="example-full-width">
+                <mat-label>Email</mat-label>
+                <input matInput [formControl]="emailFormControl" placeholder="Ex. pat@example.com">
+                <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
+                    Please enter a valid email address
+                </mat-error>
+                <mat-error *ngIf="emailFormControl.hasError('required')">
+                    Email is <strong>required</strong>
+                </mat-error>
+            </mat-form-field>
+            <button [disabled]="!emailFormControl.valid" (click)="edited.receivers.push(emailFormControl.value); emailFormControl.reset()">Add</button>
+        </div>
+        <div fxFlex>
+            <button [disabled]="!isModified()" mat-raised-button color="primary" title="submit changes" (click)="onClickSubmit()">Submit</button>
+            <button [disabled]="!isModified()" mat-raised-button color="primary" title="cancel changes" (click)="onClickCancel()">Cancel</button>
+        </div>
+    </div>
+</div>

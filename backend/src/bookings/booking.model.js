@@ -23,7 +23,8 @@ var BookingSchema = new Schema({
     cancelled: { type: Boolean, default: false },
     nbPeopleExpected: { type: Number, required: true },
     privateData: { type: Schema.Types.ObjectId },
-    recurrencePatternId: { type: Schema.Types.ObjectId }
+    recurrencePatternId: { type: Schema.Types.ObjectId },
+    bookingFormId: { type: String, required: false }
 });
 
 BookingSchema.set('toJSON', { virtuals: true });
@@ -47,7 +48,8 @@ var BookingPrivateSchema = new Schema({
         firstName: { type: String, required: true },
         lastName: { type: String, required: true },
         phone: { type: String, required: true }
-    }
+    },
+    encryptionKey: { type: String, required: false }
 });
 
 BookingPrivateSchema.set('toJSON', { virtuals: true });

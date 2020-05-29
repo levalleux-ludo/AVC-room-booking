@@ -6,16 +6,28 @@
                 <mat-form-field>
                     <mat-label>Your First Name</mat-label>
                     <input matInput formControlName="firstName" placeholder="" readonly="{{readOnly}}" required>
+                    <mat-error *ngIf="firstFormGroup.get('hirersDetails.firstName').hasError('required')">
+                        First Name is <strong>required</strong>
+                    </mat-error>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Your Contact Email</mat-label>
                     <input matInput formControlName="email" placeholder="" readonly="{{readOnly}}" required>
+                    <mat-error *ngIf="firstFormGroup.get('hirersDetails.email').hasError('required')">
+                        Email is <strong>required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="firstFormGroup.get('hirersDetails.email').hasError('pattern')">
+                        Email is <strong>not valid</strong>
+                    </mat-error>
                 </mat-form-field>
             </div>
             <div fxFlex fxLayout="column" class="form-column">
                 <mat-form-field>
                     <mat-label>Your Last Name</mat-label>
                     <input matInput formControlName="lastName" placeholder="" readonly="{{readOnly}}" required>
+                    <mat-error *ngIf="firstFormGroup.get('hirersDetails.lastName').hasError('required')">
+                        Last Name is <strong>required</strong>
+                    </mat-error>
                 </mat-form-field>
             </div>
         </div>
@@ -27,16 +39,28 @@
                 <mat-form-field>
                     <mat-label>First Name</mat-label>
                     <input matInput formControlName="firstName" placeholder="" readonly="{{readOnly}}" required>
+                    <mat-error *ngIf="firstFormGroup.get('responsibleDetails.firstName').hasError('required')">
+                        First Name is <strong>required</strong>
+                    </mat-error>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Phone Number</mat-label>
                     <input matInput formControlName="phone" placeholder="" readonly="{{readOnly}}" required>
+                    <mat-error *ngIf="firstFormGroup.get('responsibleDetails.phone').hasError('required')">
+                        Phone is <strong>required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="firstFormGroup.get('responsibleDetails.phone').hasError('pattern')">
+                        Phone is <strong>not valid</strong>
+                    </mat-error>
                 </mat-form-field>
             </div>
             <div fxFlex fxLayout="column" class="form-column">
                 <mat-form-field>
                     <mat-label>Last Name</mat-label>
                     <input matInput formControlName="lastName" placeholder="" readonly="{{readOnly}}" required>
+                    <mat-error *ngIf="firstFormGroup.get('responsibleDetails.lastName').hasError('required')">
+                        Last Name is <strong>required</strong>
+                    </mat-error>
                 </mat-form-field>
             </div>
         </div>

@@ -8,6 +8,8 @@ const jwt_helper = require('../src/_helpers/jwt');
 chai.use(require('chai-http'));
 chai.use(require('chai-fs'));
 
+const secret_key = process.env.secret_key || config.secret;
+
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
     return require(module)
@@ -18,7 +20,7 @@ describe('image manager local', () => {
     let imageId;
     let imageService;
     const id = require('mongoose').Types.ObjectId();
-    const token = jwt.sign({ sub: id, role: 'AvcAdmin' }, config.secret);
+    const token = jwt.sign({ sub: id, role: 'AvcAdmin' }, secret_key);
 
     before(function() {
         jwt_helper.deactivateForTest(true);

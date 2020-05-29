@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AbstractCalendarComponent } from './abstract-calendar.component';
+import { PdfPreviewComponent } from './pdf-preview.component';
 
-describe('AbstractCalendarComponent', () => {
-  let component: AbstractCalendarComponent;
-  let fixture: ComponentFixture<AbstractCalendarComponent>;
+describe('PdfPreviewComponent', () => {
+  let component: PdfPreviewComponent;
+  let fixture: ComponentFixture<PdfPreviewComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AbstractCalendarComponent ]
+      declarations: [ PdfPreviewComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AbstractCalendarComponent);
+    fixture = TestBed.createComponent(PdfPreviewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -38,6 +38,7 @@ export class BookingPrivateData {
     lastName: string;
     phone: string;
   };
+  encryptionKey: string;
 }
 export class Booking {
     id: any;
@@ -63,8 +64,10 @@ export class Booking {
         lastName: '',
         phone: '',
       },
+      encryptionKey: ''
     };
     recurrencePatternId: any;
+  bookingFormId: string;
 
     constructor(fetched_data: any) {
       this.id = fetched_data._id;

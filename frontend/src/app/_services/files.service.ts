@@ -30,11 +30,11 @@ export class FilesService extends FetchService {
      reportProgress: true
    };
 
-   uploadFile(file: File): Observable<string> {
+   uploadFile(file: File): Observable<{ fileId: string }> {
      const fd = new FormData();
      fd.append('file', file);
 
-     return this.http.post<string>(`${this.apiFiles}/upload?filename=hello-world.txt`, fd, this.httpOptions).pipe(
+     return this.http.post<{ fileId: string }>(`${this.apiFiles}/upload?filename=hello-world.txt`, fd, this.httpOptions).pipe(
          tap((imageId) => this.log(`uploaded file ${imageId}`))
        );
 

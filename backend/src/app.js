@@ -26,6 +26,7 @@ app.get('/', require('./home/home.controller'));
 app.use('/files', require('./files/files.controller'));
 app.use('/images', require('./images/images.controller'));
 app.use('/website', require('./website/website.controller'));
+app.use('/notifier', require('./notifier/notifier.controller'));
 app.use('/bookings-config', require('./bookings-config/bookings-config.controller'));
 
 app.get('/home', (req, res) => {

@@ -72,14 +72,26 @@ export class BookingDialogStepOneComponent implements OnInit {
         isCharity: [this.data.organization ? (this.data.organization.type === eOrganizationType.CHARITY) : false]
       }),
       hirersDetails: this.fb.group({
-        firstName: [this.data.hirersDetails ? this.data.hirersDetails.firstName : this.authenticationService.currentUserValue.firstName, Validators.required],
-        lastName: [this.data.hirersDetails ? this.data.hirersDetails.lastName : this.authenticationService.currentUserValue.lastName, Validators.required],
-        email: [this.data.hirersDetails ? this.data.hirersDetails.email : this.authenticationService.currentUserValue.email, Validators.required]
+        firstName: [this.data.hirersDetails ? this.data.hirersDetails.firstName : this.authenticationService.currentUserValue.firstName,
+          Validators.required],
+        lastName: [this.data.hirersDetails ? this.data.hirersDetails.lastName : this.authenticationService.currentUserValue.lastName,
+          Validators.required],
+        email: [this.data.hirersDetails ? this.data.hirersDetails.email : '', Validators.compose([
+          Validators.required, Validators.pattern(EMAIL_REGEX)
+        ])],
       }),
       responsibleDetails: this.fb.group({
-        firstName: [this.data.responsibleDetails ? this.data.responsibleDetails.firstName : this.authenticationService.currentUserValue.firstName, Validators.required],
-        lastName: this.data.responsibleDetails ? this.data.responsibleDetails.lastName : [this.authenticationService.currentUserValue.lastName, Validators.required],
-        phone: [this.data.responsibleDetails ? this.data.responsibleDetails.phone : this.authenticationService.currentUserValue.phone, Validators.required]
+        firstName: [this.data.responsibleDetails ?
+          this.data.responsibleDetails.firstName : this.authenticationService.currentUserValue.firstName,
+          Validators.required],
+        lastName: [this.data.responsibleDetails ?
+          this.data.responsibleDetails.lastName : this.authenticationService.currentUserValue.lastName,
+          Validators.required],
+        phone: [this.data.responsibleDetails ?
+          this.data.responsibleDetails.phone : this.authenticationService.currentUserValue.phone,
+          Validators.compose([
+            Validators.required, Validators.pattern(PHONE_REGEX)
+          ])],
       }),
     });
   }
@@ -92,12 +104,18 @@ export class BookingDialogStepOneComponent implements OnInit {
     this.firstFormGroup.controls.organizationDetails.patchValue(
       (orga !== this.newOrganization) ? {
         name: orga.name,
+        contactName: orga.contactName,
+        city: orga.city,
+        postcode: orga.postcode,
         address: orga.address,
         email: orga.email,
         phone: orga.phone,
         isCharity: orga.type === eOrganizationType.CHARITY
       } : {
         name: '',
+        contactName: '',
+        city: '',
+        postcode: '',
         address : '',
         email: '',
         phone: '',
@@ -106,5 +124,8 @@ export class BookingDialogStepOneComponent implements OnInit {
   }
 
 
+  hasError(formGroupName: string, formControlName: string, type: string) {
+    return this.firstFormGroup.get(formGroupName + '.' + formControlName).hasError(type);
+  }
 
 }

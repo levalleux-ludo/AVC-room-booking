@@ -21,11 +21,13 @@ module.exports = {
     onDeleteOrganization
 };
 
+const secret_key = process.env.secret_key || config.secret;
+
 async function authenticate({ username, password }) {
     const user = await User.findOne({ username });
     if (user && bcrypt.compareSync(password, user.hash)) {
         const { hash, ...userWithoutHash } = user.toObject();
-        const token = jwt.sign({ sub: user.id, role: user.role, memberOf: user.memberOf }, config.secret);
+        const token = jwt.sign({ sub: user.id, role: user.role, memberOf: user.memberOf }, secret_key);
         return {
             ...userWithoutHash,
             token

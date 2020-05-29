@@ -17,6 +17,7 @@ module.exports = {
     getAll,
     getById,
     getByRef,
+    getPrivateData,
     getAllPrivateData,
     getBookingState,
     getAllRecurrencePatterns,
