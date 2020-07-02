@@ -26,9 +26,19 @@ export class CryptoService {
     generateKey: () => new Promise<string>((resolve, reject) => {
       resolve(cryptoJS.lib.WordArray.random(16).toString());
     }),
-    encrypt: (data: ArrayBuffer, key: string) => new Promise<ArrayBuffer>((resolve, reject) => {
-      const str = arrayBufferToString(data);
-      resolve(stringToArrayBuffer(cryptoJS.AES.encrypt(str, key).toString()));
+    encrypt: (data: ArrayBuffer, key: string) => {
+      const text = arrayBufferToString(data);
+      return this.AES.encryptStr(text, key);
+    },
+    encryptStr: (text: string, key: string) => new Promise<ArrayBuffer>((resolve, reject) => {
+      try {
+        const encrypted = cryptoJS.AES.encrypt(text, key);
+        const cypherStr = encrypted.toString();
+        const cypherBuffer = stringToArrayBuffer(cypherStr);
+        resolve(cypherBuffer);
+      } catch (err) {
+        reject(err);
+      }
     }),
     decrypt: (cypherData: ArrayBuffer, key: string) => new Promise<ArrayBuffer>((resolve, reject) => {
       const decrypted = cryptoJS.AES.decrypt(arrayBufferToString(cypherData), key);

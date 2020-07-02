@@ -76,7 +76,7 @@ export class BookingDialogStepOneComponent implements OnInit {
           Validators.required],
         lastName: [this.data.hirersDetails ? this.data.hirersDetails.lastName : this.authenticationService.currentUserValue.lastName,
           Validators.required],
-        email: [this.data.hirersDetails ? this.data.hirersDetails.email : '', Validators.compose([
+        email: [this.data.hirersDetails ? this.data.hirersDetails.email : this.authenticationService.currentUserValue.email, Validators.compose([
           Validators.required, Validators.pattern(EMAIL_REGEX)
         ])],
       }),

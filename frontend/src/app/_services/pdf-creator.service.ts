@@ -15,6 +15,14 @@ export class PdfData {
     });
   }
 
+  getStrBase64(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.pdf.getBase64(str => {
+        resolve(str);
+      });
+    });
+  }
+
   print() {
     this.pdf.print();
   }
@@ -83,8 +91,14 @@ export class PdfCreatorService {
             widths: [ 200, '*' ],
             fillColor: 'blue',
             body: [
-              [ {text: 'Name of organisation/group', style: 'table_cell'}, booking.privateDataRef.organizationId ],
-              [ {text: 'Name and contact details of person making booking', style: 'table_cell'}, booking.privateDataRef.hirersDetails.firstName ]
+              [
+                {text: 'Name of organisation/group', style: 'table_cell'},
+                {text: booking.privateDataRef.organizationId, style: 'table_cell'}
+              ],
+              [
+                {text: 'Name and contact details of person making booking', style: 'table_cell'},
+                {text: booking.privateDataRef.hirersDetails.firstName, style: 'table_cell'}
+              ]
             ]
           }
         },

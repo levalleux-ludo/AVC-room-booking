@@ -13,6 +13,12 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Test",
+            "program": "${workspaceFolder}/test/test.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
             "env": [
                 "MONGODB_URI=mongodb://localhost/AVC-room-booking-system-test"

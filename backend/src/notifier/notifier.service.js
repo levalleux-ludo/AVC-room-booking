@@ -73,8 +73,12 @@ async function getPdfData(fileId, encryptionKey) {
                         // no encryption (test ?)
                         resolve(body);
                     } else {
-                        var bytesPass = CryptoJS.AES.decrypt(body.text(), encryptionKey);
-                        resolve(bytesPass.toString(CryptoJS.enc.Utf8));
+                        const cypherText = body.toString('utf16le');
+                        var bytesPdf = CryptoJS.AES.decrypt(cypherText, encryptionKey);
+                        const strPdfb64 = bytesPdf.toString(CryptoJS.enc.Utf8);
+                        const buffPdfb64 = Buffer.from(strPdfb64, 'base64');
+                        const strPdf = buffPdfb64.toString('latin1');
+                        resolve(strPdf);
                     }
                 }
             });
@@ -105,9 +109,10 @@ async function notifyBooking(bookingId, event) {
     html += '<p>Room: ' + room.name + '</p>';
     html += '<p>From: ' + booking.startDate + '</p>';
     html += '<p>To: ' + booking.endDate + '</p>';
+    const pdfBuffer = Buffer.from(pdfData, 'latin1');
     const attachments = [{
         filename: booking.ref + '.pdf',
-        content: Buffer.from(pdfData)
+        content: pdfBuffer
     }];
     let message = '';
     for (let i = 0; i < 16; i++) {

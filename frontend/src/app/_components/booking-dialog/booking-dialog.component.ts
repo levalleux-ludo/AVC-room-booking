@@ -183,29 +183,33 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
             // 1. create a PDF with booking details
             new Promise<any>((resolve, reject) => {
               const pdfData = pdfCreatorService.createBookingForm(booking, privateData, data.signatureURL);
+              pdfData.open();
               // 2. Upload PDF onto S3
-              pdfData.getBlob().then((blob: Blob) => {
-                filesService.uploadFile(new File([blob], booking.id + '.pdf')).subscribe(({fileId}) => {
-                  // 3. Reference PDF url in booking params (update db model: new field bookingForm)
-                  booking.bookingFormId = fileId;
-                  report.formId = fileId;
-                  resolve();
-                }, err => reject(err));
+              pdfData.getStrBase64().then((pdfText) => {
+                // filesService.uploadFile(new File([blob], booking.id + '.pdf')).subscribe(({fileId}) => {
+                //   // 3. Reference PDF url in booking params (update db model: new field bookingForm)
+                //   booking.bookingFormId = fileId;
+                //   report.formId = fileId;
+                //   resolve();
+                // }, err => reject(err));
                 //  TODO  encrypt the PDF to preserve privacy (public access on S3 storage)
                 // keep the key in booking.privateData
-                // cryptoService.AES.generateKey().then((key: string) => {
-                //   privateData.encryptionKey = key;
-                //   report.encryptionKey = key;
-                //   new Response(blob).arrayBuffer().then(buffer => {
-                //     cryptoService.AES.encrypt(buffer, key).then((cypherPdfData: ArrayBuffer) => {
-                //       filesService.uploadFile(new Blob([cypherPdfData]) ).subscribe((fileId) => {
-                //         // 3. Reference PDF url in booking params (update db model: new field bookingForm)
-                //         booking.bookingFormId = fileId;
-                //         report.formId = fileId;
-                //       }, err => alert(err));
-                //     }).catch(err => alert(err));
-                //   }).catch(err => alert(err));
-                // }).catch(err => alert(err));
+                cryptoService.AES.generateKey().then((key: string) => {
+                  privateData.encryptionKey = key;
+                  report.encryptionKey = key;
+                  // TODO Convert to arraybuffer error: https://www.google.com/search?client=opera&q=RangeError%3A+byte+length+of+Uint16Array+should+be+a+multiple+of+2&sourceid=opera&ie=UTF-8&oe=UTF-8
+
+                  // new Response(blob).arrayBuffer().then(buffer => {
+                  cryptoService.AES.encryptStr(pdfText, key).then((cypherPdfData: ArrayBuffer) => {
+                    filesService.uploadFile(new File([cypherPdfData], booking.id + '.pdf')).subscribe(({fileId}) => {
+                      // 3. Reference PDF url in booking params (update db model: new field bookingForm)
+                      booking.bookingFormId = fileId;
+                      report.formId = fileId;
+                      resolve();
+                    }, err => alert(err));
+                  }).catch(err => alert(err));
+                  // }).catch(err => alert(err));
+                }).catch(err => alert(err));
               }).catch(err => reject(err));
             }).then(() => {
 

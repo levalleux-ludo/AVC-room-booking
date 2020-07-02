@@ -78,6 +78,7 @@ export class Booking {
       this.nbPeopleExpected = fetched_data.nbPeopleExpected;
       this.privateData = fetched_data.privateData;
       this.recurrencePatternId = fetched_data.recurrencePatternId;
+      this.bookingFormId = fetched_data.bookingFormId;
   }
 }
 
