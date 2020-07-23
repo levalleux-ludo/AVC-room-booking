@@ -5,13 +5,14 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { FetchService } from '../_helpers';
 import { environment } from 'src/environments/environment';
 import { tap, catchError } from 'rxjs/operators';
+import { ApiUrlService } from './api-url.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService extends FetchService {
 
-  private apiUsers = `${environment.apiRoomBooking}/users`;
+  private apiUsers;
 
   // private apiRoles = {
   //   Customer: 'customer',
@@ -31,9 +32,13 @@ export class UserService extends FetchService {
   };
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('UserService');
+    this.apiUrlService.apiUrl.subscribe((url) => {
+      this.apiUsers = `${url}/users`;
+    });
    }
 
   getUsers(): Observable<User[]> {

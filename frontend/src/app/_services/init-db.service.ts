@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { catchError, tap } from 'rxjs/operators';
+import { ApiUrlService } from './api-url.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,13 +12,14 @@ import { catchError, tap } from 'rxjs/operators';
 export class InitDbService extends FetchService {
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('InitDb Service');
    }
 
   createUser(username, password, firstName, lastName) {
-    return this.http.post<any>(`${environment.apiAuthentication}/users/register`, {username: username, password: password, firstName: firstName, lastName: lastName})
+    return this.http.post<any>(`${this.apiUrlService.userApiUrl.value}/users/register`, {username: username, password: password, firstName: firstName, lastName: lastName})
       .pipe(
         tap((newUser) => this.log(`User ${newUser.username} created`)),
         catchError(this.handleError<any>('createUser'))
@@ -25,7 +27,7 @@ export class InitDbService extends FetchService {
   }
 
   createRoom(roomParams) {
-    return this.http.post<any>(`${environment.apiRoomBooking}/room/create`, roomParams)
+    return this.http.post<any>(`${this.apiUrlService.apiUrl.value}/room/create`, roomParams)
       .pipe(
         tap((newRoom) => this.log(`Room ${newRoom.name} created`)),
         catchError(this.handleError<any>('createRoom'))

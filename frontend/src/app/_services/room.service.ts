@@ -6,6 +6,7 @@ import { catchError, tap, map } from 'rxjs/operators';
 import { Room } from '../_model';
 import { environment } from 'src/environments/environment';
 import { FetchService } from '../_helpers';
+import { ApiUrlService } from './api-url.service';
 
 const imageDir = "assets/img";
 const roomImages = {
@@ -25,16 +26,20 @@ const roomImages = {
 })
 export class RoomService extends FetchService {
 
-  private apiRooms = `${environment.apiRoomBooking}/room`;
+  private apiRooms;
 
   httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json',  'Access-Control-Allow-Origin': '*' }),
   }
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('RoomService');
+    this.apiUrlService.apiUrl.subscribe((url) => {
+      this.apiRooms = `${url}/room`;
+    });
    }
 
   getRooms(): Observable<Room[]> {

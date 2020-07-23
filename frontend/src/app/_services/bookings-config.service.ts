@@ -5,21 +5,26 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { BookingsConfig } from '../_model/bookingsConfig';
+import { ApiUrlService } from './api-url.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookingsConfigService extends FetchService {
-  private apiBookingsConfig = `${environment.apiRoomBooking}/bookings-config`;
+  private apiBookingsConfig;
 
   httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json' })
   };
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('BookingsConfigService');
+    this.apiUrlService.apiUrl.subscribe((url) => {
+      this.apiBookingsConfig = `${url}/bookings-config`;
+    });
   }
 
   public get(): Observable<BookingsConfig> {

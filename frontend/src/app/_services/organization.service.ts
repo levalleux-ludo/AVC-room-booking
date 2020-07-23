@@ -6,22 +6,27 @@ import { catchError, tap, map } from 'rxjs/operators';
 import { Organization } from '../_model/organization';
 import { environment } from 'src/environments/environment';
 import { FetchService } from '../_helpers';
+import { ApiUrlService } from './api-url.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrganizationService extends FetchService {
 
-  private apiOrganizations = `${environment.apiRoomBooking}/organization`;
+  private apiOrganizations;
 
   httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json' })
   }
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('OrganizationService');
+    this.apiUrlService.apiUrl.subscribe((url) => {
+      this.apiOrganizations = `${url}/organization`;
+    });
    }
 
   getOrganizations(): Observable<Organization[]> {

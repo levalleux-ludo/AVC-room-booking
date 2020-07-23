@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 import { eUserRole, User } from '../_model/user';
+import { ApiUrlService } from './api-url.service';
 
 export const AuthorizationRules = {
   MYBOOKINGS: [eUserRole.CUSTOMER],
@@ -18,7 +19,10 @@ export class AuthenticationService {
     private currentUserSubject: BehaviorSubject<User>;
     public currentUser: Observable<User>;
 
-    constructor(private http: HttpClient) {
+    constructor(
+      private http: HttpClient,
+      protected apiUrlService: ApiUrlService
+      ) {
         const localStoredUser = localStorage.getItem('currentUser');
         let user = undefined;
         if (localStoredUser) {
@@ -34,7 +38,7 @@ export class AuthenticationService {
     }
 
     login(username, password) {
-        return this.http.post<any>(`${environment.apiAuthentication}/users/authenticate`, { username, password })
+        return this.http.post<any>(`${this.apiUrlService.userApiUrl.value}/users/authenticate`, { username, password })
         .pipe(map(userData => {
             // store user details and  jwt token in local storage to keep user logged in between page refreshes
             localStorage.setItem('currentUser', JSON.stringify(userData));

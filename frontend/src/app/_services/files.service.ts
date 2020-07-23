@@ -5,6 +5,7 @@ import { catchError, tap, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { FetchService } from '../_helpers';
 import { Room } from '../_model';
+import { ApiUrlService } from './api-url.service';
 
 const imageDir = 'assets/img';
 const noPictureImage = imageDir + '/Picture_Not_Yet_Available.png';
@@ -15,12 +16,16 @@ const noPictureImage = imageDir + '/Picture_Not_Yet_Available.png';
 export class FilesService extends FetchService {
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('FilesService');
+    this.apiUrlService.apiUrl.subscribe((url) => {
+      this.apiFiles = `${url}/files`;
+    });
    }
 
-   private apiFiles = `${environment.apiRoomBooking}/files`;
+   private apiFiles;
    filesUrl = new Map();
 
    httpOptions = {

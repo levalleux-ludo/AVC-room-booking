@@ -5,6 +5,7 @@ import { Observable, of } from 'rxjs';
 import { Booking, BookingPrivateData, RecurrencePatternParams, RecurrencePattern } from '../_model/booking';
 import { FetchService } from '../_helpers';
 import { tap, catchError, delayWhen, map } from 'rxjs/operators';
+import { ApiUrlService } from './api-url.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +13,17 @@ import { tap, catchError, delayWhen, map } from 'rxjs/operators';
 export class BookingService extends FetchService {
 
   private static instancesCount = 0;
-  private apiBookings = `${environment.apiRoomBooking}/booking`;
+  private apiBookings;
   private _minBookingTime = 8;
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('BookingService');
+    this.apiUrlService.apiUrl.subscribe((url) => {
+      this.apiBookings = `${url}/booking`;
+    });
    }
 
   // tslint:disable-next-line: max-line-length

@@ -5,22 +5,27 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { tap, catchError } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { Notifier } from '../_model/notifier';
+import { ApiUrlService } from './api-url.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService extends FetchService {
 
-  apiNotifier = `${environment.apiRoomBooking}/notifier`;
+  apiNotifier;
 
   httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json',  'Access-Control-Allow-Origin': '*' }),
   };
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('NotifierService');
+    this.apiUrlService.apiUrl.subscribe((url) => {
+      this.apiNotifier = `${url}/notifier`;
+    });
   }
 
   onCreateBooking(report: { encryptionKey: string; formId: string; bookingId: string; nextOccurrencesId: any[]; }): Observable<any> {

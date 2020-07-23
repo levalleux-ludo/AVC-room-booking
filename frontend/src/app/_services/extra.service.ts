@@ -6,22 +6,27 @@ import { catchError, tap, map } from 'rxjs/operators';
 import { Extra } from '../_model/extra';
 import { environment } from 'src/environments/environment';
 import { FetchService } from '../_helpers';
+import { ApiUrlService } from './api-url.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExtraService extends FetchService {
 
-  private apiExtras = `${environment.apiRoomBooking}/extra`;
+  private apiExtras;
 
   httpOptions = {
     headers: new HttpHeaders({'Content-Type': 'application/json' })
   }
 
   constructor(
-    protected http: HttpClient
+    protected http: HttpClient,
+    protected apiUrlService: ApiUrlService
   ) {
     super('ExtraService');
+    this.apiUrlService.apiUrl.subscribe((url) => {
+      this.apiExtras = `${url}/extra`;
+    });
    }
 
   getExtras(): Observable<Extra[]> {
