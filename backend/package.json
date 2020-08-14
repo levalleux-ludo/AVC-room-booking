@@ -18,7 +18,7 @@
         "docker:build": "docker build --rm -f Dockerfile -t local/avc/backend:latest .",
         "docker:create-network": "docker network create -d bridge --subnet 10.0.75.0/24 --gateway 10.0.75.1 avcnet",
         "test-env": "call env/setAWSCredentials.bat & cmd /C echo %aws_access_key_id% && echo $aws_access_key_id",
-        "docker:run": "call env/setAWSCredentials.bat && cmd /C docker run -p 4000:4000 --env aws_s3_avc_access_key_id=%aws_access_key_id% --env aws_s3_avc_secret_access_key=%aws_secret_access_key% --env mongodb_uri=mongodb://host.docker.internal/AVC-room-booking-system local/avc/backend",
+        "docker:run": "call env/setAWSCredentials.bat && cmd /C docker run -p 4000:4000 --env PORT=4000 --env aws_s3_avc_access_key_id=%aws_access_key_id% --env aws_s3_avc_secret_access_key=%aws_secret_access_key% --env mongodb_uri=mongodb://host.docker.internal/AVC-room-booking-system local/avc/backend",
         "docker:aws:renew-token": "aws ecr get-login --no-include-email>%TEMP%\\aws-token && cmd /K<%TEMP%\\aws-token & del /Q /F %TEMP%\\aws-token",
         "docker:aws:push": "docker tag local/avc/backend:latest 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-backend:latest && docker push 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-backend:latest",
         "firebase:serve": "xcopy /S /Y /I src functions\\src && firebase functions:config:get> ./functions/.runtimeconfig.json && firebase serve",

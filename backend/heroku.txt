@@ -1,0 +1,18 @@
+heroku login
+heroku container:login
+heroku create avc-room-booking-api
+docker tag local/avc/backend:latest registry.heroku.com/avc-room-booking-api/web
+docker push registry.heroku.com/avc-room-booking-api/web
+heroku container:release -a avc-room-booking-api web
+call .\env\setEnvVarsHeroku.bat
+
+heroku ps:scale -a avc-room-booking-api web=1
+heroku logs -a avc-room-booking-api --tail
+
+heroku create avc-room-booking
+docker tag local/avc/frontend:latest registry.heroku.com/avc-room-booking/web
+docker push registry.heroku.com/avc-room-booking/web
+heroku container:release -a avc-room-booking web
+
+heroku ps:scale -a avc-room-booking web=1
+heroku logs -a avc-room-booking --tail

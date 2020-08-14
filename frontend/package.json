@@ -11,8 +11,10 @@
         "cypress:open": "cypress open",
         "cypress:open:docker": "set CYPRESS_baseUrl=http://localhost:80&& cypress open",
         "cypress:open:aws": "set CYPRESS_baseUrl=http://3.11.6.164:80&& set CYPRESS_api_server=http://3.11.6.164:4000&& cypress open",
-        "docker:build": "docker build --rm -f Dockerfile -t local/avc/frontend:latest .",
-        "docker:run": "docker run -p 80:80 local/avc/frontend",
+        "cypress:cache_old": "if not exist .\\cypress\\cache mklink /J .\\cypress\\cache %LOCALAPPDATA%\\Cypress\\Cache",
+        "cypress:cache": "if not exist .\\cypress\\cache xcopy /Y /E /Q /I %LOCALAPPDATA%\\Cypress\\Cache .\\cypress\\cache",
+        "docker:build": "npm run cypress:cache && docker build --rm --build-arg CYPRESS_CACHE_FOLDER=cypress/cache -f Dockerfile -t local/avc/frontend:latest .",
+        "docker:run": "docker run -p 80:80 --env PORT=80 local/avc/frontend",
         "docker:aws:renew-token": "aws ecr get-login --no-include-email>%TEMP%\\aws-token && cmd /K<%TEMP%\\aws-token & del /Q /F %TEMP%\\aws-token",
         "docker:aws:push": "docker tag local/avc/frontend:latest 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-frontend:latest && docker push 486699961018.dkr.ecr.eu-west-2.amazonaws.com/avc-frontend:latest",
         "firebase:deploy": "ng build --prod && firebase deploy"

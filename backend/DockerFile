@@ -12,9 +12,11 @@ RUN adduser \
 USER avc
 WORKDIR /home/avc
 RUN ls -al 
+COPY --chown=avc package.json .
+RUN npm install -y
 COPY --chown=avc . .
 
 # RUN git clone https://github.com/levalleux-ludo/AVC-room-booking.git
 # CMD cd AVC-room-booking/backend && npm install -y && node ./server.js
-RUN env
-CMD npm install -y && npm run start:env-preprod
+ENV NODE_ENV production
+CMD npm run start:env-preprod
