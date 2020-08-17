@@ -8,6 +8,8 @@
 </div>
 <app-global-calendar #calendar [bookingFilter]="bookingFilter" [width]="800" [height]="600" [readOnly]="true" [showViews]="['monthView', 'weekView', 'dayView']"></app-global-calendar>
 <div>Double click an event to get details</div>
+<app-bokking-overview-table [bookingFilter]="bookingFilter"></app-bokking-overview-table>
+<p>after the table</p>
 <!-- <ul class="bookings">
     <li *ngFor="let booking of bookings">
         <a routerLink="/bookings/booking/{{booking.ref}}">

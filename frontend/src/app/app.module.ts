@@ -40,7 +40,10 @@ import {
   MatCheckboxModule,
   MatStepperModule,
   MatSlideToggleModule,
-  MatRadioModule
+  MatRadioModule,
+  MatTableModule,
+  MatSortModule,
+  MatPaginatorModule
   } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { TimePickerComponent } from './_components/time-picker/time-picker.component';
@@ -62,7 +65,6 @@ import { jqxSchedulerModule }    from 'jqwidgets-ng/jqxscheduler';
 import { TestJqxSchedulerComponent } from './_components/test-jqx-scheduler/test-jqx-scheduler.component';
 import { jqxCalendarModule } from 'jqwidgets-ng/jqxcalendar';
 import { ChartistModule } from 'ng-chartist';
-import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 import { BarChartComponent } from './_components/bar-chart/bar-chart.component';
 import { FooterComponent } from './_components/footer/footer.component';
@@ -100,6 +102,7 @@ import { BookingDialogStepThreeComponent } from './_components/booking-dialog-st
 import { SignDialogComponent } from './_components/sign-dialog/sign-dialog.component';
 import { PdfPreviewComponent } from './_components/pdf-preview/pdf-preview.component';
 import { BookingFormPdfPreviewComponent } from './_components/booking-form-pdf-preview/booking-form-pdf-preview.component';
+import { BokkingOverviewTableComponent } from './_components/bokking-overview-table/bokking-overview-table.component';
 
 @NgModule({
   declarations: [
@@ -150,7 +153,8 @@ import { BookingFormPdfPreviewComponent } from './_components/booking-form-pdf-p
     BookingDialogStepThreeComponent,
     SignDialogComponent,
     PdfPreviewComponent,
-    BookingFormPdfPreviewComponent
+    BookingFormPdfPreviewComponent,
+    BokkingOverviewTableComponent
   ],
   imports: [
     CommonModule,
@@ -197,11 +201,13 @@ import { BookingFormPdfPreviewComponent } from './_components/booking-form-pdf-p
     MatProgressSpinnerModule,
     MatMenuModule,
     MatCheckboxModule,
-    PdfViewerModule,
     MatStepperModule,
     MatSlideToggleModule,
     MatRadioModule,
-    SignaturePadModule
+    SignaturePadModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule
   ],
   exports: [
     MatNativeDateModule,
