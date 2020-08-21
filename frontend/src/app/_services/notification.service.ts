@@ -38,6 +38,9 @@ export class NotificationService extends FetchService {
   onUpdateBooking(report: { encryptionKey: string; formId: string; bookingId: string; nextOccurrencesId: any[]; }): Observable<any> {
     return of(null);
   }
+  onCancelBooking(report: { encryptionKey: string; formId: string; bookingId: string; nextOccurrencesId: any[]; }): Observable<any> {
+    return of(null);
+  }
   onDeleteBooking(report: { encryptionKey: string; formId: string; bookingId: string; nextOccurrencesId: any[]; }): Observable<any> {
     return of(null);
   }

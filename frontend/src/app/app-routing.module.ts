@@ -45,7 +45,7 @@ const routes: Routes = [
     }
   },
   {
-    path: 'bookings/booking/:ref',
+    path: 'bookings/booking/:id',
     component: BookingDetailComponent,
     canActivate: [AuthGuard],
     data: {

@@ -242,12 +242,14 @@ export class RoomDetailComponent implements OnInit {
       now.getMonth(),
       now.getDate()-1);
     this.bookingService.getBookings({
+      cancelled: false,
       roomId: room.id,
       endBefore: now
     }).subscribe(
       bookings => this.pastBookings = bookings
     );
     this.bookingService.getBookings({
+      cancelled: false,
       roomId: room.id,
       endAfter: now
     }).subscribe(

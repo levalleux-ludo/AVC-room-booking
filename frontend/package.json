@@ -61,7 +61,7 @@
         "ng2-pdf-viewer": "^6.3.0",
         "ngx-scrolltop": "^0.5.8",
         "paper-kit-2": "^2.1.0",
-        "pdfmake": "^0.1.65",
+        "pdfmake": "^0.1.68",
         "rest-url-builder": "^1.0.6",
         "rxjs": "~6.4.0",
         "tslib": "^1.11.1",

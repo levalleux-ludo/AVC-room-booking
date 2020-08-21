@@ -93,7 +93,7 @@ export class RecurrentEventService {
         break;
       }
     }
-    return occurrences;
+    return occurrences.sort((date1, date2) => date1.valueOf() - date2.valueOf());
   }
 
 }

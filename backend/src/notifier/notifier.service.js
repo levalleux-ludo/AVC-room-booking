@@ -61,38 +61,13 @@ async function update(notifierParam) {
     await createTransporter();
 }
 
-async function getPdfData(fileId, encryptionKey) {
-    return new Promise((resolve, reject) => {
-        fileService.getFile(fileId).then(cypherPdfURL => {
-            request.get({
-                uri: cypherPdfURL.url,
-                encoding: null
-            }, function(error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    if (encryptionKey === '') {
-                        // no encryption (test ?)
-                        resolve(body);
-                    } else {
-                        const cypherText = body.toString('utf16le');
-                        var bytesPdf = CryptoJS.AES.decrypt(cypherText, encryptionKey);
-                        const strPdfb64 = bytesPdf.toString(CryptoJS.enc.Utf8);
-                        const buffPdfb64 = Buffer.from(strPdfb64, 'base64');
-                        const strPdf = buffPdfb64.toString('latin1');
-                        resolve(strPdf);
-                    }
-                }
-            });
-        });
-    });
-}
-
 async function notifyBooking(bookingId, event) {
     const notifier = await get();
     const booking = await bookingService.getById(bookingId);
-    const bookingPrivateData = await bookingService.getPrivateData(booking.privateData);
+    const bookingPrivateData = await bookingService.getPrivateData(booking.privateData, '*');
     const organization = await organizationService.getById(bookingPrivateData.organizationId);
     const room = await roomService.getById(booking.roomId);
-    const pdfData = await getPdfData(booking.bookingFormId, bookingPrivateData.encryptionKey);
+    const pdfData = await bookingService.getPdfData(bookingId, '*');
 
     let receivers = '';
     for (const receiver of notifier.receivers) {

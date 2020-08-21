@@ -95,17 +95,30 @@ get username() {
   get firstName() {
     return this._firstName;
   }
+  set firstName(value: string) {
+    this._firstName = value;
+  }
+
 
   get lastName() {
     return this._lastName;
+  }
+  set lastName(value: string) {
+    this._lastName = value;
   }
 
   get phone() {
     return this._phone;
   }
+  set phone(value: string) {
+    this._phone = value;
+  }
 
   get email() {
     return this._email;
+  }
+  set email(value: string) {
+    this._email = value;
   }
 
   get role() {

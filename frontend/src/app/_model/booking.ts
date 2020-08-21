@@ -22,6 +22,20 @@ export interface RecurrencePattern extends RecurrencePatternParams {
   _id: any;
 }
 
+export class CancellationData {
+  reason: string;
+  canceller: string;
+  cancelAllOccurrences: boolean;
+  cancellationDate: Date;
+
+  constructor(fetched_data: any) {
+    this.reason = fetched_data.reason;
+    this.canceller = fetched_data.canceller;
+    this.cancelAllOccurrences = fetched_data.cancelAllOccurrences;
+    this.cancellationDate = new Date(fetched_data.cancellationDate);
+  }
+}
+
 export class BookingPrivateData {
   title: string;
   details: string;
@@ -67,7 +81,10 @@ export class Booking {
       encryptionKey: ''
     };
     recurrencePatternId: any;
-  bookingFormId: string;
+    cancelled: boolean;
+    bookingFormId: string;
+  cancellationData: any;
+  cancellationDataRef: CancellationData;
 
     constructor(fetched_data: any) {
       this.id = fetched_data._id;
@@ -79,6 +96,10 @@ export class Booking {
       this.privateData = fetched_data.privateData;
       this.recurrencePatternId = fetched_data.recurrencePatternId;
       this.bookingFormId = fetched_data.bookingFormId;
+      this.cancelled = fetched_data.cancelled
+      ? true
+       : false;
+      this.cancellationData = fetched_data.cancellationData;
   }
 }
 

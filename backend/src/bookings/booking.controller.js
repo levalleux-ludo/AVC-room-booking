@@ -11,6 +11,10 @@ router.put('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Ro
 // TODO : router.put('/cancel/:id', cancel);
 router.put('/check', checkConflicts);
 router.get('/private', get_organizations_for_user(), getAllPrivateData);
+router.get('/private/:id', get_organizations_for_user(), getPrivateData);
+router.get('/form/:id', get_organizations_for_user(), getPdfData)
+router.get('/cancel', getAllCancellationData);
+router.get('/cancel/:id', getCancellationData);
 router.get('/recurrence', getAllRecurrencePatterns);
 router.post('/recurrence', createRecurrencePattern);
 router.get('/recurrence/:id', getRecurrencePatternById);
@@ -28,7 +32,8 @@ router.get('/', get_organizations_for_user(), function(req, res, next) {
 });
 // TODO : router.get('/:company', getAllForCompany);
 router.get('/state/:id', getBookingState);
-router.delete('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), _delete);
+router.post('/:id/cancel', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff, Roles.Customer]), cancelBooking);
+router.delete('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin]), _delete);
 
 module.exports = router;
 
@@ -66,6 +71,7 @@ function checkConflicts(req, res, next) {
 
 function getAll(req, res, next) {
     bookingService.getAll(
+            cancelled = req.query.cancelled,
             roomId = req.query.roomId,
             day = req.query.day,
             startBefore = req.query.startBefore,
@@ -88,9 +94,37 @@ function getAllPrivateData(req, res, next) {
         .catch(err => next(err));
 }
 
+function getPrivateData(req, res, next) {
+    bookingService.getPrivateData(req.params.id, req.orgas).then(privateData => {
+            res.json(privateData);
+        })
+        .catch(err => next(err));
+}
+
+function getPdfData(req, res, next) {
+    bookingService.getPdfData(req.params.id, req.orgas, true).then(pdfData => {
+            res.type('text;charset=ANSI').send(pdfData);
+        })
+        .catch(err => next(err));
+}
+
 function getAllRecurrencePatterns(req, res, next) {
     bookingService.getAllRecurrencePatterns().then((patterns) => {
             res.json(patterns);
+        })
+        .catch(err => next(err));
+}
+
+function getAllCancellationData(req, res, next) {
+    bookingService.getAllCancellationData().then((cancellationData) => {
+            res.json(cancellationData);
+        })
+        .catch(err => next(err));
+}
+
+function getCancellationData(req, res, next) {
+    bookingService.getCancellationDataById(req.params.id).then(cancellationData => {
+            res.json(cancellationData);
         })
         .catch(err => next(err));
 }
@@ -118,7 +152,9 @@ function deleteRecurrencePattern(req, res, next) {
             req.params.id,
             deletePattern = req.query.deletePattern,
             deleteBookings = req.query.deleteBookings,
-            startAfter = req.query.startAfter)
+            startAfter = req.query.startAfter,
+            req.query.reason ? req.query.reason : 'unknown',
+            req.user.sub)
         .then(() => res.json({}))
         .catch(err => next(err));
 }
@@ -154,6 +190,12 @@ function getBookingState(req, res, next) {
 
 function update(req, res, next) {
     bookingService.update(req.params.id, req.body)
+        .then((booking) => res.json(booking))
+        .catch(err => next(err));
+}
+
+function cancelBooking(req, res, next) {
+    bookingService.cancelBooking(req.params.id, null, req.query.reason ? req.query.reason : 'unknown', req.user.sub)
         .then((booking) => res.json(booking))
         .catch(err => next(err));
 }

@@ -76,6 +76,15 @@ export class UserService extends FetchService {
     );
   }
 
+  updateUser(user: User): Observable<any> {
+    const url = `${this.apiUsers}/${user.id}`;
+    console.log('Update user @API:', url);
+    return this.http.put<User>(url, user.getData(), this.httpOptions).pipe(
+      tap((updatedUser) => this.log(`update user ${updatedUser.username}`)),
+      catchError(this.handleError<User>('updateUser'))
+    );
+  }
+
   register (user) {
     return this.http.post(`${this.apiUsers}/register`, user).pipe(
       tap(() => this.log(`register user ${user.username}`)),

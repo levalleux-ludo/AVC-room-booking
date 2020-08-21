@@ -5,8 +5,6 @@ const path = require('path');
 const { v4: uuid } = require('uuid');
 const aws_s3 = require('./aws_s3');
 const db = require('../_helpers/db');
-const bookingsConfigService = require('../bookings-config/bookings-config.service');
-const bookingService = require('../bookings/booking.service');
 
 const filePrefix = 'file';
 
@@ -18,7 +16,6 @@ module.exports = {
     getFile,
     setUploadsFolder,
     getAllFiles,
-    removeUnusedFiles,
     filePrefix
 }
 
@@ -141,40 +138,4 @@ function setUploadsFolder(path) {
     if (!fs.existsSync(path)) {
         fs.mkdirSync(path);
     }
-}
-
-async function removeUnusedFiles() {
-    console.log('Scheduled task fileService.removeUnusedFiles');
-    await getAllFiles(
-        filePrefix,
-        async(list) => {
-            let usedFiles = {};
-
-            // TODO check for unused files in model (Booking-settings and more ?)
-
-            // Check used pictures in ROOMS collection
-            let bookingsConfig = await bookingsConfigService.get()
-            if (bookingsConfig && bookingsConfig.termsAndConditions && bookingsConfig.termsAndConditions.fileId) {
-                const fileId = bookingsConfig.termsAndConditions.fileId;
-                usedFiles.hasOwnProperty(fileId) ? false : (usedFiles[fileId] = true)
-            }
-
-            let bookings = await bookingService.getAll();
-            bookings.forEach(booking => {
-                const fileId = booking.bookingFormId;
-                if (fileId && (fileId !== '')) {
-                    usedFiles.hasOwnProperty(fileId) ? false : (usedFiles[fileId] = true)
-                }
-            });
-
-            list.forEach(async(fileId) => {
-                // console.log('check image', imageId)
-                if (!usedFiles.hasOwnProperty(fileId)) {
-                    console.log("this file is not used in database:", fileId)
-                    await deleteFile(fileId, () => {}, (err) => console.error(err));
-                }
-            });
-        }, (err) => {
-            console.error(err);
-        });
 }

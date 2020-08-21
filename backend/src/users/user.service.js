@@ -11,6 +11,7 @@ module.exports = {
     count,
     getAll,
     getById,
+    getCurrent,
     create,
     createWithRole,
     update,
@@ -23,11 +24,15 @@ module.exports = {
 
 const secret_key = process.env.secret_key || config.secret;
 
+function createToken(user) {
+    return jwt.sign({ sub: user.id, role: user.role, memberOf: user.memberOf }, secret_key);
+}
+
 async function authenticate({ username, password }) {
     const user = await User.findOne({ username });
     if (user && bcrypt.compareSync(password, user.hash)) {
         const { hash, ...userWithoutHash } = user.toObject();
-        const token = jwt.sign({ sub: user.id, role: user.role, memberOf: user.memberOf }, secret_key);
+        const token = createToken(user);
         return {
             ...userWithoutHash,
             token
@@ -75,6 +80,19 @@ async function getAll() {
 
 async function getById(id) {
     return await User.findById(id).select('-hash');
+}
+
+async function getCurrent(id) {
+    const user = await getById(id);
+    if (!user) {
+        return null;
+    }
+    const userWithoutHash = user.toObject();
+    const token = createToken(userWithoutHash);
+    return {
+        ...userWithoutHash,
+        token
+    };
 }
 
 async function count() {

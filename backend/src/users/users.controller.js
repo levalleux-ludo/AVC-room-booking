@@ -13,17 +13,20 @@ router.post('/staff', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcStaff);
 router.post('/admin', authorize([Roles.SysAdmin, Roles.AvcAdmin]), setAvcAdmin);
 router.post('/sysAdmin', authorize([Roles.SysAdmin]), setSysAdmin);
 router.get('/', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), getAll);
-router.get('/current', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), getCurrent);
+router.get('/current', getCurrent);
 router.get('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), getById);
 // router.put('/:id', update);
 router.put('/:id/memberOf', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), setMemberOf);
 // router.delete('/:id', _delete);
+router.put('/:id', authorize([Roles.SysAdmin, Roles.AvcAdmin, Roles.AvcStaff]), update);
 
 module.exports = router;
 
 function authenticate(req, res, next) {
     userService.authenticate(req.body)
-        .then(user => user ? res.json(user) : res.status(400).json({ message: 'Username or password is incorrect' }))
+        .then(user => user ?
+            res.json(user) :
+            res.status(400).json({ message: 'Username or password is incorrect' }))
         .catch(err => next(err));
 }
 
@@ -66,6 +69,12 @@ function setMemberOf(req, res, next) {
         .catch(err => next(err));
 }
 
+function update(req, res, next) {
+    userService.update(req.params.id, req.body)
+        .then(() => res.json({}))
+        .catch(err => next(err));
+}
+
 function getAll(req, res, next) {
     userService.getAll()
         .then(users => res.json(users))
@@ -73,8 +82,10 @@ function getAll(req, res, next) {
 }
 
 function getCurrent(req, res, next) {
-    userService.getById(req.user.sub)
-        .then(user => user ? res.json(user) : res.sendStatus(404))
+    userService.getCurrent(req.user.sub)
+        .then(user => user ?
+            res.json(user) :
+            res.sendStatus(404))
         .catch(err => next(err));
 }
 

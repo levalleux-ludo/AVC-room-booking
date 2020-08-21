@@ -142,7 +142,7 @@ export class BookingDialogStepTwoComponent implements OnInit, AfterViewInit {
   set selectedRoom(value: Room) {
     this._selectedRoom = value;
     if (this._selectedRoom) {
-      this.bookingService.getBookings({roomId: this._selectedRoom.id, endAfter: (new Date())}).subscribe(
+      this.bookingService.getBookings({cancelled: false, roomId: this._selectedRoom.id, endAfter: (new Date())}).subscribe(
         bookings => {
           this.actualBookings = bookings;
           if (this.selectedDate) {

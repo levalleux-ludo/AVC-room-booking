@@ -1,4 +1,5 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 import { AbstractCalendarComponent } from '../abstract-calendar/abstract-calendar.component';
 import { Booking } from '../../_model/booking';
 import { BookingService } from '../../_services/booking.service';
@@ -21,7 +22,9 @@ import { AuthenticationService } from 'src/app/_services';
   templateUrl: './global-calendar.component.html',
   styleUrls: ['./global-calendar.component.scss']
 })
-export class GlobalCalendarComponent extends AbstractCalendarComponent implements OnInit, AfterViewInit {
+export class GlobalCalendarComponent extends AbstractCalendarComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  subscription: Subscription;
 
   constructor(
     protected bookingService: BookingService,
@@ -55,12 +58,18 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
         this.dataAdapter.dataBind();
       });
       this.getOrganizations();
+      this.subscription = this.bookingService.onBookingsRefreshed.subscribe(() => {
+        this.getBookings();
+      });
+  }
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   minDate = new jqx.date('01-01-2019'); // default is today
 
   getBookingFilter() {
-    return {};
+    return {cancelled: false};
   }
   processBooking(booking: any): Booking {
 
@@ -106,7 +115,8 @@ export class GlobalCalendarComponent extends AbstractCalendarComponent implement
             this.userService,
             (booking, privateData) => {
                 // TODO refresh calendar to show new or updated or deleted booking
-                this.getBookings();
+                // this.getBookings();
+                this.bookingService.refresh();
             },
             this.organizations,
             this.rooms,

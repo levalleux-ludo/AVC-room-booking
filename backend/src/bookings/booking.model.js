@@ -16,7 +16,7 @@ const ExtraSchema = new Schema({
     comments: String
 });
 var BookingSchema = new Schema({
-    ref: { type: String, unique: true, required: true },
+    ref: { type: String, unique: false, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     roomId: { type: Schema.Types.ObjectId, required: true },
@@ -24,6 +24,7 @@ var BookingSchema = new Schema({
     nbPeopleExpected: { type: Number, required: true },
     privateData: { type: Schema.Types.ObjectId },
     recurrencePatternId: { type: Schema.Types.ObjectId },
+    cancellationData: { type: Schema.Types.ObjectId },
     bookingFormId: { type: String, required: false }
 });
 
@@ -54,6 +55,14 @@ var BookingPrivateSchema = new Schema({
 
 BookingPrivateSchema.set('toJSON', { virtuals: true });
 
+var BookingCancellationSchema = new Schema({
+    reason: { type: String, required: true },
+    canceller: { type: String, required: true },
+    cancelAllOccurrences: { type: Boolean, default: false },
+    cancellationDate: { type: Date, required: true }
+});
+
+BookingCancellationSchema.set('toJSON', { virtuals: true });
 
 const EventFrequency = Object.freeze({
     Daily: 'Daily',
@@ -77,6 +86,7 @@ module.exports = {
     model: mongoose.model('Booking', BookingSchema),
     privateModel: mongoose.model('BookingPrivateData', BookingPrivateSchema),
     recurrencePatternModel: mongoose.model('RecurrencePattern', RecurrencePatternSchema),
+    cancellationDataModel: mongoose.model('BookingCancellation', BookingCancellationSchema),
     collection: mongoose.connection.collections.bookings,
     states: BookingStates
 };

@@ -1,4 +1,5 @@
 <div *ngIf="booking" class="booking">
+    <button (click)="createPDF()">create PDF</button>
     <h2>{{booking.ref | uppercase}} Details</h2>
     <div class="booking title">{{booking.privateDataRef?.title}}</div>
     <div class="booking details">{{booking.privateDataRef?.details}}</div>

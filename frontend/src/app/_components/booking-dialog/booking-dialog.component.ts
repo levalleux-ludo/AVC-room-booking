@@ -1,3 +1,4 @@
+import { eUserRole } from './../../_model/user';
 import { Component, OnInit, Inject, ViewChild, AfterViewInit, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig, ErrorStateMatcher} from '@angular/material';
 import { FormGroup, FormBuilder, FormControl, Validators, FormGroupDirective, NgForm } from '@angular/forms';
@@ -75,9 +76,14 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   readOnly = true;
   newBooking = false;
   canModify = false;
-
+  canDelete = false;
 
   newOrganization = NEW_ORGANIZATION;
+
+  static alert(err: string) {
+    console.error(err);
+    alert(err);
+  }
 
   static editBooking(
     dialog: MatDialog,
@@ -95,6 +101,8 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
     rooms: Room[],
     booking: Booking,
     room?: Room): Subscription {
+
+    authenticationService.refresh();
 
     if (!room && booking.roomId) {
       room = rooms.find(room => room.id === booking.roomId);
@@ -182,7 +190,8 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
 
             // 1. create a PDF with booking details
             new Promise<any>((resolve, reject) => {
-              const pdfData = pdfCreatorService.createBookingForm(booking, privateData, data.signatureURL);
+              pdfCreatorService.createBookingForm(booking, privateData, data.signatureURL)
+              .then((pdfData) => {
               pdfData.open();
               // 2. Upload PDF onto S3
               pdfData.getStrBase64().then((pdfText) => {
@@ -206,10 +215,11 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
                       booking.bookingFormId = fileId;
                       report.formId = fileId;
                       resolve();
-                    }, err => alert(err));
-                  }).catch(err => alert(err));
+                    }, err => BookingDialogComponent.alert(err));
+                  }).catch(err => BookingDialogComponent.alert(err));
                   // }).catch(err => alert(err));
-                }).catch(err => alert(err));
+                }).catch(err => BookingDialogComponent.alert(err));
+              }).catch(err => reject(err));
               }).catch(err => reject(err));
             }).then(() => {
 
@@ -270,7 +280,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
                   // If recurrence is removed or updated, delete next occurrences
                   new Promise((resolve, reject) => {
                     if (oldRecurrencePatternId !== null) {
-                      console.log('remove pattern and next occurrences');
+                      console.log(`remove pattern and next occurrences for pattern ${oldRecurrencePatternId}`);
                       bookingService.deletePatternAndBookings(oldRecurrencePatternId, booking.endDate).subscribe(() => {
                         resolve();
                       }, err => reject(err));
@@ -288,7 +298,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
                         for (let i = 1; i < data.nextOccurrences.length; i++) {
                           // Do not consider the first occurrence because it has already been created/updated above
                           const newBookingParams = {...booking};
-                          newBookingParams.ref = bookingService.getNewRef();
+                          // newBookingParams.ref = bookingService.getNewRef();
                           newBookingParams.id = undefined;
                           newBookingParams.recurrencePatternId = recurrencePatternId;
                           newBookingParams.startDate = data.nextOccurrences[i];
@@ -297,12 +307,13 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
                           const newPrivateData = {...privateData};
                           newPrivateData['id'] = undefined;
                           newPrivateData['_id'] = undefined;
+                          console.log(`push recurrent booking ${JSON.stringify(newBookingParams)}`);
                           privateDatas.push(newPrivateData);
                         }
                         console.log('create next occurrences');
                         bookingService.createBookings(newBookingsParams, privateDatas).subscribe(({ bookings, errors }) => {
                           if (errors.length) {
-                            alert(errors);
+                            errors.forEach(err => BookingDialogComponent.alert(err));
                           }
                           resolve(bookings);
                         }, err => { reject(err); });
@@ -318,21 +329,40 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
                       if (result.action === 'create') {
                         notificationService.onCreateBooking(report).subscribe(() => {
                         }, err => {
-                          alert(err);
+                          BookingDialogComponent.alert(err);
                         });
                       } else {
                         notificationService.onUpdateBooking(report).subscribe(() => {
-                        }, err => alert(err));
+                        }, err => BookingDialogComponent.alert(err));
                       }
 
                       then(booking, privateData);
-                    }).catch(err => alert(err));
-                  }).catch(err => alert(err));
-                }, err => { alert(err); });
-              }).catch(err => { alert(err); });
-            }).catch(err => { alert(err); });
-          }).catch(err => alert(err));
+                    }).catch(err => BookingDialogComponent.alert(err));
+                  }).catch(err => BookingDialogComponent.alert(err));
+                }, err => { BookingDialogComponent.alert(err); });
+              }).catch(err => { BookingDialogComponent.alert(err); });
+            }).catch(err => { BookingDialogComponent.alert(err); });
+          }).catch(err => BookingDialogComponent.alert(err));
 
+        } else if(result.action === 'cancel') {
+
+          bookingService.cancelBooking(booking.id).subscribe(() => {
+            new Promise((resolve, reject) => {
+              if (booking.recurrencePatternId && data.deleteAllOccurrences) {
+                console.log('remove pattern and next occurrences');
+                bookingService.deletePatternAndBookings(booking.recurrencePatternId, booking.endDate).subscribe(() => {
+                  resolve();
+                }, err => reject(err));
+              } else {
+                resolve();
+              }
+            }).then(() => {
+              report.bookingId = booking.id;
+              notificationService.onCancelBooking(report).subscribe(() => {
+              }, err => BookingDialogComponent.alert(err));
+              then(undefined, undefined);
+            }).catch(err => BookingDialogComponent.alert(err));
+          }, err => BookingDialogComponent.alert(err));
         } else if (result.action === 'delete') {
 
           bookingService.deleteBooking(booking.id).subscribe(() => {
@@ -348,13 +378,13 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
             }).then(() => {
               report.bookingId = booking.id;
               notificationService.onDeleteBooking(report).subscribe(() => {
-              }, err => alert(err));
+              }, err => BookingDialogComponent.alert(err));
               then(undefined, undefined);
-            }).catch(err => alert(err));
-          }, err => alert(err));
+            }).catch(err => BookingDialogComponent.alert(err));
+          }, err => BookingDialogComponent.alert(err));
         }
       }
-    );
+    )
   }
 
   static getTimeFromDate(date: Date): number {
@@ -375,6 +405,11 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       // if booking already exists ('update'), check its state to know if the dialog must be readonly or not
       this.bookingService.getBookingState(this.data.id).subscribe((state) => {
         this.canModify = (state === 'Scheduled');
+        this.canDelete = ((state === 'Scheduled')
+        && (
+          (this.authenticationService.currentUserValue.role === eUserRole.AVC_ADMIN)
+          || (this.authenticationService.currentUserValue.role === eUserRole.SYS_ADMIN)
+        ));
       });
     }
   }
@@ -475,11 +510,47 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
       confirmDialogRef.afterClosed().subscribe(result => {
         if (result && deletedAllowed) {
           this.dialogRef.close({action: 'delete', data: this.data.id});
+          this.bookingService.refresh();
         }
       });
     });
   }
 
+cancelEvent() {
+    // check if the event is not already started or completed
+    this.bookingService.getBookingState(this.data.id).subscribe((state) => {
+      let confirmDialogRef;
+      let cancelAllowed = false;
+      if (state === 'InProgress') {
+        confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {title: 'Error', message: `booking event '${this.formStepTwo.form.value.title}' cannot be deleted because it is already started`}
+        });
+      } else if (state === 'Completed') {
+        confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {title: 'Error', message: `booking event '${this.formStepTwo.form.value.title}' cannot be deleted because it is already completed`}
+        });
+      } else if (state === 'Cancelled') {
+        confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {title: 'Error', message: `booking event '${this.formStepTwo.form.value.title}' cannot be canceled because it is already cancelled`}
+        });
+      } else {
+        cancelAllowed = true;
+        confirmDialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '350px',
+          data: {title: 'Cancel Confirmation', message: `Are you sure you want to cancel the booking event '${this.formStepTwo.form.value.title}' ?`}
+        });
+      }
+      confirmDialogRef.afterClosed().subscribe(result => {
+        if (result && cancelAllowed) {
+          this.dialogRef.close({action: 'cancel', data: this.data.id});
+          this.bookingService.refresh();
+        }
+      });
+    });
+  }
 
   // onchangeRecurrent(isRecurrent: boolean) {
     // if (this.readOnly) {
@@ -488,7 +559,7 @@ export class BookingDialogComponent implements OnInit, AfterViewInit, AfterViewC
   // }
 
   generateBookingForm() {
-    this.pdfCreatorService.createBookingForm(this.data.booking, this.data.booking.privateDataRef, '').open();
+    this.pdfCreatorService.createBookingForm(this.data.booking, this.data.booking.privateDataRef).then((pdfData) => pdfData.open());
   }
 
 }

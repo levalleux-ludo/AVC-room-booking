@@ -1,10 +1,11 @@
+import { Subscription } from 'rxjs';
 import { Booking } from './../../_model/booking';
 import { OrganizationService } from './../../_services/organization.service';
 import { RoomService } from './../../_services/room.service';
 import { Organization } from './../../_model/organization';
 import { Room } from './../../_model/room';
 import { BookingService } from './../../_services/booking.service';
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { MatTableDataSource, MatSort } from '@angular/material';
 import {MatPaginator} from '@angular/material/paginator';
@@ -21,15 +22,16 @@ import {MatPaginator} from '@angular/material/paginator';
     ]),
   ],
 })
-export class BokkingOverviewTableComponent implements OnInit {
+export class BokkingOverviewTableComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource([]);
-  columnsToDisplay = ['room', 'date', 'startTime', 'endTime', 'organization'];
+  columnsToDisplay = ['room', 'date', 'startTime', 'endTime', 'organization', 'status', 'price'];
   expandedElement: PeriodicElement | null;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   bookings: Booking[];
   rooms: Room[];
   organizations: Organization[];
+  subscription: Subscription;
   filterCriteria = {
     selectedOrganizations: [],
     selectedRooms: [],
@@ -50,6 +52,13 @@ export class BokkingOverviewTableComponent implements OnInit {
     private roomService: RoomService,
     private organizationService: OrganizationService
   ) {
+    this.subscription = this.bookingService.onBookingsRefreshed.subscribe(() => {
+      this.getBookings();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   ngOnInit() {
@@ -102,10 +111,20 @@ export class BokkingOverviewTableComponent implements OnInit {
             date: booking.startDate.toLocaleDateString(),
             startTime: booking.startDate.toLocaleTimeString(),
             endTime: booking.endDate.toLocaleTimeString(),
-            organization: this.organizations.find((orga: Organization) => orga.id === booking.privateDataRef.organizationId).name
+            organization: this.organizations.find((orga: Organization) => orga.id === booking.privateDataRef.organizationId).name,
+            status: this.getBookingStatus(booking),
+            price: booking.privateDataRef.totalPrice
           };
         });
       });
+  }
+
+  getBookingStatus(booking: Booking): string {
+    const today = new Date();
+    return booking.cancelled ? `cancelled on ${booking.cancellationDataRef.cancellationDate.toLocaleDateString()}`
+    : booking.startDate.valueOf() > today.valueOf() ? 'upcoming'
+    : booking.endDate.valueOf() < today.valueOf() ? 'in_progress'
+    : 'passed';
   }
 
   async getRooms() {
@@ -148,6 +167,40 @@ export class BokkingOverviewTableComponent implements OnInit {
   setDateTo(value: Date) {
     this.filterCriteria.dateTo = value;
     this.dataSource.filter = JSON.stringify(this.filterCriteria);
+  }
+
+  downloadBookingForm(element) {
+    this.bookingService.downloadBookingForm(element.booking.id).subscribe(x => {
+      // It is necessary to create a new blob object with mime-type explicitly set
+      // otherwise only Chrome works like it should
+      // const buffPdfb64 = atob(x);
+      var newBlob = new Blob([x], { type: "application/pdf;charset=ANSI" });
+
+      // IE doesn't allow using a blob object directly as link href
+      // instead it is necessary to use msSaveOrOpenBlob
+      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+          window.navigator.msSaveOrOpenBlob(newBlob);
+          return;
+      }
+
+      // For other browsers:
+      // Create a link pointing to the ObjectURL containing the blob.
+      const data = window.URL.createObjectURL(newBlob);
+
+      var link = document.createElement('a');
+      link.href = data;
+      link.download = `${element.booking.id}.pdf`;
+      link.type = "application/pdf;charset=ANSI";
+      // this is necessary as link.click() does not work on the latest firefox
+      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+
+      setTimeout(function () {
+          // For Firefox it is necessary to delay revoking the ObjectURL
+          window.URL.revokeObjectURL(data);
+          link.remove();
+      }, 100);
+  });
+
   }
 
 }

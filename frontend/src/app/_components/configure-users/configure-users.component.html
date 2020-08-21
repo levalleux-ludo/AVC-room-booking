@@ -30,8 +30,24 @@
         <div class="memberOf" *ngFor="let orga of memberOf">{{orga.name}}</div>
     </td>
 </ng-template>
-<ng-template #itemEditTemplate let-username="username" let-firstName="firstName" let-lastName="lastName" let-email="email" let-phone="phone" let-role="role" let-memberOf="memberOf" let-setRole="setRole" let-setMemberOf="setMemberOf" let-allOrganizations="allOrganizations"
-    let-compareOrganizations="compareOrganizations">
+<ng-template #itemEditTemplate let-username="username" let-firstName="firstName" let-setFirstName="setFirstName" let-lastName="lastName" let-setLastName="setLastName" let-email="email" let-setEmail="setEmail" let-phone="phone" let-setPhone="setPhone"
+    let-role="role" let-memberOf="memberOf" let-setRole="setRole" let-setMemberOf="setMemberOf" let-allOrganizations="allOrganizations" let-compareOrganizations="compareOrganizations">
+    <mat-form-field appearance="outline">
+        <mat-label>FirstName (current: {{firstName}})</mat-label>
+        <input matInput [value]="firstName" (change)="setFirstName($event.target.value)">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>LastName (current: {{lastName}})</mat-label>
+        <input matInput [value]="lastName" (change)="setLastName($event.target.value)">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Email (current: {{email}})</mat-label>
+        <input matInput [value]="email" (change)="setEmail($event.target.value)">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Phone Number (current: {{phone}})</mat-label>
+        <input matInput [value]="phone" (change)="setPhone($event.target.value)">
+    </mat-form-field>
     <mat-form-field appearance="outline">
         <mat-label>Role (current: {{role}})</mat-label>
         <mat-select [value]="role" (selectionChange)="setRole($event.value)" [disabled]="!canChangeRole()">

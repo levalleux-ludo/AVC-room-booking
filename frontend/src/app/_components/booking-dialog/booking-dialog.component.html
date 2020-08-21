@@ -35,11 +35,12 @@
         <button mat-button type="button" *ngIf="stepper && stepper.steps && stepper.selectedIndex < stepper.steps.length - 1" [disabled]="!stepper || !stepper.selected || !stepper.selected.stepControl || !stepper.selected.stepControl.valid" (click)="stepper.next()">Next</button>
         <button *ngIf="newBooking || !readOnly" mat-button type="submit" [disabled]="!isValid() || readOnly" mat-dialog-close>Submit</button>
         <button *ngIf="canModify && !newBooking && readOnly" mat-button type="button" (click)="readOnly = false;">Modify</button>
-        <button *ngIf="canModify && !newBooking && !readOnly" mat-button type="button" (click)="deleteEvent()">Delete Event</button>
-        <button mat-button type="button" [mat-dialog-close]="false">Cancel</button>
+        <button *ngIf="canModify && !newBooking && !readOnly" mat-button type="button" (click)="cancelEvent()">Cancel Event</button>
+        <button *ngIf="canDelete && !newBooking && !readOnly" mat-button type="button" (click)="deleteEvent()">Delete Event</button>
+        <button mat-button type="button" [mat-dialog-close]="false">Close</button>
         <!-- <button *ngIf="!newBooking && !readOnly" mat-button type="button" [matMenuTriggerFor]="menu">Menu</button>
         <mat-menu #menu="matMenu">
         </mat-menu> -->
-        <button (click)="generateBookingForm()">Generate Booking Form</button>
+        <!-- <button (click)="generateBookingForm()">Generate Booking Form</button> -->
     </mat-dialog-actions>
 </form>

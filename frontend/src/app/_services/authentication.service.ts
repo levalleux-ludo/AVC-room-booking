@@ -53,4 +53,19 @@ export class AuthenticationService {
         localStorage.removeItem('currentUser');
         this.currentUserSubject.next(null);
     }
+
+    refresh() {
+      const url = `${this.apiUrlService.userApiUrl.value}/users/current`;
+      this.http.get<any>(url)
+      .pipe(map(userData => {
+          if (this.currentUserValue && this.currentUserValue.token) {
+            userData.token = this.currentUserValue.token;
+          }
+          // store user details and  jwt token in local storage to keep user logged in between page refreshes
+          localStorage.setItem('currentUser', JSON.stringify(userData));
+          const user = new User(userData);
+          this.currentUserSubject.next(user);
+          return user;
+      })).subscribe(() => {});
+    }
 }

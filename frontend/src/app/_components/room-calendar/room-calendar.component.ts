@@ -66,7 +66,7 @@ export class RoomCalendarComponent extends AbstractCalendarComponent implements 
         let nextHour = new Date();
         nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
         console.log("RoomCalendarComponent::getBookings() compute next half hour : ", nextHour);
-        return { roomId: this.room.id, endAfter: nextHour };
+        return { cancelled: false, roomId: this.room.id, endAfter: nextHour };
       } else {
 
       }

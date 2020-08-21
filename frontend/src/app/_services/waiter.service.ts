@@ -16,6 +16,9 @@ export class WaiterService {
   }
 
   public init() {
+    if (this._tasks.size === 0) {
+      this.stopWaiting();
+    }
     this._tasks = new Map<string, string>();
   }
 

@@ -191,6 +191,7 @@ getOrganizations(next?: (organizations) => void ) {
 
 getBookings() {
   const waiterTask = this.waiter.addTask();
+  this.getRooms().then(() => {
   this.bookingService.getBookings(this.getBookingFilter()).subscribe(
     bookings => {
       this.bookings = bookings.filter(this._bookingFilter);
@@ -200,6 +201,10 @@ getBookings() {
       );
       this.bookings.forEach(fetchBooking => {
           let booking = this.processBooking(fetchBooking);
+          const isCancelled = booking.cancelled;
+          if (isCancelled) {
+            console.log(`booking ${booking.id} is cancelled`);
+          }
           if (new Date(booking.startDate).valueOf() < new Date(booking.endDate).valueOf()) {
             try {
               let appointment = this.booking2event(booking);
@@ -216,13 +221,14 @@ getBookings() {
       alert(err);
       this.waiter.removeTask(waiterTask);
     });
+  });
 }
 
 booking2event(booking: Booking) {
   const orga = (booking.privateDataRef) ? this.organizations.find(orga => orga.id === booking.privateDataRef.organizationId) : undefined;
   const orgaName = (orga) ? orga.name : '';
   let privateDatas: EventPrivateData = {
-        id: booking.ref,
+        id: booking.id,
         title: (booking.privateDataRef) ? booking.privateDataRef.title : '',
         organization: orgaName,
         roomId: booking.roomId,
@@ -234,7 +240,7 @@ booking2event(booking: Booking) {
       throw Error(`Unable to find the room with id '${booking.roomId}' for booking '${JSON.stringify(booking)}'`)
     }
   return {
-      id: booking.ref,
+      id: booking.id,
       subject: `${(booking.privateDataRef) ? booking.privateDataRef.title : ''}`,
       privateDatas: JSON.stringify(privateDatas),
       room: room.name,
@@ -247,7 +253,7 @@ booking2event(booking: Booking) {
 event2booking(appointment) {
   let privateDatas: EventPrivateData = JSON.parse(appointment.originalData.privateDatas);
   let bookingRef = privateDatas.id;
-  return this.bookings.find(booking => booking.ref === bookingRef);
+  return this.bookings.find(booking => booking.id === bookingRef);
 }
 
 onAppointmentAdd(appointment, privateDatas: EventPrivateData, readOnly: boolean) {

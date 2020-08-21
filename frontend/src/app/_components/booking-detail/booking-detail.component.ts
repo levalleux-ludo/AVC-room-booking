@@ -8,6 +8,7 @@ import { RoomService } from '../../_services/room.service';
 import { FormControl } from '@angular/forms';
 import { MAT_DATE_LOCALE, MAT_DATE_FORMATS, DateAdapter } from '@angular/material';
 import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
+import { PdfCreatorService } from 'src/app/_services/pdf-creator.service';
 
 export interface DurationInSelect {
   hour: number;
@@ -62,6 +63,7 @@ export class BookingDetailComponent implements OnInit {
     private location: Location, // required to get back in navigation history
     private bookingService: BookingService,
     private roomService: RoomService,
+    private pdfCreatorService: PdfCreatorService
   ) { }
 
   ngOnInit() {
@@ -72,20 +74,23 @@ export class BookingDetailComponent implements OnInit {
       if (roomId) this.getRoom(roomId);
       this.booking = this.bookingService.getEmptyBooking();
     } else {
-      const ref = this.route.snapshot.paramMap.get('ref');
-      this.getBooking(ref);
+      const bookingId = this.route.snapshot.paramMap.get('id');
+      this.getBooking(bookingId);
     }
   }
 
-  getBooking(ref: string) {
-    this.bookingService.getBooking(ref).subscribe(
+  getBooking(id: string) {
+    this.bookingService.getBooking(id).subscribe(
       booking => {
-        this.booking = booking;
+        this.booking = new Booking(booking);
         this.getRoom(this.booking.roomId);
         this.selectedDuration = this.findDuration(duration(booking));
+        this.bookingService.getBookingPrivateData(booking.privateData).subscribe((privateData) => {
+          this.booking.privateDataRef = privateData;
+          this.createPDF();
+        });
         // TODO set _selectedDuration
         // TODO set _startTimeHours
-
       }
     );
   }
@@ -163,5 +168,9 @@ export class BookingDetailComponent implements OnInit {
 
   duration (booking: Booking) {
     duration(booking);
+  }
+
+  createPDF() {
+    this.pdfCreatorService.createBookingForm(this.booking, this.booking.privateDataRef).then((pdfData) => pdfData.open());
   }
 }

@@ -12,6 +12,7 @@ module.exports = {
     Booking: require('../bookings/booking.model').model,
     BookingPrivateData: require('../bookings/booking.model').privateModel,
     RecurrencePattern: require('../bookings/booking.model').recurrencePatternModel,
+    BookingCancellation: require('../bookings/booking.model').cancellationDataModel,
     Extra: require('../extras/extras.model').model,
     Website: require('../website/website.model').model,
     Organization: require('../organizations/organization.model').model,

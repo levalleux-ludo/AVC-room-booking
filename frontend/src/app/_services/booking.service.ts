@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { CancellationData } from './../_model/booking';
+import { Injectable, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
@@ -11,10 +12,10 @@ import { ApiUrlService } from './api-url.service';
   providedIn: 'root'
 })
 export class BookingService extends FetchService {
-
   private static instancesCount = 0;
   private apiBookings;
   private _minBookingTime = 8;
+  public onBookingsRefreshed: EventEmitter<any> = new EventEmitter();
 
   constructor(
     protected http: HttpClient,
@@ -27,42 +28,52 @@ export class BookingService extends FetchService {
    }
 
   // tslint:disable-next-line: max-line-length
-  getBookings(opts?: {roomId?: string, day?: Date, startBefore?: Date, startAfter?: Date, endBefore?: Date, endAfter?: Date}): Observable<Booking[]> {
+  getBookings(opts?: {cancelled: boolean, roomId?: string, day?: Date, startBefore?: Date, startAfter?: Date, endBefore?: Date, endAfter?: Date}): Observable<Booking[]> {
     // tslint:disable-next-line: max-line-length
-    let url = this.buildUrl(`${this.apiBookings}?roomId=:roomId&day=:day&startBefore=:startBefore&startAfter=:startAfter&endBefore=:endBefore&endAfter=:endAfter`);
+    let url = this.buildUrl(`${this.apiBookings}?cancelled=:cancelled&roomId=:roomId&day=:day&startBefore=:startBefore&startAfter=:startAfter&endBefore=:endBefore&endAfter=:endAfter`);
     if (opts && opts.roomId) { url.setQueryParameter('roomId', encodeURI(opts.roomId)); }
     if (opts && opts.day) { url.setQueryParameter('day', encodeURI(opts.day.toDateString())); }
     if (opts && opts.startBefore) { url.setQueryParameter('startBefore', encodeURI(opts.startBefore.toUTCString())); }
     if (opts && opts.startAfter) { url.setQueryParameter('startAfter', encodeURI(opts.startAfter.toDateString())); }
     if (opts && opts.endBefore) { url.setQueryParameter('endBefore', encodeURI(opts.endBefore.toUTCString())); }
     if (opts && opts.endAfter) { url.setQueryParameter('endAfter', encodeURI(opts.endAfter.toDateString())); }
+    if (opts && (opts.cancelled !== undefined)) { url.setQueryParameter('cancelled', encodeURI(opts.cancelled.toString())); }
     const finalUrl = url.get();
-    this.log(`getBookings req=${finalUrl}`)
+    this.log(`getBookings req=${finalUrl} opts=${JSON.stringify(opts)}`);
     return new  Observable<Booking[]>((observer) => {
       this.http.get<any[]>(finalUrl).pipe(
         map(bookingParams => bookingParams.map(bookingParam => new Booking(bookingParam))),
         catchError(this.handleError<Booking[]>('getBookings', []))
       ).subscribe(bookings => {
-        this.getBookingsPrivateData().subscribe(privateDataMap => {
-          bookings.forEach(booking => {
-            if (privateDataMap.has(booking.privateData)) {
-              booking.privateDataRef = privateDataMap.get(booking.privateData);
+          // get cancellationData if required
+          new Promise<Map<any,any>>((resolve, reject) => {
+            if (!opts || (opts.cancelled !== undefined) || opts.cancelled) {
+              this.getAllCancellationData().subscribe(cancellationDataMap => {
+                resolve(cancellationDataMap);
+              }, err => reject(err))
+            } else {
+              resolve(undefined);
             }
+          }).then(cancellationDataMap => {
+            this.getBookingsPrivateData().subscribe(privateDataMap => {
+              bookings.forEach(booking => {
+                if (privateDataMap.has(booking.privateData)) {
+                  booking.privateDataRef = privateDataMap.get(booking.privateData);
+                }
+                if (cancellationDataMap && booking.cancelled && cancellationDataMap.has(booking.cancellationData)) {
+                  booking.cancellationDataRef = cancellationDataMap.get(booking.cancellationData);
+                }
+              });
+              observer.next(bookings);
+              observer.complete();
+            });
           });
-          observer.next(bookings);
-          observer.complete();
         },
         (err) => {
           console.error(err);
           observer.error(err);
           observer.complete();
         });
-      },
-      (err) => {
-        console.error(err);
-        observer.error(err);
-        observer.complete();
-      });
     });
   }
 
@@ -83,20 +94,58 @@ export class BookingService extends FetchService {
     );
   }
 
-  getBooking(ref): Observable<Booking> {
-    const url = `${this.apiBookings}?ref=${encodeURI(ref)}`;
-    this.log(`getRoom url=${url}`);
+  getAllCancellationData(): Observable<Map<any, any>> {
+    let url = `${this.apiBookings}/cancel`;
+    return this.http.get<any[]>(url).pipe(
+      tap(cancellationDatas => {
+        this.log('fetched bookings cancellations data:' + cancellationDatas);
+      }),
+      map(cancellationDatas => {
+        const cancellationDataMap = new Map<any, any>();
+        for (const cancellationData of cancellationDatas) {
+          cancellationDataMap.set(cancellationData.id, new CancellationData(cancellationData));
+        }
+        return cancellationDataMap;
+      }),
+      catchError(this.handleError<Map<any, any>>('getAllCancellationData'))
+    );
+  }
+
+  getBooking(id): Observable<Booking> {
+    const url = `${this.apiBookings}/${encodeURI(id)}`;
+    this.log(`getBooking url=${url}`);
     return this.http.get<Booking>(url)
       .pipe(
-        tap(_ => this.log(`fetch booking "${ref}"`)),
-        catchError(this.handleError<Booking>(`getBooking(${ref})`))
+        tap(_ => this.log(`fetch booking "${id}"`)),
+        catchError(this.handleError<Booking>(`getBooking(${id})`))
       );
   }
+
+  getBookingPrivateData(id): Observable<any> {
+    const url = `${this.apiBookings}/private/${id}`;
+    this.log(`getBookingPrivateData url=${url}`);
+    return this.http.get<any>(url)
+      .pipe(
+        tap(_ => this.log(`fetch booking private data "${id}"`)),
+        catchError(this.handleError<Booking>(`getBookingPrivateData(${id})`))
+      );
+  }
+
+  downloadBookingForm(id): Observable<any> {
+    const url = `${this.apiBookings}/form/${id}`;
+    this.log(`downloadBookingForm url=${url}`);
+    return this.http.get(url, { responseType: 'arraybuffer' })
+      .pipe(
+        tap(_ => this.log(`fetch booking form "${id}"`)),
+        catchError(this.handleError<Booking>(`downloadBookingForm(${id})`))
+      );
+  }
+
 
   createBooking(booking: Booking, privateData: BookingPrivateData): Observable<Booking> {
     const bookingParams = {...booking, private: privateData};
     return this.http.post<Booking>(`${this.apiBookings}/create`, bookingParams, this.httpOptions).pipe(
-      tap((newBooking: Booking) => this.log(`created booking event w/ ref=${newBooking.ref}`)),
+      tap((newBooking: Booking) => this.log(`created booking event w/ ref=${newBooking.id}`)),
       catchError(this.handleError<Booking>('createBooking'))
     );
   }
@@ -116,7 +165,7 @@ export class BookingService extends FetchService {
     const bookingParams = {...booking, private: privateData};
     const url = `${this.apiBookings}/${booking.id}`;
     return this.http.put<Booking>(url, bookingParams, this.httpOptions).pipe(
-      tap((newBooking: Booking) => this.log(`created booking event w/ ref=${newBooking.ref}`)),
+      tap((newBooking: Booking) => this.log(`created booking event w/ ref=${newBooking.id}`)),
       catchError(this.handleError<Booking>('createBooking'))
     )
   }
@@ -147,8 +196,19 @@ export class BookingService extends FetchService {
         encryptionKey: ''
       },
       recurrencePatternId: null,
-      bookingFormId: ''
+      bookingFormId: '',
+      cancelled: false,
+      cancellationData: undefined,
+      cancellationDataRef: undefined
     };
+  }
+
+  cancelBooking(bookingId: any) {
+    const url = `${this.apiBookings}/${bookingId}/cancel`;
+    return this.http.post<any>(url, this.httpOptions).pipe(
+      tap(() => this.log(`cancelled booking event w/ ref=${bookingId}`)),
+      catchError(this.handleError<Booking>('cancelBooking'))
+    );
   }
 
   deleteBooking(bookingId: any) {
@@ -197,5 +257,11 @@ export class BookingService extends FetchService {
       catchError(this.handleError<any>('deletePatternAndBookings'))
     );
   }
+
+  refresh() {
+    this.onBookingsRefreshed.emit();
+  }
+
+
 
 }

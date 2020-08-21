@@ -53,7 +53,13 @@ class UserContext implements IItemContext {
       setMemberOf: (value) => {
         const orgaIds = value.map(orga => orga.id);
         this.user.memberOf = orgaIds;
-      }
+      },
+      setEmail: (value) => { this.user.email = value; },
+      setPhone: (value) => { this.user.phone = value; },
+      setFirstName: (value) => {
+        this.user.firstName = value;
+      },
+      setLastName: (value) => { this.user.lastName = value; }
     };
   }
 }
@@ -77,6 +83,8 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
   users: UserContext[] = [];
   // tslint:disable-next-line: variable-name
   _editedItem: UserContext;
+  _original: UserContext;
+
 
   allAvailableRoles = Object.values(eUserRole);
 
@@ -134,23 +142,23 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
   refreshList() {
     const waiterTask = this.waiter.addTask();
     this.userService.getUsers().subscribe(users => {
+      this.waiter.removeTask(waiterTask);
       this.users = users.map(user => new UserContext(new User(user)));
-      this.waiter.removeTask(waiterTask);
     }, err => {
-      alert(err);
       this.waiter.removeTask(waiterTask);
+      alert(err);
     });
   }
 
   refreshOrganizations() {
     const waiterTask = this.waiter.addTask();
     this.organizationService.getOrganizations().subscribe(organizations => {
-      allOrganizations = organizations.map(orga => new Organization(orga));
       this.waiter.removeTask(waiterTask);
+      allOrganizations = organizations.map(orga => new Organization(orga));
       console.log('allOrganizations', allOrganizations);
     }, err => {
-      alert(err);
       this.waiter.removeTask(waiterTask);
+      alert(err);
     });
   }
 
@@ -182,8 +190,28 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
     console.error('create user is not implemented');
   }
   updateItem = (item: IItemContext) => {
-    this.userService.changeRole((item as UserContext).user).subscribe(() => this.refreshList());
-    this.userService.changeMemberOf((item as UserContext).user).subscribe(() => this.refreshList());
+    const user: User = (item as UserContext).user;
+    if ((user.firstName !== this._original.user.firstName)
+    || (user.lastName !== this._original.user.lastName)
+    || (user.email !== this._original.user.email)
+    || (user.phone !== this._original.user.phone)) {
+      this.userService.updateUser(user).subscribe(() => {
+        this.refreshList();
+        this.authenticationService.refresh();
+      });
+    }
+    if (user.role !== this._original.user.role) {
+      this.userService.changeRole(user).subscribe(() => {
+        this.refreshList();
+        this.authenticationService.refresh();
+      });
+    }
+    if (user.memberOf !== this._original.user.memberOf) {
+      this.userService.changeMemberOf(user).subscribe(() => {
+        this.refreshList();
+        this.authenticationService.refresh();
+      });
+    }
   }
   getNewItem(): IItemContext {
     return new UserContext(new User({}));
@@ -193,6 +221,7 @@ export class ConfigureUsersComponent extends ConfigureAbstractComponent implemen
   }
   set editedItem(item: IItemContext) {
     this._editedItem = item as UserContext;
+    this._original = item.clone();
   }
   get submitEnabled(): boolean {
     if (!this._editedItem) {
