@@ -56,7 +56,7 @@
         "jqwidgets-ng": "^8.3.3",
         "jqwidgets-scripts": "^8.3.2",
         "material-kit": "^2.0.4",
-        "moment": "^2.24.0",
+        "moment": "^2.29.4",
         "ng-chartist": "^4.1.0",
         "ng2-pdf-viewer": "^6.3.0",
         "ngx-scrolltop": "^0.5.8",
